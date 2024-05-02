@@ -15,4 +15,4 @@ jobs:
       - name: Show Python Version
         run: |
           ls
-          python
+          python --version
