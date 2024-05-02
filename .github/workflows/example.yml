@@ -17,3 +17,4 @@ jobs:
           ls
           python --version
           ls
+          pip3 install pandas
