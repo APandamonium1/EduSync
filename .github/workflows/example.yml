@@ -16,3 +16,4 @@ jobs:
         run: |
           ls
           python --version
+          ls
