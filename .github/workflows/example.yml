@@ -12,3 +12,7 @@ jobs:
         with:
           python-version: 3.8
           
+      - name: Show Python Version
+        run: |
+          ls
+          python
