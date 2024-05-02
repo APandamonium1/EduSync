@@ -1,0 +1,14 @@
+name: Example
+
+on: push
+
+jobs:
+  example:
+    name: Create Ubuntu OS
+    runs-on: ubuntu-latest
+    steps:
+      - name: Setup Python
+        uses: actions/setup-python@v5.1.0
+        with:
+          python-version: 3.8
+          
