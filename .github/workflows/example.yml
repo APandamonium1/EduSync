@@ -47,12 +47,12 @@ jobs:
           webhookUrl: https://discord.com/api/webhooks/1237964301201965127/ZYe3gYTeweYEfA_Q0I-JWFVXA2dVMp7Pw7jeNNd2UlFCtvIS8ZvIN_CRQ-gUwSgl7eD2
           message: FAIL HAHAHHA
 
-      - name: Telegram Msg
+      - name: Telegram message
         uses: akeylimepie/telegram-action@v0.1.2
         with: 
           token: 6795256205:AAHm19-9zOM4jMtEtVOSDGExXAtg5J67rKc
           chatid: -4244340354
-          message: TIME TO DO WORK LIAO
+          text: is it actually working
       
       #- name: Setup Python
         #uses: actions/setup-python@v5.1.0
