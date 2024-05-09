@@ -1,20 +1,42 @@
 name: Example
-
-on: push
+on:   
+  push:
+    branches: [main] # add with comma for more branches to monitor
+  pull_request:
+    branches: [main]
 
 jobs:
   example:
     name: Create Ubuntu OS
     runs-on: ubuntu-latest
     steps:
-      - name: Setup Python
-        uses: actions/setup-python@v5.1.0
+      - name: Setup Go
+        uses: actions/setup-go@v5.0.1
         with:
-          python-version: 3.8
+          go-version: 1.22.3
           
-      - name: Show Python Version
+      - name: Check Go Version
+        run: go version
+
+      - name: Checkout Repo   # to pull out current repo code
+        uses: actions/checkout@v4.1.5
+
+      - name: Install dependencies
         run: |
+          go mod init calc # for go mod. If we use go build, it will do the same for the 3 lines.
+          go mod tidy
+          go get github.com/franela/goblin
           ls
-          python --version
-          ls
-          pip3 install pandas
+        
+      #- name: Setup Python
+        #uses: actions/setup-python@v5.1.0
+        #with:
+          #python-version: 3.8
+          
+      #- name: Show Python Version
+        #run: |
+          #ls
+          #python --version
+          #ls
+          #pip3 install pandas
+    
