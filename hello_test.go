@@ -13,4 +13,9 @@ func TestHello(t *testing.T) {
 			g.Assert(hello()).Equal("Hello World!")
 		})
 	})
+	g.Describe("Hello your name", func() {
+		g.It("Should print hello your name", func() {
+			g.Assert(helloYourName("John")).Equal("Hello John!")
+		})
+	})
 }
