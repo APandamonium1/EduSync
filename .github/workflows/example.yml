@@ -32,11 +32,20 @@ jobs:
         run: |
           go test
 
-      - name: Discord Message
+      - if: ${{success()}}
+        name: Discord Message
         uses: discord-actions/message@v2
         with:
           webhookUrl: https://discord.com/api/webhooks/1237964301201965127/ZYe3gYTeweYEfA_Q0I-JWFVXA2dVMp7Pw7jeNNd2UlFCtvIS8ZvIN_CRQ-gUwSgl7eD2
-          message: new push/pull request
+          message: successful ${{github.ref}}
+          
+
+      - if: ${{failure()}}
+        name: Discord Message
+        uses: discord-actions/message@v2
+        with:
+          webhookUrl: https://discord.com/api/webhooks/1237964301201965127/ZYe3gYTeweYEfA_Q0I-JWFVXA2dVMp7Pw7jeNNd2UlFCtvIS8ZvIN_CRQ-gUwSgl7eD2
+          message: FAIL HAHAHHA
 
       - name: Telegram Msg
         uses: colutius/Telegram-Msg@3.0.0
