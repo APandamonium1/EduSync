@@ -48,11 +48,11 @@ jobs:
           message: FAIL HAHAHHA
 
       - name: Telegram Msg
-        uses: colutius/Telegram-Msg@3.0.0
+        uses: akeylimepie/telegram-action@v0.1.2
         with: 
           token: 6795256205:AAHm19-9zOM4jMtEtVOSDGExXAtg5J67rKc
-          chatid: -1002015738960
-          message: do work
+          chatid: -4244340354
+          message: TIME TO DO WORK LIAO
       
       #- name: Setup Python
         #uses: actions/setup-python@v5.1.0
