@@ -37,7 +37,6 @@ jobs:
         with:
           webhookUrl: https://discord.com/api/webhooks/1237964301201965127/ZYe3gYTeweYEfA_Q0I-JWFVXA2dVMp7Pw7jeNNd2UlFCtvIS8ZvIN_CRQ-gUwSgl7eD2
           message: new push/pull request
-          username: time to do work
 
       - name: Telegram Msg
         uses: colutius/Telegram-Msg@3.0.0
