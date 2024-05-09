@@ -50,8 +50,8 @@ jobs:
       - name: Telegram Msg
         uses: colutius/Telegram-Msg@3.0.0
         with: 
-          token: AAHm19-9zOM4jMtEtVOSDGExXAtg5J67rKc
-          chatid: 6795256205
+          token: 6795256205:AAHm19-9zOM4jMtEtVOSDGExXAtg5J67rKc
+          chatid: -1002015738960
           message: do work
       
       #- name: Setup Python
