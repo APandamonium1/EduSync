@@ -37,7 +37,7 @@ jobs:
         uses: discord-actions/message@v2
         with:
           webhookUrl: https://discord.com/api/webhooks/1237964301201965127/ZYe3gYTeweYEfA_Q0I-JWFVXA2dVMp7Pw7jeNNd2UlFCtvIS8ZvIN_CRQ-gUwSgl7eD2
-          message: SUCCESSFULLLL in branch {{github.ref}} by {{github.actor}}
+          message: SUCCESSFULLLL in branch ${{github.ref}} by ${{github.actor}}
 
       - if: ${{success()}}
         name: Success Message (Telegram)
@@ -45,14 +45,14 @@ jobs:
         with: 
           token: 6795256205:AAHm19-9zOM4jMtEtVOSDGExXAtg5J67rKc
           chat_id: -4244340354
-          text: SUCCESSFULLLL in branch {{github.ref}} by {{github.actor}}
+          text: SUCCESSFULLLL in branch ${{github.ref}} by ${{github.actor}}
           
       - if: ${{failure()}}
         name: Failure Message (Discord)
         uses: discord-actions/message@v2
         with:
           webhookUrl: https://discord.com/api/webhooks/1237964301201965127/ZYe3gYTeweYEfA_Q0I-JWFVXA2dVMp7Pw7jeNNd2UlFCtvIS8ZvIN_CRQ-gUwSgl7eD2
-          message: FAILUREEEE in branch {{github.ref}} by {{github.actor}}
+          message: FAILUREEEE in branch ${{github.ref}} by ${{github.actor}}
 
       - if: ${{failure()}}
         name: Failure Message (Telegram)
@@ -60,7 +60,7 @@ jobs:
         with: 
           token: 6795256205:AAHm19-9zOM4jMtEtVOSDGExXAtg5J67rKc
           chat_id: -4244340354
-          text: FAILUREEEE in branch {{github.ref}} by {{github.actor}}
+          text: FAILUREEEE in branch ${{github.ref}} by ${{github.actor}}
       
       #- name: Setup Python
         #uses: actions/setup-python@v5.1.0
