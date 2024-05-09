@@ -23,7 +23,7 @@ jobs:
 
       - name: Install dependencies
         run: |
-          go mod init calc # for go mod. If we use go build, it will do the same for the 3 lines.
+          #go mod init calc # for go mod. If we use go build, it will do the same for the 3 lines.
           go mod tidy
           go get github.com/franela/goblin
           ls
