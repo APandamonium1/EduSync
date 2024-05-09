@@ -15,7 +15,7 @@ func TestHello(t *testing.T) {
 	})
 	g.Describe("Hello your name", func() {
 		g.It("Should print hello your name", func() {
-			g.Assert(helloYourName("hi")).Equal("Hello John!")
+			g.Assert(helloYourName("hiagain")).Equal("Hello John!")
 		})
 	})
 }
