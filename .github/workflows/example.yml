@@ -51,7 +51,7 @@ jobs:
         uses: akeylimepie/telegram-action@v0.1.2
         with: 
           token: 6795256205:AAHm19-9zOM4jMtEtVOSDGExXAtg5J67rKc
-          chatid: -4244340354
+          chat_id: -4244340354
           text: is it actually working
       
       #- name: Setup Python
