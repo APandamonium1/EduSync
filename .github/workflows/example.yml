@@ -27,6 +27,7 @@ jobs:
           go mod tidy
           go get github.com/franela/goblin
           ls
+          go test
         
       #- name: Setup Python
         #uses: actions/setup-python@v5.1.0
