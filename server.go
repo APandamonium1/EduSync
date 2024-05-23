@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"html/template"
+	"log"
 	"net/http"
 )
 
@@ -22,7 +23,12 @@ func handler() http.Handler {
 func main() {
 	// http.HandleFunc("/1", serverhome)
 	// http.HandleFunc("/2", setCookieHandler)
-	http.ListenAndServe("192.168.1.129:8080", handler())
+	// http.ListenAndServe(":8080", handler())
+	// http.ListenAndServeTLS("192.168.1.129:8080", "server.crt", "server.key", handler())
+	err := http.ListenAndServeTLS(":8080", "server.crt", "server.key", handler())
+	if err != nil {
+		log.Fatal("ListenAndServe: ", err)
+	}
 }
 
 func serverhome(w http.ResponseWriter, r *http.Request) {
