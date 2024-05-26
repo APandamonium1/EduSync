@@ -2,16 +2,14 @@ package main
 
 import (
 	"fmt"
-	"testing"
-
 	"net/http"
-
 	"net/http/httptest"
+	"testing"
 )
 
 func ahandler(w http.ResponseWriter, r *http.Request) {
 
-	w.Write([]byte("Hello, Worldn"))
+	w.Write([]byte("Hello, World"))
 
 }
 
