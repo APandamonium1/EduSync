@@ -40,3 +40,41 @@ func (db *FireDB) Connect() error {
 func FirebaseDB() *FireDB {
 	return &fireDB
 }
+
+func connectToFirebase() error {
+	fireDB := FirebaseDB()
+	err := fireDB.Connect()
+	if err != nil {
+		return err
+	}
+
+	ref := fireDB.NewRef("/path/to/data")
+	err = ref.Set(context.Background(), "some value")
+	if err != nil {
+		return err
+	}
+	return nil
+}
+
+// CRUD operations
+func (db *FireDB) Create(refPath string, data interface{}) error {
+	ref := db.NewRef(refPath)
+	return ref.Set(context.Background(), data)
+}
+
+func (db *FireDB) Read(refPath string, dest interface{}) error {
+	ref := db.NewRef(refPath)
+	return ref.Get(context.Background(), dest)
+}
+
+func (db *FireDB) Update(refPath string, data map[string]interface{}) error {
+	ref := db.NewRef(refPath)
+	return ref.Update(context.Background(), data)
+}
+
+func (db *FireDB) Delete(refPath string) error {
+	ref := db.NewRef(refPath)
+	return ref.Delete(context.Background())
+}
+
+//todo: set up firebase, finish connecting to database
