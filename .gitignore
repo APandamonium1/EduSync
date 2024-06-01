@@ -2,3 +2,5 @@
 *.crt
 *.key
 *.pem
+edusync-firebase.json
+.env

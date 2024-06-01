@@ -3,12 +3,30 @@ package main
 import (
 	"context"
 	"fmt"
+
+	"log"
 	"os"
+
+	"github.com/joho/godotenv"
 
 	firebase "firebase.google.com/go"
 	"firebase.google.com/go/db"
 	"google.golang.org/api/option"
 )
+
+// use godot package to load/read the .env file and
+// return the value of the key
+func goDotEnvVariable(key string) string {
+
+	// load .env file
+	err := godotenv.Load(".env")
+
+	if err != nil {
+		log.Fatalf("Error loading .env file")
+	}
+
+	return os.Getenv(key)
+}
 
 type FireDB struct {
 	*db.Client
@@ -16,23 +34,39 @@ type FireDB struct {
 
 var fireDB FireDB
 
+// Connect initializes and connects to the Firebase Realtime Database.
+// It uses the provided JSON file containing the service account key to authenticate with Firebase.
+// The DatabaseURL is set to the Firebase project's Realtime Database URL.
+// The function returns an error if any step fails during the initialization or connection process.
 func (db *FireDB) Connect() error {
 	// Find home directory.
 	home, err := os.Getwd()
 	if err != nil {
 		return err
 	}
+
+	// Create a context for the Firebase app.
 	ctx := context.Background()
-	opt := option.WithCredentialsFile(home + "Your JSON File Location")
-	config := &firebase.Config{DatabaseURL: "Your Database URL"}
+
+	// Set up the Firebase app with the provided JSON file containing the service account key.
+	opt := option.WithCredentialsFile(home + "edusync-firebase.json")
+	dotenv := goDotEnvVariable("DATABASE_URL")
+	config := &firebase.Config{DatabaseURL: dotenv}
+
 	app, err := firebase.NewApp(ctx, config, opt)
+	// opt := option.WithCredentialsFile("edusync-firebase.json")
+	// app, err := firebase.NewApp(context.Background(), nil, opt)
 	if err != nil {
 		return fmt.Errorf("error initializing app: %v", err)
 	}
+
+	// Initialize the Firebase Realtime Database client.
 	client, err := app.Database(ctx)
 	if err != nil {
 		return fmt.Errorf("error initializing database: %v", err)
 	}
+
+	// Assign the Firebase Realtime Database client to the FireDB struct.
 	db.Client = client
 	return nil
 }
@@ -48,8 +82,13 @@ func connectToFirebase() error {
 		return err
 	}
 
-	ref := fireDB.NewRef("/path/to/data")
-	err = ref.Set(context.Background(), "some value")
+	ref := fireDB.NewRef("/")
+	err = ref.Set(context.Background(), map[string]string{
+		"name":       "Jane Doe",
+		"age":        "7",
+		"class":      "Tech Explorer",
+		"instructor": "Scott Smith",
+	})
 	if err != nil {
 		return err
 	}
