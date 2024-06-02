@@ -44,7 +44,7 @@ func handler() http.Handler {
 	mux.HandleFunc("/admin/", adminHandler)
 	mux.HandleFunc("/", mainHandler)
 	fmt.Println("Server started")
-	http.ListenAndServe(":8080", mux)
+	// http.ListenAndServe(":8080", mux)
 	// r.HandleFunc("/1", serverhome)
 	// r.HandleFunc("/2", setCookieHandler)
 	return mux
