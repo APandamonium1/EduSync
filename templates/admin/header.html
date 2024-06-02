@@ -1,0 +1,68 @@
+<html>
+<head>
+  <title>My Website</title>
+  <style>
+    body {
+      margin: 0;
+      padding: 0;
+      font-family: Arial, sans-serif;
+    }
+
+    header {
+      background-color: #f0f0f0;
+      padding: 20px;
+      display: flex; /* Make header elements flexible */
+      justify-content: space-between; /* Space buttons evenly */
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 2em;
+    }
+
+    nav {
+      display: flex; /* Make buttons behave as flex items */
+    }
+
+    nav a {
+      margin: 0 10px; /* Adjust spacing between buttons */
+      text-decoration: none;
+      color: #333;
+      padding: 10px 20px; /* Add padding for buttons */
+      border: 1px solid #ddd; /* Add simple border */
+      border-radius: 5px; /* Add rounded corners */
+    }
+
+    nav a:hover {
+      background-color: #eee;
+      color: #000;
+    }
+
+    /* Responsive Styles (for smaller screens) */
+    @media (max-width: 768px) {
+      header {
+        flex-direction: column; /* Stack elements vertically */
+      }
+
+      nav {
+        flex-direction: column; /* Make buttons stack vertically */
+      }
+
+      nav a {
+        margin-bottom: 10px; /* Adjust spacing for stacked buttons */
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>NK Robotics - Admin</h1>
+    <nav>
+      <a href="http://localhost:8080/admin/">Home</a>
+      <a href="http://localhost:8080/admin/about">About</a>
+      <a href="contact">Contact</a>
+      <a href="login">Login</a>
+    </nav>
+  </header>
+</body>
+</html>

@@ -31,7 +31,7 @@ func TestRouter(t *testing.T) {
 	}
 
 	rr := httptest.NewRecorder()
-	handler := http.HandlerFunc(serverhome)
+	handler := http.HandlerFunc(mainHandler)
 
 	handler.ServeHTTP(rr, req)
 	// Check the status code is what we expect.
