@@ -5,115 +5,42 @@ import (
 	"fmt"
 
 	"log"
-	"os"
-
-	"github.com/joho/godotenv"
 
 	firebase "firebase.google.com/go"
-	"firebase.google.com/go/db"
 	"google.golang.org/api/option"
 )
 
-// use godot package to load/read the .env file and
-// return the value of the key
-func goDotEnvVariable(key string) string {
-
-	// load .env file
-	err := godotenv.Load(".env")
-
-	if err != nil {
-		log.Fatalf("Error loading .env file")
-	}
-
-	return os.Getenv(key)
-}
-
-type FireDB struct {
-	*db.Client
-}
-
-var fireDB FireDB
-
-// Connect initializes and connects to the Firebase Realtime Database.
-// It uses the provided JSON file containing the service account key to authenticate with Firebase.
-// The DatabaseURL is set to the Firebase project's Realtime Database URL.
-// The function returns an error if any step fails during the initialization or connection process.
-func (db *FireDB) Connect() error {
-	// Find home directory.
-	home, err := os.Getwd()
-	if err != nil {
-		return err
-	}
-
-	// Create a context for the Firebase app.
+func main() {
 	ctx := context.Background()
 
-	// Set up the Firebase app with the provided JSON file containing the service account key.
-	opt := option.WithCredentialsFile(home + "edusync-firebase.json")
-	dotenv := goDotEnvVariable("DATABASE_URL")
-	config := &firebase.Config{DatabaseURL: dotenv}
-
-	app, err := firebase.NewApp(ctx, config, opt)
-	// opt := option.WithCredentialsFile("edusync-firebase.json")
-	// app, err := firebase.NewApp(context.Background(), nil, opt)
-	if err != nil {
-		return fmt.Errorf("error initializing app: %v", err)
+	// configure database URL
+	conf := &firebase.Config{
+		DatabaseURL: "https://edusync-test-default-rtdb.firebaseio.com/",
 	}
 
-	// Initialize the Firebase Realtime Database client.
+	// fetch service account key
+	opt := option.WithCredentialsFile("edusync-test-firebase-adminsdk-hk5kl-9af0162b09.json")
+
+	app, err := firebase.NewApp(ctx, conf, opt)
+	if err != nil {
+		log.Fatalln("error in initializing firebase app: ", err)
+	}
+
 	client, err := app.Database(ctx)
 	if err != nil {
-		return fmt.Errorf("error initializing database: %v", err)
+		log.Fatalln("error in creating firebase DB client: ", err)
 	}
 
-	// Assign the Firebase Realtime Database client to the FireDB struct.
-	db.Client = client
-	return nil
-}
+	// create ref at path students/:userId
+	ref := client.NewRef("students/" + fmt.Sprint(1))
 
-func FirebaseDB() *FireDB {
-	return &fireDB
-}
-
-func connectToFirebase() error {
-	fireDB := FirebaseDB()
-	err := fireDB.Connect()
-	if err != nil {
-		return err
-	}
-
-	ref := fireDB.NewRef("/")
-	err = ref.Set(context.Background(), map[string]string{
+	if err := ref.Set(context.TODO(), map[string]interface{}{
 		"name":       "Jane Doe",
 		"age":        "7",
 		"class":      "Tech Explorer",
-		"instructor": "Scott Smith",
-	})
-	if err != nil {
-		return err
+		"instructor": "Scott Smith"}); err != nil {
+		log.Fatal(err)
 	}
-	return nil
-}
 
-// CRUD operations
-func (db *FireDB) Create(refPath string, data interface{}) error {
-	ref := db.NewRef(refPath)
-	return ref.Set(context.Background(), data)
+	fmt.Println("Student added/updated successfully!")
 }
-
-func (db *FireDB) Read(refPath string, dest interface{}) error {
-	ref := db.NewRef(refPath)
-	return ref.Get(context.Background(), dest)
-}
-
-func (db *FireDB) Update(refPath string, data map[string]interface{}) error {
-	ref := db.NewRef(refPath)
-	return ref.Update(context.Background(), data)
-}
-
-func (db *FireDB) Delete(refPath string) error {
-	ref := db.NewRef(refPath)
-	return ref.Delete(context.Background())
-}
-
-//todo: set up firebase, finish connecting to database

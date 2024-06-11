@@ -3,4 +3,5 @@
 *.key
 *.pem
 edusync-firebase.json
+d:\Capstone\Edusync3\EduSync\.env
 .env
