@@ -8,13 +8,14 @@ import (
 
 // Student struct for storing student information
 type Student struct {
-	ID         uuid.UUID `json:"id"`
-	Name       string    `json:"name"`
-	Age        int       `json:"age"`
-	Class      string    `json:"class"`
-	Instructor string    `json:"instructor"`
-	CreatedAt  time.Time `json:"created_at"`
-	UpdatedAt  time.Time `json:"updated_at"`
+	ID            uuid.UUID `json:"id"`
+	Name          string    `json:"name"`
+	Age           int       `json:"age"`
+	ContactNumber string    `json:"contact_number"`
+	Class         string    `json:"class"`
+	Instructor    string    `json:"instructor"`
+	CreatedAt     time.Time `json:"created_at"`
+	UpdatedAt     time.Time `json:"updated_at"`
 }
 
 // Instructor struct for storing instructor information
@@ -30,15 +31,16 @@ type Instructor struct {
 }
 
 // NewStudent creates a new Student instance
-func NewStudent(name string, age int, class string, instructor string) Student {
+func NewStudent(name string, age int, class string, contactNumber string, instructor string) Student {
 	return Student{
-		ID:         uuid.New(),
-		Name:       name,
-		Age:        age,
-		Class:      class,
-		Instructor: instructor,
-		CreatedAt:  time.Now(),
-		UpdatedAt:  time.Now(),
+		ID:            uuid.New(),
+		Name:          name,
+		Age:           age,
+		Class:         class,
+		ContactNumber: contactNumber,
+		Instructor:    instructor,
+		CreatedAt:     time.Now(),
+		UpdatedAt:     time.Now(),
 	}
 }
 
