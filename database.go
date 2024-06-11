@@ -12,7 +12,7 @@ import (
 	"google.golang.org/api/option"
 )
 
-func database() {
+func main() {
 	ctx := context.Background()
 
 	// configure database URL
@@ -34,7 +34,7 @@ func database() {
 	}
 
 	// Student operations
-	student := NewStudent("Jane Doe", 7, "Tech Explorer", "91234567", "Scott Smith")
+	student := NewStudent("Jane Doe", 7, "Jackie Doe", "91234567", "Tech Explorer", "Scott Smith")
 	err = createStudent(client, student.ID.String(), student)
 	if err != nil {
 		log.Fatal(err)

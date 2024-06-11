@@ -11,6 +11,7 @@ type Student struct {
 	ID            uuid.UUID `json:"id"`
 	Name          string    `json:"name"`
 	Age           int       `json:"age"`
+	ParentName    string    `json:"parent_name"`
 	ContactNumber string    `json:"contact_number"`
 	Class         string    `json:"class"`
 	Instructor    string    `json:"instructor"`
@@ -31,13 +32,14 @@ type Instructor struct {
 }
 
 // NewStudent creates a new Student instance
-func NewStudent(name string, age int, class string, contactNumber string, instructor string) Student {
+func NewStudent(name string, age int, parentName string, contactNumber string, class string, instructor string) Student {
 	return Student{
 		ID:            uuid.New(),
 		Name:          name,
 		Age:           age,
-		Class:         class,
+		ParentName:    parentName,
 		ContactNumber: contactNumber,
+		Class:         class,
 		Instructor:    instructor,
 		CreatedAt:     time.Now(),
 		UpdatedAt:     time.Now(),
