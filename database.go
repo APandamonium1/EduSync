@@ -12,7 +12,7 @@ import (
 	"google.golang.org/api/option"
 )
 
-func main() {
+func database() {
 	ctx := context.Background()
 
 	// configure database URL
@@ -34,7 +34,7 @@ func main() {
 	}
 
 	// Student operations
-	student := NewStudent("Jane Doe", 7, "Jackie Doe", "91234567", "Tech Explorer", "Scott Smith")
+	student := NewStudent("Jane Doe", 7, 119.5, "jane_doe@nk.com", "91234567", "Tech Explorer", "Scott Smith", "Jackie Doe")
 	err = createStudent(client, student.ID.String(), student)
 	if err != nil {
 		log.Fatal(err)
@@ -57,11 +57,11 @@ func main() {
 	}
 	fmt.Println("Student updated successfully!")
 
-	err = deleteStudent(client, student.ID.String())
-	if err != nil {
-		log.Fatal(err)
-	}
-	fmt.Println("Student deleted successfully!")
+	// err = deleteStudent(client, student.ID.String())
+	// if err != nil {
+	// 	log.Fatal(err)
+	// }
+	// fmt.Println("Student deleted successfully!")
 
 	// Instructor operations
 	instructor := NewInstructor("Scott Smith", "123-456-7890", "scott@example.com", 50000.00, 10)
@@ -87,13 +87,44 @@ func main() {
 	}
 	fmt.Println("Instructor updated successfully!")
 
-	err = deleteInstructor(client, instructor.ID.String())
+	// err = deleteInstructor(client, instructor.ID.String())
+	// if err != nil {
+	// 	log.Fatal(err)
+	// }
+	// fmt.Println("Instructor deleted successfully!")
+
+	// Parent operations
+	parent := NewParent("Jackie Doe", "jackjack@example.com", "98765432")
+	err = createParent(client, parent.ID.String(), parent)
 	if err != nil {
 		log.Fatal(err)
 	}
-	fmt.Println("Instructor deleted successfully!")
+	fmt.Println("Parent added/updated successfully!")
+
+	readParent, err := readParent(client, parent.ID.String())
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Println("Parent read successfully:", readParent)
+
+	parentUpdates := map[string]interface{}{
+		"email":      "jackiejack@nk.com",
+		"updated_at": time.Now(),
+	}
+	err = updateParent(client, parent.ID.String(), parentUpdates)
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Println("Parent updated successfully!")
+
+	// err = deleteParent(client, parent.ID.String())
+	// if err != nil {
+	// 	log.Fatal(err)
+	// }
+	// fmt.Println("Parent deleted successfully!")
 }
 
+// Student CRUD
 func createStudent(client *db.Client, userId string, student Student) error {
 	ref := client.NewRef("students/" + userId)
 	return ref.Set(context.TODO(), student)
@@ -118,6 +149,7 @@ func deleteStudent(client *db.Client, userId string) error {
 	return ref.Delete(context.TODO())
 }
 
+// Instructor CRUD
 func createInstructor(client *db.Client, userId string, instructor Instructor) error {
 	ref := client.NewRef("instructors/" + userId)
 	return ref.Set(context.TODO(), instructor)
@@ -139,5 +171,30 @@ func updateInstructor(client *db.Client, userId string, updates map[string]inter
 
 func deleteInstructor(client *db.Client, userId string) error {
 	ref := client.NewRef("instructors/" + userId)
+	return ref.Delete(context.TODO())
+}
+
+// Parent CRUD
+func createParent(client *db.Client, userId string, parent Parent) error {
+	ref := client.NewRef("parents/" + userId)
+	return ref.Set(context.TODO(), parent)
+}
+
+func readParent(client *db.Client, userId string) (Parent, error) {
+	ref := client.NewRef("parents/" + userId)
+	var parent Parent
+	if err := ref.Get(context.TODO(), &parent); err != nil {
+		return Parent{}, err
+	}
+	return parent, nil
+}
+
+func updateParent(client *db.Client, userId string, updates map[string]interface{}) error {
+	ref := client.NewRef("parents/" + userId)
+	return ref.Update(context.TODO(), updates)
+}
+
+func deleteParent(client *db.Client, userId string) error {
+	ref := client.NewRef("parents/" + userId)
 	return ref.Delete(context.TODO())
 }

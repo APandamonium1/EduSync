@@ -5,11 +5,11 @@ import (
 	"net/http"
 )
 
-// func init() {
-// 	database()
-// }
+func init() {
+	database()
+}
 
-func main1() {
+func main() {
 	// http.HandleFunc("/1", serverhome)
 	// http.HandleFunc("/2", setCookieHandler)
 	// http.ListenAndServe(":8080", handler())
