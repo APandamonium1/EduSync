@@ -3,29 +3,15 @@ package main
 import (
 	"context"
 	"fmt"
+	"log"
 	"testing"
+	"time"
 
 	firebase "firebase.google.com/go"
 	"google.golang.org/api/option"
 )
 
-// func TestConnect(t *testing.T) {
-// 	// Create a new instance of FireDB.
-// 	db := FireDB{}
-
-// 	// Call the Connect function.
-// 	err := db.Connect()
-
-// 	// Check if there was an error during connection.
-// 	if err != nil {
-// 		t.Errorf("Failed to connect to Firebase: %v", err)
-// 	}
-
-//		// Check if the Firebase Realtime Database client is initialized.
-//		if db.Client == nil {
-//			t.Error("Firebase Realtime Database client is not initialized")
-//		}
-//	}
+// Test using test database
 func TestDatabase(t *testing.T) {
 	ctx := context.Background()
 
@@ -106,4 +92,112 @@ func TestDatabase(t *testing.T) {
 		// Expecting an error, which indicates the data was not found
 		t.Logf("Received expected error after deletion: %v", err)
 	}
+}
+
+// Test using actual database
+func TestDatabaseCRUD(t *testing.T) {
+	ctx := context.Background()
+	databaseURL := goDotEnvVariable("DATABASE_URL")
+	conf := &firebase.Config{DatabaseURL: databaseURL}
+	opt := option.WithCredentialsFile("edusync-7bd5e-firebase-adminsdk-x49uh-af084a6314.json")
+
+	app, err := firebase.NewApp(ctx, conf, opt)
+	if err != nil {
+		log.Fatalln("error in initializing firebase app: ", err)
+	}
+
+	client, err := app.Database(ctx)
+	if err != nil {
+		log.Fatalln("error in creating firebase DB client: ", err)
+	}
+
+	// Student operations
+	student := NewStudent("Jane Doe", 7, 119.5, "jane_doe@nk.com", "91234567", "Tech Explorer", "Scott Smith", "Jackie Doe")
+	err = createStudent(client, student.ID.String(), student)
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Println("Student added/updated successfully!")
+
+	readStudent, err := readStudent(client, student.ID.String())
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Println("Student read successfully:", readStudent)
+
+	studentUpdates := map[string]interface{}{
+		"class":      "Tech Explorer 2",
+		"updated_at": time.Now(),
+	}
+	err = updateStudent(client, student.ID.String(), studentUpdates)
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Println("Student updated successfully!")
+
+	err = deleteStudent(client, student.ID.String())
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Println("Student deleted successfully!")
+
+	// Instructor operations
+	instructor := NewInstructor("Scott Smith", "123-456-7890", "scott@example.com", 50000.00, 10)
+	err = createInstructor(client, instructor.ID.String(), instructor)
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Println("Instructor added/updated successfully!")
+
+	readInstructor, err := readInstructor(client, instructor.ID.String())
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Println("Instructor read successfully:", readInstructor)
+
+	instructorUpdates := map[string]interface{}{
+		"base_pay":   55000.00,
+		"updated_at": time.Now(),
+	}
+	err = updateInstructor(client, instructor.ID.String(), instructorUpdates)
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Println("Instructor updated successfully!")
+
+	err = deleteInstructor(client, instructor.ID.String())
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Println("Instructor deleted successfully!")
+
+	// Parent operations
+	parent := NewParent("Jackie Doe", "jackjack@example.com", "98765432")
+	err = createParent(client, parent.ID.String(), parent)
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Println("Parent added/updated successfully!")
+
+	readParent, err := readParent(client, parent.ID.String())
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Println("Parent read successfully:", readParent)
+
+	parentUpdates := map[string]interface{}{
+		"email":      "jackiejack@nk.com",
+		"updated_at": time.Now(),
+	}
+	err = updateParent(client, parent.ID.String(), parentUpdates)
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Println("Parent updated successfully!")
+
+	err = deleteParent(client, parent.ID.String())
+	if err != nil {
+		log.Fatal(err)
+	}
+	fmt.Println("Parent deleted successfully!")
 }
