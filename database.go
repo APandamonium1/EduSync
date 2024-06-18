@@ -43,7 +43,10 @@ func database() {
 	// if databaseURL == "" {
 	// 	return fmt.Errorf("DATABASE_URL is not set in the .env file")
 	// }
-	databaseURL := os.LookupEnv("DATABASE_URL")
+	databaseURL, found := os.LookupEnv("DATABASE_URL")
+	if !found {
+		log.Fatalf("DATABASE_URL is not set in the environment variables")
+	}
 	conf := &firebase.Config{DatabaseURL: databaseURL}
 
 	// conf := &firebase.Config{
