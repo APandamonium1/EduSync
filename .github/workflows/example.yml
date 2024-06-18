@@ -35,6 +35,14 @@ jobs:
       - name: Setup Firebase JSON file
         run: echo "${{ secrets.FIREBASE_ADMIN_FILE }}" > edusync-7bd5e-firebase-adminsdk-x49uh-af084a6314.json
 
+      - name: Testing, to be removed
+        run: |
+          echo $DATABASE_URL
+          echo $FIREBASE_ADMIN_PASSPHRASE
+          echo $FIREBASE_ADMIN_FILE
+          cat edusync-7bd5e-firebase-adminsdk-x49uh-af084a6314.json
+          ls
+
       - name: Go Test
         run: |
           go test
