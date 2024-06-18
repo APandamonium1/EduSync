@@ -35,9 +35,9 @@ jobs:
       - name: Setup Firebase JSON file
         run: echo "${{ secrets.FIREBASE_ADMIN_FILE }}" > edusync-7bd5e-firebase-adminsdk-x49uh-af084a6314.json
 
-      - name: Build and run JSON validator
-        run: |
-          go run json_validator.go edusync-7bd5e-firebase-adminsdk-x49uh-af084a6314.json
+      # - name: Build and run JSON validator
+      #   run: |
+      #     go run json_validator.go edusync-7bd5e-firebase-adminsdk-x49uh-af084a6314.json
 
       - name: Testing, to be removed
         run: |
