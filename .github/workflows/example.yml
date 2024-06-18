@@ -35,6 +35,10 @@ jobs:
       - name: Setup Firebase JSON file
         run: echo "${{ secrets.FIREBASE_ADMIN_FILE }}" > edusync-7bd5e-firebase-adminsdk-x49uh-af084a6314.json
 
+      - name: Build and run JSON validator
+        run: |
+          go run json_validator.go edusync-7bd5e-firebase-adminsdk-x49uh-af084a6314.json
+
       - name: Testing, to be removed
         run: |
           cat edusync-7bd5e-firebase-adminsdk-x49uh-af084a6314.json
@@ -48,30 +52,30 @@ jobs:
         name: Success Message (Discord)
         uses: discord-actions/message@v2
         with:
-          webhookUrl: https://discord.com/api/webhooks/1237964301201965127/ZYe3gYTeweYEfA_Q0I-JWFVXA2dVMp7Pw7jeNNd2UlFCtvIS8ZvIN_CRQ-gUwSgl7eD2
+          webhookUrl: ${{secrets.DISCORD_WEBHOOK}}
           message: SUCCESSFULLLL in branch ${{github.ref}} by ${{github.actor}}
 
       - if: ${{success()}}
         name: Success Message (Telegram)
         uses: akeylimepie/telegram-action@v0.1.2
         with: 
-          token: 6795256205:AAHm19-9zOM4jMtEtVOSDGExXAtg5J67rKc
-          chat_id: -4244340354
+          token: ${{secrets.TELEGRAM_TOKEN}}
+          chat_id: ${{secrets.TELEGRAM_CHAT_ID}}
           text: SUCCESSFULLLL in branch ${{github.ref}} by ${{github.actor}}
           
       - if: ${{failure()}}
         name: Failure Message (Discord)
         uses: discord-actions/message@v2
         with:
-          webhookUrl: https://discord.com/api/webhooks/1237964301201965127/ZYe3gYTeweYEfA_Q0I-JWFVXA2dVMp7Pw7jeNNd2UlFCtvIS8ZvIN_CRQ-gUwSgl7eD2
+          webhookUrl: ${{secrets.DISCORD_WEBHOOK}}
           message: FAILUREEEE in branch ${{github.ref}} by ${{github.actor}}
 
       - if: ${{failure()}}
         name: Failure Message (Telegram)
         uses: akeylimepie/telegram-action@v0.1.2
         with: 
-          token: 6795256205:AAHm19-9zOM4jMtEtVOSDGExXAtg5J67rKc
-          chat_id: -4244340354
+          token: ${{secrets.TELEGRAM_TOKEN}}
+          chat_id: ${{secrets.TELEGRAM_CHAT_ID}}
           text: FAILUREEEE in branch ${{github.ref}} by ${{github.actor}}
       
       #- name: Setup Python

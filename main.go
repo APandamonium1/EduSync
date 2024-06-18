@@ -6,7 +6,7 @@ import (
 )
 
 func init() {
-	checkjson()
+	validateJSON("edusync-7bd5e-firebase-adminsdk-x49uh-af084a6314.json")
 	database()
 }
 
