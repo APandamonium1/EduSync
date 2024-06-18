@@ -104,8 +104,8 @@ func TestDatabaseCRUD(t *testing.T) {
 		log.Fatalf("DATABASE_URL is not set in the environment variables")
 	}
 	conf := &firebase.Config{DatabaseURL: databaseURL}
-	// opt := option.WithCredentialsFile("edusync-7bd5e-firebase-adminsdk-x49uh-af084a6314.json")
-	opt := option.WithCredentialsFile("$HOME/secrets/edusync-7bd5e-firebase-adminsdk-x49uh-af084a6314.json")
+	opt := option.WithCredentialsFile("edusync-7bd5e-firebase-adminsdk-x49uh-af084a6314.json")
+	// opt := option.WithCredentialsFile("$HOME/secrets/edusync-7bd5e-firebase-adminsdk-x49uh-af084a6314.json")
 
 	app, err := firebase.NewApp(ctx, conf, opt)
 	if err != nil {
