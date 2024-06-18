@@ -44,7 +44,7 @@ jobs:
         uses: akeylimepie/telegram-action@v0.1.2
         with: 
           token: ${{secrets.TELEGRAM_TOKEN}}
-          chat_id: ${{TELEGRAM_CHAT_ID}}
+          chat_id: ${{secrets.TELEGRAM_CHAT_ID}}
           text: SUCCESSFULLLL in branch ${{github.ref}} by ${{github.actor}}
           
       - if: ${{failure()}}
@@ -59,7 +59,7 @@ jobs:
         uses: akeylimepie/telegram-action@v0.1.2
         with: 
           token: ${{secrets.TELEGRAM_TOKEN}}
-          chat_id: ${{TELEGRAM_CHAT_ID}}
+          chat_id: ${{secrets.TELEGRAM_CHAT_ID}}
           text: FAILUREEEE in branch ${{github.ref}} by ${{github.actor}}
       
       #- name: Setup Python
