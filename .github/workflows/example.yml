@@ -14,8 +14,6 @@ jobs:
     name: Create Ubuntu OS
     runs-on: ubuntu-latest
     steps:
-      - name: Test printing your secret (Remove this step in production)
-        run: cat $HOME/secrets/edusync-7bd5e-firebase-adminsdk-x49uh-af084a6314.json
       - name: Setup Go
         uses: actions/setup-go@v5.0.1
         with:
@@ -33,6 +31,14 @@ jobs:
           go mod tidy
           go get github.com/franela/goblin
           ls
+      
+      - name: Decrypt large secret
+        run: ./decrypt_secret.sh
+        # This command is just an example to show your secret being printed
+        # Ensure you remove any print statements of your secrets. GitHub does
+        # not hide secrets that use this workaround.
+      - name: Test printing your secret (Remove this step in production)
+        run: cat $HOME/secrets/edusync-7bd5e-firebase-adminsdk-x49uh-af084a6314.json
 
       - name: Go Test
         run: |
