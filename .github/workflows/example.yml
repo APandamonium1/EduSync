@@ -40,7 +40,9 @@ jobs:
       #     go run json_validator.go edusync-7bd5e-firebase-adminsdk-x49uh-af084a6314.json
 
       - name: Decrypt Firebase JSON
-        run: ./decrypt_secret.sh
+        run: |
+          chmod +x decrypt_secret.sh
+          ./decrypt_secret.sh
         env:
           FIREBASE_ADMIN_PASSPHRASE: ${{secrets.FIREBASE_ADMIN_PASSPHRASE}}
 
