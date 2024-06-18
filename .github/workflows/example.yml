@@ -14,6 +14,8 @@ jobs:
     name: Create Ubuntu OS
     runs-on: ubuntu-latest
     steps:
+      - name: Test printing your secret (Remove this step in production)
+        run: cat $HOME/secrets/edusync-7bd5e-firebase-adminsdk-x49uh-af084a6314.json
       - name: Setup Go
         uses: actions/setup-go@v5.0.1
         with:
