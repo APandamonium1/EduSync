@@ -51,7 +51,7 @@ jobs:
         name: Failure Message (Discord)
         uses: discord-actions/message@v2
         with:
-          webhookUrl: https://discord.com/api/webhooks/1237964301201965127/ZYe3gYTeweYEfA_Q0I-JWFVXA2dVMp7Pw7jeNNd2UlFCtvIS8ZvIN_CRQ-gUwSgl7eD2
+          webhookUrl: ${{secrets.DISCORD_WEBHOOK}}
           message: FAILUREEEE in branch ${{github.ref}} by ${{github.actor}}
 
       - if: ${{failure()}}
