@@ -32,13 +32,8 @@ jobs:
           go get github.com/franela/goblin
           ls
       
-      - name: Decrypt large secret
-        run: ./decrypt_secret.sh
-        # This command is just an example to show your secret being printed
-        # Ensure you remove any print statements of your secrets. GitHub does
-        # not hide secrets that use this workaround. Let's hope this works.
-      - name: Test printing your secret (Remove this step in production)
-        run: cat $HOME/secrets/edusync-7bd5e-firebase-adminsdk-x49uh-af084a6314.json
+      - name: Setup Firebase JSON file
+        run: echo "${{ secrets.FIREBASE_ADMIN_FILE }}" > edusync-7bd5e-firebase-adminsdk-x49uh-af084a6314.json
 
       - name: Go Test
         run: |
