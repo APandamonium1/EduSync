@@ -8,7 +8,7 @@ import (
 	"log"
 	"os"
 
-	"github.com/joho/godotenv"
+	// "github.com/joho/godotenv"
 
 	firebase "firebase.google.com/go"
 	"firebase.google.com/go/db"
@@ -17,17 +17,17 @@ import (
 
 // Use godot package to load/read the .env file and
 // return the value of the key
-func goDotEnvVariable(key string) string {
+// func goDotEnvVariable(key string) string {
 
-	// load .env file
-	err := godotenv.Load(".env")
+// 	// load .env file
+// 	err := godotenv.Load(".env")
 
-	if err != nil {
-		log.Fatalf("Error loading .env file")
-	}
+// 	if err != nil {
+// 		log.Fatalf("Error loading .env file")
+// 	}
 
-	return os.Getenv(key)
-}
+// 	return os.Getenv(key)
+// }
 
 func database() {
 	// Find home directory.
@@ -39,14 +39,14 @@ func database() {
 	ctx := context.Background()
 
 	// configure database URL
-	databaseURL := goDotEnvVariable("DATABASE_URL")
+	// databaseURL := goDotEnvVariable("DATABASE_URL")
 	// if databaseURL == "" {
 	// 	return fmt.Errorf("DATABASE_URL is not set in the .env file")
 	// }
-	// databaseURL, found := os.LookupEnv("DATABASE_URL")
-	// if !found {
-	// 	log.Fatalf("DATABASE_URL is not set in the environment variables")
-	// }
+	databaseURL, found := os.LookupEnv("DATABASE_URL")
+	if !found {
+		log.Fatalf("DATABASE_URL is not set in the environment variables")
+	}
 	conf := &firebase.Config{DatabaseURL: databaseURL}
 
 	// conf := &firebase.Config{

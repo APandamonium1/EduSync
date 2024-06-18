@@ -4,6 +4,7 @@ import (
 	"context"
 	"fmt"
 	"log"
+	"os"
 	"testing"
 	"time"
 
@@ -97,9 +98,14 @@ func TestDatabase(t *testing.T) {
 // Test using actual database
 func TestDatabaseCRUD(t *testing.T) {
 	ctx := context.Background()
-	databaseURL := goDotEnvVariable("DATABASE_URL")
+	// databaseURL := goDotEnvVariable("DATABASE_URL")
+	databaseURL, found := os.LookupEnv("DATABASE_URL")
+	if !found {
+		log.Fatalf("DATABASE_URL is not set in the environment variables")
+	}
 	conf := &firebase.Config{DatabaseURL: databaseURL}
-	opt := option.WithCredentialsFile("edusync-7bd5e-firebase-adminsdk-x49uh-af084a6314.json")
+	// opt := option.WithCredentialsFile("edusync-7bd5e-firebase-adminsdk-x49uh-af084a6314.json")
+	opt := option.WithCredentialsFile("$HOME/secrets/edusync-7bd5e-firebase-adminsdk-x49uh-af084a6314.json")
 
 	app, err := firebase.NewApp(ctx, conf, opt)
 	if err != nil {
