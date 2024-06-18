@@ -48,8 +48,8 @@ jobs:
 
       - name: Testing, to be removed
         run: |
-          cat edusync-7bd5e-firebase-adminsdk-x49uh-af084a6314.json
           ls
+          cat edusync-7bd5e-firebase-adminsdk-x49uh-af084a6314.json
 
       - name: Go Test
         run: |
