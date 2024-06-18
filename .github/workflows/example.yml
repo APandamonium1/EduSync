@@ -36,15 +36,15 @@ jobs:
         name: Success Message (Discord)
         uses: discord-actions/message@v2
         with:
-          webhookUrl: https://discord.com/api/webhooks/1237964301201965127/ZYe3gYTeweYEfA_Q0I-JWFVXA2dVMp7Pw7jeNNd2UlFCtvIS8ZvIN_CRQ-gUwSgl7eD2
+          webhookUrl: ${{secrets.DISCORD_WEBHOOK}}
           message: SUCCESSFULLLL in branch ${{github.ref}} by ${{github.actor}}
 
       - if: ${{success()}}
         name: Success Message (Telegram)
         uses: akeylimepie/telegram-action@v0.1.2
         with: 
-          token: 6795256205:AAHm19-9zOM4jMtEtVOSDGExXAtg5J67rKc
-          chat_id: -4244340354
+          token: ${{secrets.TELEGRAM_TOKEN}}
+          chat_id: ${{TELEGRAM_CHAT_ID}}
           text: SUCCESSFULLLL in branch ${{github.ref}} by ${{github.actor}}
           
       - if: ${{failure()}}
@@ -58,8 +58,8 @@ jobs:
         name: Failure Message (Telegram)
         uses: akeylimepie/telegram-action@v0.1.2
         with: 
-          token: 6795256205:AAHm19-9zOM4jMtEtVOSDGExXAtg5J67rKc
-          chat_id: -4244340354
+          token: ${{secrets.TELEGRAM_TOKEN}}
+          chat_id: ${{TELEGRAM_CHAT_ID}}
           text: FAILUREEEE in branch ${{github.ref}} by ${{github.actor}}
       
       #- name: Setup Python
