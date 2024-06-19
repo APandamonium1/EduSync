@@ -5,6 +5,10 @@ on:
   pull_request:
     branches: [main]
 
+env:
+  DATABASE_URL: ${{secrets.DATABASE_URL}}
+  # FIREBASE_ADMIN_PASSPHRASE: ${{secrets.FIREBASE_ADMIN_PASSPHRASE}}
+
 jobs:
   example:
     name: Create Ubuntu OS
@@ -27,6 +31,26 @@ jobs:
           go mod tidy
           go get github.com/franela/goblin
           ls
+      
+      # - name: Setup Firebase JSON file
+      #   run: echo "{${{ secrets.FIREBASE_JSON }}}" > edusync-7bd5e-firebase-adminsdk-x49uh-af084a6314.json
+
+      # - name: Build and run JSON validator
+      #   run: |
+      #     go run json_validator.go edusync-7bd5e-firebase-adminsdk-x49uh-af084a6314.json
+
+      - name: Decrypt Firebase JSON
+        run: |
+          chmod +x decrypt_secret.sh
+          ./decrypt_secret.sh
+        env:
+          FIREBASE_ADMIN_PASSPHRASE: ${{secrets.FIREBASE_ADMIN_PASSPHRASE}}
+
+      - name: Testing, to be removed
+        run: |
+          ls
+          # cat $HOME/secrets/edusync-7bd5e-firebase-adminsdk-x49uh-af084a6314.json
+          cat edusync-7bd5e-firebase-adminsdk-x49uh-af084a6314.json
 
       - name: Go Test
         run: |
