@@ -3,42 +3,22 @@ package main
 import (
 	"log"
 	"net/http"
+
+	"github.com/gorilla/pat"
 )
 
-// func init() {
-// 	// Example: Create a new student
-// 	student := NewStudent("John Doe", 11, "Digital Navigators", "Scott Smith")
-// 	err := fireDB.Create("/students/"+student.ID.String(), student)
-// 	if err != nil {
-// 		log.Fatalf("Failed to create student: %v", err)
-// 	}
-// 	fmt.Println("Student created successfully")
+func init() {
+	// validateJSON("edusync-7bd5e-firebase-adminsdk-x49uh-af084a6314.json")
+	// jsonFilePath := "$HOME/secrets/edusync-7bd5e-firebase-adminsdk-x49uh-af084a6314.json"
 
-// 	// Example: Read the student data
-// 	var readStudent Student
-// 	err = fireDB.Read("/students/"+student.ID.String(), &readStudent)
-// 	if err != nil {
-// 		log.Fatalf("Failed to read student: %v", err)
-// 	}
-// 	fmt.Printf("Student data: %+v\n", readStudent)
+	// err := validateJSON(jsonFilePath)
+	// if err != nil {
+	// 	log.Fatalf("JSON validation failed: %v", err)
+	// }
 
-// 	// Example: Update the student data
-// 	updates := map[string]interface{}{
-// 		"Age": 12,
-// 	}
-// 	err = fireDB.Update("/students/"+student.ID.String(), updates)
-// 	if err != nil {
-// 		log.Fatalf("Failed to update student: %v", err)
-// 	}
-// 	fmt.Println("Student updated successfully")
-
-// 	// Example: Delete the student data
-// 	err = fireDB.Delete("/students/" + student.ID.String())
-// 	if err != nil {
-// 		log.Fatalf("Failed to delete student: %v", err)
-// 	}
-// 	fmt.Println("Student deleted successfully")
-// }
+	// log.Println("JSON is valid.")
+	database()
+}
 
 func main() {
 	// http.HandleFunc("/1", serverhome)
@@ -47,7 +27,22 @@ func main() {
 	// http.ListenAndServeTLS("192.168.1.129:8080", "server.crt", "server.key", handler())
 
 	// err := http.ListenAndServeTLS(":8080", "server.crt", "server.key", handler())
-	err := http.ListenAndServeTLS(":8080", "cert.pem", "key.pem", handler())
+
+	// Load configuration
+	config, err := LoadConfig("config.json")
+	if err != nil {
+		log.Fatalf("could not load config: %v", err)
+	}
+
+	// Create a new router
+	router := pat.New()
+
+	// Set up authentication routes
+	AuthHandler(router, config)
+
+	// Start the HTTPS server with the provided certificate and key files
+	log.Println("listening on localhost:8080")
+	err = http.ListenAndServeTLS(":8080", "cert.pem", "key.pem", router)
 	if err != nil {
 		log.Fatal(err)
 	}

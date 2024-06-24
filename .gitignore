@@ -2,5 +2,7 @@
 *.crt
 *.key
 *.pem
-edusync-firebase.json
+edusync-7bd5e-firebase-adminsdk-x49uh-af084a6314.json
+edusync-test-firebase-adminsdk-hk5kl-9af0162b09.json
 .env
+config.json
