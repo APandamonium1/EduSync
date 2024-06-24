@@ -3,6 +3,8 @@ package main
 import (
 	"log"
 	"net/http"
+
+	"github.com/gorilla/pat"
 )
 
 func init() {
@@ -25,7 +27,22 @@ func main() {
 	// http.ListenAndServeTLS("192.168.1.129:8080", "server.crt", "server.key", handler())
 
 	// err := http.ListenAndServeTLS(":8080", "server.crt", "server.key", handler())
-	err := http.ListenAndServeTLS(":8080", "cert.pem", "key.pem", handler())
+
+	// Load configuration
+	config, err := LoadConfig("config.json")
+	if err != nil {
+		log.Fatalf("could not load config: %v", err)
+	}
+
+	// Create a new router
+	router := pat.New()
+
+	// Set up authentication routes
+	AuthHandler(router, config)
+
+	// Start the HTTPS server with the provided certificate and key files
+	log.Println("listening on localhost:8080")
+	err = http.ListenAndServeTLS(":8080", "cert.pem", "key.pem", router)
 	if err != nil {
 		log.Fatal(err)
 	}
