@@ -8,16 +8,8 @@ import (
 )
 
 func init() {
-	// validateJSON("edusync-7bd5e-firebase-adminsdk-x49uh-af084a6314.json")
-	// jsonFilePath := "$HOME/secrets/edusync-7bd5e-firebase-adminsdk-x49uh-af084a6314.json"
-
-	// err := validateJSON(jsonFilePath)
-	// if err != nil {
-	// 	log.Fatalf("JSON validation failed: %v", err)
-	// }
-
-	// log.Println("JSON is valid.")
-	database()
+	// database()
+	initializeFirebase()
 }
 
 func main() {

@@ -2,13 +2,13 @@ package main
 
 import (
 	"time"
-
-	"github.com/google/uuid"
+	// "github.com/google/uuid"
 )
 
 // Student struct for storing student information
 type Student struct {
-	ID            uuid.UUID `json:"id"`
+	// ID            uuid.UUID `json:"id"`
+	GoogleID      string    `json:"google_id"`
 	Name          string    `json:"name"`
 	Age           int       `json:"age"`
 	LessonCredits float32   `json:"lesson_credits"`
@@ -23,7 +23,8 @@ type Student struct {
 
 // Instructor struct for storing instructor information
 type Instructor struct {
-	ID               uuid.UUID `json:"id"`
+	// ID               uuid.UUID `json:"id"`
+	GoogleID         string    `json:"google_id"`
 	Name             string    `json:"name"`
 	ContactNumber    string    `json:"contact_number"`
 	Email            string    `json:"email"`
@@ -35,7 +36,8 @@ type Instructor struct {
 
 // Parent struct for storing parent information
 type Parent struct {
-	ID        uuid.UUID `json:"id"`
+	// ID        uuid.UUID `json:"id"`
+	GoogleID  string    `json:"google_id"`
 	Name      string    `json:"name"`
 	Email     string    `json:"email"`
 	ContactNo string    `json:"contact_no"`
@@ -44,9 +46,11 @@ type Parent struct {
 }
 
 // NewStudent creates a new Student instance
-func NewStudent(name string, age int, lessonCredits float32, email string, contactNumber string, class string, instructor string, parentName string) Student {
+// func NewStudent(name string, age int, lessonCredits float32, email string, contactNumber string, class string, instructor string, parentName string) Student {
+func NewStudent(googleID string, name string, age int, lessonCredits float32, email, contactNumber string, class string, instructor string, parentName string) Student {
 	return Student{
-		ID:            uuid.New(),
+		// ID:            uuid.New(),
+		GoogleID:      googleID,
 		Name:          name,
 		Age:           age,
 		LessonCredits: lessonCredits,
@@ -61,9 +65,11 @@ func NewStudent(name string, age int, lessonCredits float32, email string, conta
 }
 
 // NewInstructor creates a new Instructor instance
-func NewInstructor(name string, contactNumber string, email string, basePay float64, numberOfStudents int) Instructor {
+// func NewInstructor(name string, contactNumber string, email string, basePay float64, numberOfStudents int) Instructor {
+func NewInstructor(googleID, name, contactNumber, email string, basePay float64, numberOfStudents int) Instructor {
 	return Instructor{
-		ID:               uuid.New(),
+		// ID:               uuid.New(),
+		GoogleID:         googleID,
 		Name:             name,
 		ContactNumber:    contactNumber,
 		Email:            email,
@@ -74,9 +80,11 @@ func NewInstructor(name string, contactNumber string, email string, basePay floa
 	}
 }
 
-func NewParent(name string, email string, contactNo string) Parent {
+// func NewParent(name string, email string, contactNo string) Parent {
+func NewParent(googleID, name, email, contactNo string) Parent {
 	return Parent{
-		ID:        uuid.New(),
+		// ID:        uuid.New(),
+		GoogleID:  googleID,
 		Name:      name,
 		Email:     email,
 		ContactNo: contactNo,

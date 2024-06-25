@@ -3,6 +3,7 @@ package main
 import (
 	"fmt"
 	"html/template"
+	"log"
 	"net/http"
 
 	"github.com/gorilla/pat"
@@ -35,6 +36,21 @@ func AuthHandler(router *pat.Router, config *Config) {
 			fmt.Fprintln(res, err)
 			return
 		}
+
+		// Extract user details from the goth.User
+		googleID := user.UserID
+		name := user.Name
+		email := user.Email
+
+		// Example: Create or update a student with the extracted details
+		student := NewStudent(googleID, name, 18, 10.0, email, "91234567", "TE", "Mr. Smith", "Mrs. Doe")
+		err = createStudent(student.GoogleID, student)
+		if err != nil {
+			log.Println("Error creating student:", err)
+		} else {
+			log.Println("Student created/updated successfully!")
+		}
+
 		t, _ := template.ParseFiles("templates/success.html")
 		t.Execute(res, user)
 	})
