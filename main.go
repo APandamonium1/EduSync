@@ -31,8 +31,8 @@ func main() {
 	// }
 
 	router := mux.NewRouter()
-	fs := http.FileServer(http.Dir("static"))
-	router.PathPrefix("/static").Handler(http.StripPrefix("/static", fs))
+	fs := http.FileServer(http.Dir("assets"))
+	router.PathPrefix("/assets").Handler(http.StripPrefix("/assets", fs))
 	//http.Handle("/resources/", http.StripPrefix("/resources", fs))
 	router.HandleFunc("/", index)
 	log.Println("listening on localhost:8080")
