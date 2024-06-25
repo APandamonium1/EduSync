@@ -6,28 +6,11 @@ import (
 	"time"
 
 	"log"
-	"os"
-
-	// "github.com/joho/godotenv"
 
 	firebase "firebase.google.com/go"
 	"firebase.google.com/go/db"
 	"google.golang.org/api/option"
 )
-
-// Use godot package to load/read the .env file and
-// return the value of the key
-// func goDotEnvVariable(key string) string {
-
-// 	// load .env file
-// 	err := godotenv.Load(".env")
-
-// 	if err != nil {
-// 		log.Fatalf("Error loading .env file")
-// 	}
-
-// 	return os.Getenv(key)
-// }
 
 func database() {
 	// Find home directory.
@@ -43,22 +26,22 @@ func database() {
 	// if databaseURL == "" {
 	// 	return fmt.Errorf("DATABASE_URL is not set in the .env file")
 	// }
-	databaseURL, found := os.LookupEnv("DATABASE_URL")
-	if !found {
-		log.Fatalf("DATABASE_URL is not set in the environment variables")
-	}
-	conf := &firebase.Config{DatabaseURL: databaseURL}
-
-	// conf := &firebase.Config{
-	// 	DatabaseURL: "https://edusync-test-default-rtdb.firebaseio.com/",
+	// databaseURL, found := os.LookupEnv("DATABASE_URL")
+	// if !found {
+	// 	log.Fatalf("DATABASE_URL is not set in the environment variables")
 	// }
+	// conf := &firebase.Config{DatabaseURL: databaseURL}
+
+	conf := &firebase.Config{
+		DatabaseURL: "https://edusync-test-default-rtdb.firebaseio.com/",
+	}
 
 	// Set up the Firebase app with the provided JSON file containing the service account key.
 	// opt := option.WithCredentialsFile(home + "edusync-test-firebase-adminsdk-hk5kl-9af0162b09.json")
 
 	// fetch service account key
-	// opt := option.WithCredentialsFile("edusync-test-firebase-adminsdk-hk5kl-9af0162b09.json")
-	opt := option.WithCredentialsFile("edusync-7bd5e-firebase-adminsdk-x49uh-af084a6314.json")
+	opt := option.WithCredentialsFile("edusync-test-firebase-adminsdk-hk5kl-9af0162b09.json")
+	// opt := option.WithCredentialsFile("edusync-7bd5e-firebase-adminsdk-x49uh-af084a6314.json")
 	// opt := option.WithCredentialsFile("$HOME/secrets/edusync-7bd5e-firebase-adminsdk-x49uh-af084a6314.json")
 
 	app, err := firebase.NewApp(ctx, conf, opt)
