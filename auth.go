@@ -5,14 +5,15 @@ import (
 	"html/template"
 	"net/http"
 
-	"github.com/gorilla/mux"
+	"github.com/gorilla/pat"
 	"github.com/gorilla/sessions"
 	"github.com/markbates/goth"
 	"github.com/markbates/goth/gothic"
 	"github.com/markbates/goth/providers/google"
 )
 
-func AuthHandler(router *mux.Router, config *Config) {
+// AuthHandler sets up the authentication routes on the provided router
+func AuthHandler(router *pat.Router, config *Config) {
 	maxAge := 86400 * 30 // 30 days
 	isProd := true       // Set to true when serving over https
 
@@ -28,39 +29,22 @@ func AuthHandler(router *mux.Router, config *Config) {
 		google.New(config.GoogleClientID, config.GoogleClientSecret, "https://localhost:8080/auth/google/callback", "email", "profile"),
 	)
 
-	router.HandleFunc("/auth/{provider}/callback", func(res http.ResponseWriter, req *http.Request) {
+	router.Get("/auth/{provider}/callback", func(res http.ResponseWriter, req *http.Request) {
 		user, err := gothic.CompleteUserAuth(res, req)
 		if err != nil {
 			fmt.Fprintln(res, err)
 			return
 		}
-		t, err := template.ParseFiles("templates/success.html")
-		if err != nil {
-			http.Error(res, err.Error(), http.StatusInternalServerError)
-			return
-		}
+		t, _ := template.ParseFiles("templates/success.html")
 		t.Execute(res, user)
-	}).Methods("GET")
+	})
 
-	router.HandleFunc("/auth/{provider}", func(res http.ResponseWriter, req *http.Request) {
+	router.Get("/auth/{provider}", func(res http.ResponseWriter, req *http.Request) {
 		gothic.BeginAuthHandler(res, req)
-	}).Methods("GET")
+	})
 
-	router.HandleFunc("/login", func(res http.ResponseWriter, req *http.Request) {
-		t, err := template.ParseFiles("templates/index.html")
-		if err != nil {
-			http.Error(res, err.Error(), http.StatusInternalServerError)
-			return
-		}
+	router.Get("/", func(res http.ResponseWriter, req *http.Request) {
+		t, _ := template.ParseFiles("templates/index.html")
 		t.Execute(res, false)
-	}).Methods("GET")
-
-	router.HandleFunc("/", func(res http.ResponseWriter, req *http.Request) {
-		t, err := template.ParseFiles("templates/home.html")
-		if err != nil {
-			http.Error(res, err.Error(), http.StatusInternalServerError)
-			return
-		}
-		t.Execute(res, false)
-	}).Methods("GET")
+	})
 }
