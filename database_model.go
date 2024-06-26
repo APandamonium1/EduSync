@@ -36,6 +36,19 @@ type Instructor struct {
 	UpdatedAt        time.Time `json:"updated_at"`
 }
 
+type Admin struct {
+	// ID               uuid.UUID `json:"id"`
+	GoogleID      string    `json:"google_id"`
+	Name          string    `json:"name"`
+	ContactNumber string    `json:"contact_number"`
+	Email         string    `json:"email"`
+	BasePay       float64   `json:"base_pay"`
+	Incentive     float64   `json:"incentive"`
+	Role          string    `json:"role"`
+	CreatedAt     time.Time `json:"created_at"`
+	UpdatedAt     time.Time `json:"updated_at"`
+}
+
 // Parent struct for storing parent information
 type Parent struct {
 	// ID        uuid.UUID `json:"id"`
@@ -82,6 +95,21 @@ func NewInstructor(googleID, name, contactNumber, email, role string, basePay fl
 		Role:             role,
 		CreatedAt:        time.Now(),
 		UpdatedAt:        time.Now(),
+	}
+}
+
+func NewAdmin(googleID, name, contactNumber, email, role string, basePay, incentive float64) Admin {
+	return Admin{
+		// ID:               uuid.New(),
+		GoogleID:      googleID,
+		Name:          name,
+		ContactNumber: contactNumber,
+		Email:         email,
+		BasePay:       basePay,
+		Incentive:     incentive,
+		Role:          role,
+		CreatedAt:     time.Now(),
+		UpdatedAt:     time.Now(),
 	}
 }
 
