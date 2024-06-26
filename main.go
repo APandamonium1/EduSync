@@ -19,12 +19,14 @@ func main() {
 	}
 
 	router := mux.NewRouter()
+
+	// Serving static files
 	fs := http.FileServer(http.Dir("assets"))
 	router.PathPrefix("/assets").Handler(http.StripPrefix("/assets", fs))
-	//http.Handle("/resources/", http.StripPrefix("/resources", fs))
 
 	// Set up authentication routes
 	AuthHandler(router, config)
+	RoleHandler(router)
 
 	log.Println("listening on localhost:8080")
 	err = http.ListenAndServeTLS(":8080", "cert.pem", "key.pem", router)
