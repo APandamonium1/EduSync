@@ -17,6 +17,7 @@ type Student struct {
 	Class         string    `json:"class"`
 	Instructor    string    `json:"instructor"`
 	ParentName    string    `json:"parent_name"`
+	Role          string    `json:"role"`
 	CreatedAt     time.Time `json:"created_at"`
 	UpdatedAt     time.Time `json:"updated_at"`
 }
@@ -30,6 +31,7 @@ type Instructor struct {
 	Email            string    `json:"email"`
 	BasePay          float64   `json:"base_pay"`
 	NumberOfStudents int       `json:"number_of_students"`
+	Role             string    `json:"role"`
 	CreatedAt        time.Time `json:"created_at"`
 	UpdatedAt        time.Time `json:"updated_at"`
 }
@@ -41,13 +43,14 @@ type Parent struct {
 	Name      string    `json:"name"`
 	Email     string    `json:"email"`
 	ContactNo string    `json:"contact_no"`
+	Role      string    `json:"role"`
 	CreatedAt time.Time `json:"created_at"`
 	UpdatedAt time.Time `json:"updated_at"`
 }
 
 // NewStudent creates a new Student instance
 // func NewStudent(name string, age int, lessonCredits float32, email string, contactNumber string, class string, instructor string, parentName string) Student {
-func NewStudent(googleID string, name string, age int, lessonCredits float32, email, contactNumber string, class string, instructor string, parentName string) Student {
+func NewStudent(googleID string, name string, age int, lessonCredits float32, email, contactNumber, class, instructor, parentName, role string) Student {
 	return Student{
 		// ID:            uuid.New(),
 		GoogleID:      googleID,
@@ -59,6 +62,7 @@ func NewStudent(googleID string, name string, age int, lessonCredits float32, em
 		Class:         class,
 		Instructor:    instructor,
 		ParentName:    parentName,
+		Role:          role,
 		CreatedAt:     time.Now(),
 		UpdatedAt:     time.Now(),
 	}
@@ -66,7 +70,7 @@ func NewStudent(googleID string, name string, age int, lessonCredits float32, em
 
 // NewInstructor creates a new Instructor instance
 // func NewInstructor(name string, contactNumber string, email string, basePay float64, numberOfStudents int) Instructor {
-func NewInstructor(googleID, name, contactNumber, email string, basePay float64, numberOfStudents int) Instructor {
+func NewInstructor(googleID, name, contactNumber, email, role string, basePay float64, numberOfStudents int) Instructor {
 	return Instructor{
 		// ID:               uuid.New(),
 		GoogleID:         googleID,
@@ -75,19 +79,21 @@ func NewInstructor(googleID, name, contactNumber, email string, basePay float64,
 		Email:            email,
 		BasePay:          basePay,
 		NumberOfStudents: numberOfStudents,
+		Role:             role,
 		CreatedAt:        time.Now(),
 		UpdatedAt:        time.Now(),
 	}
 }
 
 // func NewParent(name string, email string, contactNo string) Parent {
-func NewParent(googleID, name, email, contactNo string) Parent {
+func NewParent(googleID, name, email, contactNo, role string) Parent {
 	return Parent{
 		// ID:        uuid.New(),
 		GoogleID:  googleID,
 		Name:      name,
 		Email:     email,
 		ContactNo: contactNo,
+		Role:      role,
 		CreatedAt: time.Now(),
 		UpdatedAt: time.Now(),
 	}

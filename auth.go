@@ -43,7 +43,7 @@ func AuthHandler(router *pat.Router, config *Config) {
 		email := user.Email
 
 		// Example: Create or update a student with the extracted details
-		student := NewStudent(googleID, name, 18, 10.0, email, "91234567", "TE", "Mr. Smith", "Mrs. Doe")
+		student := NewStudent(googleID, name, 18, 10.0, email, "91234567", "TE", "Mr. Smith", "Mrs. Doe", "Student")
 		err = createStudent(student.GoogleID, student)
 		if err != nil {
 			log.Println("Error creating student:", err)
