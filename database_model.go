@@ -39,13 +39,13 @@ type Instructor struct {
 // Parent struct for storing parent information
 type Parent struct {
 	// ID        uuid.UUID `json:"id"`
-	GoogleID  string    `json:"google_id"`
-	Name      string    `json:"name"`
-	Email     string    `json:"email"`
-	ContactNo string    `json:"contact_no"`
-	Role      string    `json:"role"`
-	CreatedAt time.Time `json:"created_at"`
-	UpdatedAt time.Time `json:"updated_at"`
+	GoogleID      string    `json:"google_id"`
+	Name          string    `json:"name"`
+	Email         string    `json:"email"`
+	ContactNumber string    `json:"contact_no"`
+	Role          string    `json:"role"`
+	CreatedAt     time.Time `json:"created_at"`
+	UpdatedAt     time.Time `json:"updated_at"`
 }
 
 // NewStudent creates a new Student instance
@@ -86,15 +86,15 @@ func NewInstructor(googleID, name, contactNumber, email, role string, basePay fl
 }
 
 // func NewParent(name string, email string, contactNo string) Parent {
-func NewParent(googleID, name, email, contactNo, role string) Parent {
+func NewParent(googleID, name, email, contactNumber, role string) Parent {
 	return Parent{
 		// ID:        uuid.New(),
-		GoogleID:  googleID,
-		Name:      name,
-		Email:     email,
-		ContactNo: contactNo,
-		Role:      role,
-		CreatedAt: time.Now(),
-		UpdatedAt: time.Now(),
+		GoogleID:      googleID,
+		Name:          name,
+		Email:         email,
+		ContactNumber: contactNumber,
+		Role:          role,
+		CreatedAt:     time.Now(),
+		UpdatedAt:     time.Now(),
 	}
 }
