@@ -63,6 +63,142 @@ func initializeFirebase() error {
 	return nil
 }
 
+// Student CRUD
+func createStudent(googleID string, student Student) error {
+	ref := firebaseClient.NewRef("students/" + googleID)
+	if err := ref.Set(context.TODO(), student); err != nil {
+		return fmt.Errorf("error creating student: %v", err)
+	}
+	return ref.Set(context.TODO(), student)
+}
+
+func readStudent(googleID string) (Student, error) {
+	ref := firebaseClient.NewRef("students/" + googleID)
+	var student Student
+	if err := ref.Get(context.TODO(), &student); err != nil {
+		return Student{}, fmt.Errorf("error reading student: %v", err)
+	}
+	return student, nil
+}
+
+func updateStudent(googleID string, updates map[string]interface{}) error {
+	ref := firebaseClient.NewRef("students/" + googleID)
+	if err := ref.Update(context.TODO(), updates); err != nil {
+		return fmt.Errorf("error updating student: %v", err)
+	}
+	return ref.Update(context.TODO(), updates)
+}
+
+func deleteStudent(googleID string) error {
+	ref := firebaseClient.NewRef("students/" + googleID)
+	if err := ref.Delete(context.TODO()); err != nil {
+		return fmt.Errorf("error deleting student: %v", err)
+	}
+	return ref.Delete(context.TODO())
+}
+
+// Instructor CRUD
+func createInstructor(googleID string, instructor Instructor) error {
+	ref := firebaseClient.NewRef("instructors/" + googleID)
+	if err := ref.Set(context.TODO(), instructor); err != nil {
+		return fmt.Errorf("error creating instructor: %v", err)
+	}
+	return ref.Set(context.TODO(), instructor)
+}
+
+func readInstructor(googleID string) (Instructor, error) {
+	ref := firebaseClient.NewRef("instructors/" + googleID)
+	var instructor Instructor
+	if err := ref.Get(context.TODO(), &instructor); err != nil {
+		return Instructor{}, fmt.Errorf("error reading instructor: %v", err)
+	}
+	return instructor, nil
+}
+
+func updateInstructor(googleID string, updates map[string]interface{}) error {
+	ref := firebaseClient.NewRef("instructors/" + googleID)
+	if err := ref.Update(context.TODO(), updates); err != nil {
+		return fmt.Errorf("error updating instructor: %v", err)
+	}
+	return ref.Update(context.TODO(), updates)
+}
+
+func deleteInstructor(googleID string) error {
+	ref := firebaseClient.NewRef("instructors/" + googleID)
+	if err := ref.Delete(context.TODO()); err != nil {
+		return fmt.Errorf("error deleting instructor: %v", err)
+	}
+	return ref.Delete(context.TODO())
+}
+
+// Admin CRUD
+func createAdmin(googleID string, admin Admin) error {
+	ref := firebaseClient.NewRef("admins/" + googleID)
+	if err := ref.Set(context.TODO(), admin); err != nil {
+		return fmt.Errorf("error creating admin: %v", err)
+	}
+	return ref.Set(context.TODO(), admin)
+}
+
+func readAdmin(googleID string) (Admin, error) {
+	ref := firebaseClient.NewRef("admins/" + googleID)
+	var admin Admin
+	if err := ref.Get(context.TODO(), &admin); err != nil {
+		return Admin{}, fmt.Errorf("error reading admin: %v", err)
+	}
+	return admin, nil
+}
+
+func updateAdmin(googleID string, updates map[string]interface{}) error {
+	ref := firebaseClient.NewRef("admins/" + googleID)
+	if err := ref.Update(context.TODO(), updates); err != nil {
+		return fmt.Errorf("error updating admin: %v", err)
+	}
+	return ref.Update(context.TODO(), updates)
+}
+
+func deleteAdmin(googleID string) error {
+	ref := firebaseClient.NewRef("admins/" + googleID)
+	if err := ref.Delete(context.TODO()); err != nil {
+		return fmt.Errorf("error deleting admin: %v", err)
+	}
+	return ref.Delete(context.TODO())
+}
+
+// Parent CRUD
+func createParent(googleID string, parent Parent) error {
+	ref := firebaseClient.NewRef("parents/" + googleID)
+	if err := ref.Set(context.TODO(), parent); err != nil {
+		return fmt.Errorf("error creating parent: %v", err)
+	}
+	return ref.Set(context.TODO(), parent)
+}
+
+func readParent(googleID string) (Parent, error) {
+	ref := firebaseClient.NewRef("parents/" + googleID)
+	var parent Parent
+	if err := ref.Get(context.TODO(), &parent); err != nil {
+		return Parent{}, fmt.Errorf("error reading parent: %v", err)
+	}
+	return parent, nil
+}
+
+func updateParent(googleID string, updates map[string]interface{}) error {
+	ref := firebaseClient.NewRef("parents/" + googleID)
+	if err := ref.Update(context.TODO(), updates); err != nil {
+		return fmt.Errorf("error updating parent: %v", err)
+	}
+	return ref.Update(context.TODO(), updates)
+}
+
+func deleteParent(googleID string) error {
+	ref := firebaseClient.NewRef("parents/" + googleID)
+	if err := ref.Delete(context.TODO()); err != nil {
+		return fmt.Errorf("error deleting parent: %v", err)
+	}
+	return ref.Delete(context.TODO())
+}
+
 // func database() {
 // 	// Find home directory.
 // 	// home, err := os.Getwd()
@@ -237,65 +373,6 @@ func initializeFirebase() error {
 //		return ref.Delete(context.TODO())
 //	}
 
-// // Student CRUD Ver 2
-// func createStudent(client *db.Client, googleID string, student Student) error {
-// 	ref := client.NewRef("students/" + googleID)
-// 	return ref.Set(context.TODO(), student)
-// }
-
-// func readStudent(client *db.Client, googleID string) (Student, error) {
-// 	ref := client.NewRef("students/" + googleID)
-// 	var student Student
-// 	if err := ref.Get(context.TODO(), &student); err != nil {
-// 		return Student{}, err
-// 	}
-// 	return student, nil
-// }
-
-// func updateStudent(client *db.Client, googleID string, updates map[string]interface{}) error {
-// 	ref := client.NewRef("students/" + googleID)
-// 	return ref.Update(context.TODO(), updates)
-// }
-
-// func deleteStudent(client *db.Client, googleID string) error {
-// 	ref := client.NewRef("students/" + googleID)
-// 	return ref.Delete(context.TODO())
-// }
-
-// Student CRUD Ver 3
-func createStudent(googleID string, student Student) error {
-	ref := firebaseClient.NewRef("students/" + googleID)
-	if err := ref.Set(context.TODO(), student); err != nil {
-		return fmt.Errorf("error creating student: %v", err)
-	}
-	return ref.Set(context.TODO(), student)
-}
-
-func readStudent(googleID string) (Student, error) {
-	ref := firebaseClient.NewRef("students/" + googleID)
-	var student Student
-	if err := ref.Get(context.TODO(), &student); err != nil {
-		return Student{}, fmt.Errorf("error reading student: %v", err)
-	}
-	return student, nil
-}
-
-func updateStudent(googleID string, updates map[string]interface{}) error {
-	ref := firebaseClient.NewRef("students/" + googleID)
-	if err := ref.Update(context.TODO(), updates); err != nil {
-		return fmt.Errorf("error updating student: %v", err)
-	}
-	return ref.Update(context.TODO(), updates)
-}
-
-func deleteStudent(googleID string) error {
-	ref := firebaseClient.NewRef("students/" + googleID)
-	if err := ref.Delete(context.TODO()); err != nil {
-		return fmt.Errorf("error deleting student: %v", err)
-	}
-	return ref.Delete(context.TODO())
-}
-
 // Instructor CRUD
 // func createInstructor(client *db.Client, userId string, instructor Instructor) error {
 // 	ref := client.NewRef("instructors/" + userId)
@@ -320,65 +397,6 @@ func deleteStudent(googleID string) error {
 //		ref := client.NewRef("instructors/" + userId)
 //		return ref.Delete(context.TODO())
 //	}
-
-// // Instructor CRUD Ver 2
-// func createInstructor(client *db.Client, googleID string, instructor Instructor) error {
-// 	ref := client.NewRef("instructors/" + googleID)
-// 	return ref.Set(context.TODO(), instructor)
-// }
-
-// func readInstructor(client *db.Client, googleID string) (Instructor, error) {
-// 	ref := client.NewRef("instructors/" + googleID)
-// 	var instructor Instructor
-// 	if err := ref.Get(context.TODO(), &instructor); err != nil {
-// 		return Instructor{}, err
-// 	}
-// 	return instructor, nil
-// }
-
-// func updateInstructor(client *db.Client, googleID string, updates map[string]interface{}) error {
-// 	ref := client.NewRef("instructors/" + googleID)
-// 	return ref.Update(context.TODO(), updates)
-// }
-
-// func deleteInstructor(client *db.Client, googleID string) error {
-// 	ref := client.NewRef("instructors/" + googleID)
-// 	return ref.Delete(context.TODO())
-// }
-
-// Instructor CRUD Ver 3
-func createInstructor(googleID string, instructor Instructor) error {
-	ref := firebaseClient.NewRef("instructors/" + googleID)
-	if err := ref.Set(context.TODO(), instructor); err != nil {
-		return fmt.Errorf("error creating instructor: %v", err)
-	}
-	return ref.Set(context.TODO(), instructor)
-}
-
-func readInstructor(googleID string) (Instructor, error) {
-	ref := firebaseClient.NewRef("instructors/" + googleID)
-	var instructor Instructor
-	if err := ref.Get(context.TODO(), &instructor); err != nil {
-		return Instructor{}, fmt.Errorf("error reading instructor: %v", err)
-	}
-	return instructor, nil
-}
-
-func updateInstructor(googleID string, updates map[string]interface{}) error {
-	ref := firebaseClient.NewRef("instructors/" + googleID)
-	if err := ref.Update(context.TODO(), updates); err != nil {
-		return fmt.Errorf("error updating instructor: %v", err)
-	}
-	return ref.Update(context.TODO(), updates)
-}
-
-func deleteInstructor(googleID string) error {
-	ref := firebaseClient.NewRef("instructors/" + googleID)
-	if err := ref.Delete(context.TODO()); err != nil {
-		return fmt.Errorf("error deleting instructor: %v", err)
-	}
-	return ref.Delete(context.TODO())
-}
 
 // Parent CRUD
 // func createParent(client *db.Client, userId string, parent Parent) error {
@@ -405,6 +423,56 @@ func deleteInstructor(googleID string) error {
 //		return ref.Delete(context.TODO())
 //	}
 
+// // Student CRUD Ver 2
+// func createStudent(client *db.Client, googleID string, student Student) error {
+// 	ref := client.NewRef("students/" + googleID)
+// 	return ref.Set(context.TODO(), student)
+// }
+
+// func readStudent(client *db.Client, googleID string) (Student, error) {
+// 	ref := client.NewRef("students/" + googleID)
+// 	var student Student
+// 	if err := ref.Get(context.TODO(), &student); err != nil {
+// 		return Student{}, err
+// 	}
+// 	return student, nil
+// }
+
+// func updateStudent(client *db.Client, googleID string, updates map[string]interface{}) error {
+// 	ref := client.NewRef("students/" + googleID)
+// 	return ref.Update(context.TODO(), updates)
+// }
+
+// func deleteStudent(client *db.Client, googleID string) error {
+// 	ref := client.NewRef("students/" + googleID)
+// 	return ref.Delete(context.TODO())
+// }
+
+// // Instructor CRUD Ver 2
+// func createInstructor(client *db.Client, googleID string, instructor Instructor) error {
+// 	ref := client.NewRef("instructors/" + googleID)
+// 	return ref.Set(context.TODO(), instructor)
+// }
+
+// func readInstructor(client *db.Client, googleID string) (Instructor, error) {
+// 	ref := client.NewRef("instructors/" + googleID)
+// 	var instructor Instructor
+// 	if err := ref.Get(context.TODO(), &instructor); err != nil {
+// 		return Instructor{}, err
+// 	}
+// 	return instructor, nil
+// }
+
+// func updateInstructor(client *db.Client, googleID string, updates map[string]interface{}) error {
+// 	ref := client.NewRef("instructors/" + googleID)
+// 	return ref.Update(context.TODO(), updates)
+// }
+
+// func deleteInstructor(client *db.Client, googleID string) error {
+// 	ref := client.NewRef("instructors/" + googleID)
+// 	return ref.Delete(context.TODO())
+// }
+
 // // Parent CRUD Ver 2
 // func createParent(client *db.Client, googleID string, parent Parent) error {
 // 	ref := client.NewRef("parents/" + googleID)
@@ -429,37 +497,3 @@ func deleteInstructor(googleID string) error {
 // 	ref := client.NewRef("parents/" + googleID)
 // 	return ref.Delete(context.TODO())
 // }
-
-// Parent CRUD Ver 3
-func createParent(googleID string, parent Parent) error {
-	ref := firebaseClient.NewRef("parents/" + googleID)
-	if err := ref.Set(context.TODO(), parent); err != nil {
-		return fmt.Errorf("error creating parent: %v", err)
-	}
-	return ref.Set(context.TODO(), parent)
-}
-
-func readParent(googleID string) (Parent, error) {
-	ref := firebaseClient.NewRef("parents/" + googleID)
-	var parent Parent
-	if err := ref.Get(context.TODO(), &parent); err != nil {
-		return Parent{}, fmt.Errorf("error reading parent: %v", err)
-	}
-	return parent, nil
-}
-
-func updateParent(googleID string, updates map[string]interface{}) error {
-	ref := firebaseClient.NewRef("parents/" + googleID)
-	if err := ref.Update(context.TODO(), updates); err != nil {
-		return fmt.Errorf("error updating parent: %v", err)
-	}
-	return ref.Update(context.TODO(), updates)
-}
-
-func deleteParent(googleID string) error {
-	ref := firebaseClient.NewRef("parents/" + googleID)
-	if err := ref.Delete(context.TODO()); err != nil {
-		return fmt.Errorf("error deleting parent: %v", err)
-	}
-	return ref.Delete(context.TODO())
-}

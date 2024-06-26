@@ -27,21 +27,7 @@ func TestInitializeFirebase(t *testing.T) {
 	// os.Exit(t.Run())
 }
 
-// func initializeFirebaseWithApp(app *firebase.App) error {
-// 	ctx := context.Background()
-
-// 	client, err := app.Database(ctx)
-// 	if err != nil {
-// 		return fmt.Errorf("error creating firebase DB client: %v", err)
-// 	}
-
-// 	firebaseClient = client
-// 	return nil
-// }
-
-// Repeat the below test functions for Instructor and Parent entities
-// Replace "Student" with "Instructor" and "student" with "instructor" in the test function names
-// Replace "Student" with "Parent" and "student" with "parent" in the test function names
+// Testing for student CRUD operations
 func TestCreateStudent(t *testing.T) {
 	// Initialize Firebase client
 	err := initializeFirebase()
@@ -139,6 +125,304 @@ func TestDeleteStudent(t *testing.T) {
 	// _, err = readStudent(googleID)
 	// if err == nil {
 	// 	t.Error("Deleted student still exists")
+	// }
+}
+
+// Testing for instructor CRUD operations
+func TestCreateInstructor(t *testing.T) {
+	// Initialize Firebase client
+	err := initializeFirebase()
+	if err != nil {
+		t.Fatalf("Error initializing Firebase: %v", err)
+	}
+
+	// Create a new instructor
+	instructor := Instructor{
+		GoogleID:         "test-instructor",
+		Name:             "Awesomeness",
+		ContactNumber:    "99999999",
+		Email:            "awesome_instructor@nk.com",
+		BasePay:          15,
+		NumberOfStudents: 24,
+		Role:             "Instructor",
+	}
+
+	err = createInstructor(instructor.GoogleID, instructor)
+	if err != nil {
+		t.Fatalf("Error creating instructor: %v", err)
+	}
+
+	// Read the created instructor
+	readInstructor, err := readInstructor(instructor.GoogleID)
+	if err != nil {
+		t.Fatalf("Error reading instructor: %v", err)
+	}
+
+	// Assert that the created and read instructor are equal
+	if !reflect.DeepEqual(instructor, readInstructor) {
+		t.Error("Created and read instructors are not equal")
+	}
+}
+
+func TestReadInstructor(t *testing.T) {
+	googleID := "test-instructor"
+
+	instructor, err := readInstructor(googleID)
+	if err != nil {
+		t.Fatalf("Failed to read instructor: %v", err)
+	}
+
+	if instructor.GoogleID != googleID {
+		t.Fatalf("Expected GoogleID %v, got %v", googleID, instructor.GoogleID)
+	}
+}
+
+func TestUpdateInstructor(t *testing.T) {
+	// Initialize Firebase client
+	err := initializeFirebase()
+	if err != nil {
+		t.Fatalf("Error initializing Firebase: %v", err)
+	}
+
+	// Update the instructor's email
+	updates := map[string]interface{}{
+		"email": "amazing_instructor@nk.com",
+	}
+
+	err = updateInstructor("test-instructor", updates)
+	if err != nil {
+		t.Fatalf("Error updating instructor: %v", err)
+	}
+
+	// Read the updated instructor
+	readInstructor, err := readInstructor("test-instructor")
+	if err != nil {
+		t.Fatalf("Error reading instructor: %v", err)
+	}
+
+	// Assert that the updated instructor's email is correct
+	if readInstructor.Email != updates["email"] {
+		t.Errorf("Updated instructor's email is incorrect. Expected: %v, Got: %v", updates["email"], readInstructor.Email)
+	}
+}
+
+func TestDeleteInstructor(t *testing.T) {
+	googleID := "test-instructor"
+
+	// Initialize Firebase client
+	err := initializeFirebase()
+	if err != nil {
+		t.Fatalf("Error initializing Firebase: %v", err)
+	}
+
+	// Delete the instructor
+	err = deleteInstructor(googleID)
+	if err != nil {
+		t.Fatalf("Error deleting instructor: %v", err)
+	}
+
+	// Try to read the deleted instructor
+	// _, err = readInstructor(googleID)
+	// if err == nil {
+	// 	t.Error("Deleted instructor still exists")
+	// }
+}
+
+// Testing for admin CRUD operations
+func TestCreateAdmin(t *testing.T) {
+	// Initialize Firebase client
+	err := initializeFirebase()
+	if err != nil {
+		t.Fatalf("Error initializing Firebase: %v", err)
+	}
+
+	// Create a new admin
+	admin := Admin{
+		GoogleID:      "test-admin",
+		Name:          "Awesomeness",
+		ContactNumber: "99999999",
+		Email:         "awesome_admin@nk.com",
+		BasePay:       15,
+		Incentive:     24,
+		Role:          "Admin",
+	}
+
+	err = createAdmin(admin.GoogleID, admin)
+	if err != nil {
+		t.Fatalf("Error creating admin: %v", err)
+	}
+
+	// Read the created admin
+	readAdmin, err := readAdmin(admin.GoogleID)
+	if err != nil {
+		t.Fatalf("Error reading admin: %v", err)
+	}
+
+	// Assert that the created and read admin are equal
+	if !reflect.DeepEqual(admin, readAdmin) {
+		t.Error("Created and read admins are not equal")
+	}
+}
+
+func TestReadAdmin(t *testing.T) {
+	googleID := "test-admin"
+
+	admin, err := readAdmin(googleID)
+	if err != nil {
+		t.Fatalf("Failed to read instructor: %v", err)
+	}
+
+	if admin.GoogleID != googleID {
+		t.Fatalf("Expected GoogleID %v, got %v", googleID, admin.GoogleID)
+	}
+}
+
+func TestUpdateAdmin(t *testing.T) {
+	// Initialize Firebase client
+	err := initializeFirebase()
+	if err != nil {
+		t.Fatalf("Error initializing Firebase: %v", err)
+	}
+
+	// Update the admin's email
+	updates := map[string]interface{}{
+		"email": "amazing_admin@nk.com",
+	}
+
+	err = updateAdmin("test-admin", updates)
+	if err != nil {
+		t.Fatalf("Error updating admin: %v", err)
+	}
+
+	// Read the updated admin
+	readAdmin, err := readAdmin("test-admin")
+	if err != nil {
+		t.Fatalf("Error reading admin: %v", err)
+	}
+
+	// Assert that the updated admin's email is correct
+	if readAdmin.Email != updates["email"] {
+		t.Errorf("Updated admin's email is incorrect. Expected: %v, Got: %v", updates["email"], readAdmin.Email)
+	}
+}
+
+func TestDeleteAdmin(t *testing.T) {
+	googleID := "test-admin"
+
+	// Initialize Firebase client
+	err := initializeFirebase()
+	if err != nil {
+		t.Fatalf("Error initializing Firebase: %v", err)
+	}
+
+	// Delete the admin
+	err = deleteAdmin(googleID)
+	if err != nil {
+		t.Fatalf("Error deleting admin: %v", err)
+	}
+
+	// Try to read the deleted admin
+	// _, err = readAdmin(googleID)
+	// if err == nil {
+	// 	t.Error("Deleted admin still exists")
+	// }
+}
+
+// Testing for parent CRUD operations
+func TestCreateParent(t *testing.T) {
+	// Initialize Firebase client
+	err := initializeFirebase()
+	if err != nil {
+		t.Fatalf("Error initializing Firebase: %v", err)
+	}
+
+	// Create a new parent
+	parent := Parent{
+		GoogleID:      "test-parent",
+		Name:          "Awesomeness",
+		ContactNumber: "99999999",
+		Email:         "janedoe@nk.com",
+		Role:          "Parent",
+	}
+
+	err = createParent(parent.GoogleID, parent)
+	if err != nil {
+		t.Fatalf("Error creating parent: %v", err)
+	}
+
+	// Read the created parent
+	readParent, err := readParent(parent.GoogleID)
+	if err != nil {
+		t.Fatalf("Error reading parent: %v", err)
+	}
+
+	// Assert that the created and read parent are equal
+	if !reflect.DeepEqual(parent, readParent) {
+		t.Error("Created and read parents are not equal")
+	}
+}
+
+func TestReadParent(t *testing.T) {
+	googleID := "test-parent"
+
+	parent, err := readParent(googleID)
+	if err != nil {
+		t.Fatalf("Failed to read parent: %v", err)
+	}
+
+	if parent.GoogleID != googleID {
+		t.Fatalf("Expected GoogleID %v, got %v", googleID, parent.GoogleID)
+	}
+}
+
+func TestUpdateParent(t *testing.T) {
+	// Initialize Firebase client
+	err := initializeFirebase()
+	if err != nil {
+		t.Fatalf("Error initializing Firebase: %v", err)
+	}
+
+	// Update the parent's email
+	updates := map[string]interface{}{
+		"email": "janedoe_parent@nk.com",
+	}
+
+	err = updateParent("test-parent", updates)
+	if err != nil {
+		t.Fatalf("Error updating parent: %v", err)
+	}
+
+	// Read the updated parent
+	readParent, err := readParent("test-parent")
+	if err != nil {
+		t.Fatalf("Error reading parent: %v", err)
+	}
+
+	// Assert that the updated parent's email is correct
+	if readParent.Email != updates["email"] {
+		t.Errorf("Updated parent's email is incorrect. Expected: %v, Got: %v", updates["email"], readParent.Email)
+	}
+}
+
+func TestDeleteParent(t *testing.T) {
+	googleID := "test-parent"
+
+	// Initialize Firebase client
+	err := initializeFirebase()
+	if err != nil {
+		t.Fatalf("Error initializing Firebase: %v", err)
+	}
+
+	// Delete the parent
+	err = deleteInstructor(googleID)
+	if err != nil {
+		t.Fatalf("Error deleting parent: %v", err)
+	}
+
+	// Try to read the deleted parent
+	// _, err = readParent(googleID)
+	// if err == nil {
+	// 	t.Error("Deleted parent still exists")
 	// }
 }
 
