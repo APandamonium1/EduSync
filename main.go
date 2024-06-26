@@ -27,8 +27,8 @@ func main() {
 
 	// Set up authentication routes
 	AuthHandler(router, config)
+	RoleHandler(router)
 
-	// Start the HTTPS server with the provided certificate and key files
 	log.Println("listening on localhost:8080")
 	err = http.ListenAndServeTLS(":8080", "cert.pem", "key.pem", router)
 	if err != nil {
