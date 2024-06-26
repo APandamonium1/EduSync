@@ -8,7 +8,8 @@ import (
 )
 
 func init() {
-	database()
+	// database()
+	initializeFirebase()
 }
 
 func main() {
