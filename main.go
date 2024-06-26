@@ -4,7 +4,7 @@ import (
 	"log"
 	"net/http"
 
-	"github.com/gorilla/pat"
+	"github.com/gorilla/mux"
 )
 
 func init() {
@@ -13,21 +13,17 @@ func init() {
 }
 
 func main() {
-	// http.HandleFunc("/1", serverhome)
-	// http.HandleFunc("/2", setCookieHandler)
-	// http.ListenAndServe(":8080", handler())
-	// http.ListenAndServeTLS("192.168.1.129:8080", "server.crt", "server.key", handler())
-
-	// err := http.ListenAndServeTLS(":8080", "server.crt", "server.key", handler())
-
 	// Load configuration
 	config, err := LoadConfig("config.json")
 	if err != nil {
 		log.Fatalf("could not load config: %v", err)
 	}
 
-	// Create a new router
-	router := pat.New()
+	router := mux.NewRouter()
+
+	// Serving static files
+	fs := http.FileServer(http.Dir("assets"))
+	router.PathPrefix("/assets").Handler(http.StripPrefix("/assets", fs))
 
 	// Set up authentication routes
 	AuthHandler(router, config)
