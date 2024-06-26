@@ -1,5 +1,147 @@
 package main
 
+import (
+	// "context"
+	// "fmt"
+
+	// "os"
+	"reflect"
+
+	// "strings"
+	"testing"
+	// firebase "firebase.google.com/go"
+	// "google.golang.org/api/option"
+)
+
+func TestInitializeFirebase(t *testing.T) {
+	// Test case 1: FirebaseClient is set correctly
+	err := initializeFirebase()
+	if err != nil {
+		t.Fatalf("Error initializing Firebase: %v", err)
+	}
+	if firebaseClient == nil {
+		t.Fatal("FirebaseClient is not set")
+	}
+
+	// Run tests
+	// os.Exit(t.Run())
+}
+
+// func initializeFirebaseWithApp(app *firebase.App) error {
+// 	ctx := context.Background()
+
+// 	client, err := app.Database(ctx)
+// 	if err != nil {
+// 		return fmt.Errorf("error creating firebase DB client: %v", err)
+// 	}
+
+// 	firebaseClient = client
+// 	return nil
+// }
+
+// Repeat the below test functions for Instructor and Parent entities
+// Replace "Student" with "Instructor" and "student" with "instructor" in the test function names
+// Replace "Student" with "Parent" and "student" with "parent" in the test function names
+func TestCreateStudent(t *testing.T) {
+	// Initialize Firebase client
+	err := initializeFirebase()
+	if err != nil {
+		t.Fatalf("Error initializing Firebase: %v", err)
+	}
+
+	// Create a new student
+	student := Student{
+		GoogleID:   "test-student",
+		Name:       "John Doe",
+		Email:      "johndoe@example.com",
+		Age:        12,
+		Class:      "TE",
+		Instructor: "Awesomeness",
+		ParentName: "Jane Doe",
+		Role:       "Student",
+	}
+
+	err = createStudent(student.GoogleID, student)
+	if err != nil {
+		t.Fatalf("Error creating student: %v", err)
+	}
+
+	// Read the created student
+	readStudent, err := readStudent(student.GoogleID)
+	if err != nil {
+		t.Fatalf("Error reading student: %v", err)
+	}
+
+	// Assert that the created and read students are equal
+	if !reflect.DeepEqual(student, readStudent) {
+		t.Error("Created and read students are not equal")
+	}
+}
+
+func TestReadStudent(t *testing.T) {
+	googleID := "test-student"
+
+	student, err := readStudent(googleID)
+	if err != nil {
+		t.Fatalf("Failed to read student: %v", err)
+	}
+
+	if student.GoogleID != googleID {
+		t.Fatalf("Expected GoogleID %v, got %v", googleID, student.GoogleID)
+	}
+}
+
+func TestUpdateStudent(t *testing.T) {
+	// Initialize Firebase client
+	err := initializeFirebase()
+	if err != nil {
+		t.Fatalf("Error initializing Firebase: %v", err)
+	}
+
+	// Update the student's email
+	updates := map[string]interface{}{
+		"email": "johndoe@nk.com",
+	}
+
+	err = updateStudent("test-student", updates)
+	if err != nil {
+		t.Fatalf("Error updating student: %v", err)
+	}
+
+	// Read the updated student
+	readStudent, err := readStudent("test-student")
+	if err != nil {
+		t.Fatalf("Error reading student: %v", err)
+	}
+
+	// Assert that the updated student's email is correct
+	if readStudent.Email != updates["email"] {
+		t.Errorf("Updated student's email is incorrect. Expected: %v, Got: %v", updates["email"], readStudent.Email)
+	}
+}
+
+func TestDeleteStudent(t *testing.T) {
+	googleID := "test-student"
+
+	// Initialize Firebase client
+	err := initializeFirebase()
+	if err != nil {
+		t.Fatalf("Error initializing Firebase: %v", err)
+	}
+
+	// Delete the student
+	err = deleteStudent(googleID)
+	if err != nil {
+		t.Fatalf("Error deleting student: %v", err)
+	}
+
+	// Try to read the deleted student
+	// _, err = readStudent(googleID)
+	// if err == nil {
+	// 	t.Error("Deleted student still exists")
+	// }
+}
+
 // import (
 // 	"context"
 // 	"fmt"
