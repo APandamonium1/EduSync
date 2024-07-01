@@ -414,7 +414,7 @@ func TestDeleteParent(t *testing.T) {
 	}
 
 	// Delete the parent
-	err = deleteInstructor(googleID)
+	err = deleteParent(googleID)
 	if err != nil {
 		t.Fatalf("Error deleting parent: %v", err)
 	}
