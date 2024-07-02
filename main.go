@@ -27,7 +27,8 @@ func main() {
 
 	// Set up authentication routes
 	AuthHandler(router, config)
-	RoleHandler(router)
+	MainHandler(router)
+	AdminHandler(router)
 
 	log.Println("listening on localhost:8080")
 	err = http.ListenAndServeTLS(":8080", "cert.pem", "key.pem", router)

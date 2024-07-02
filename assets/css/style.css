@@ -60,6 +60,15 @@ html {
 	-webkit-text-size-adjust: 100%; /* 2 */
 }
 
+.content{
+	font-size: 16px;
+	margin-bottom: 100px;
+}
+
+.page-footer {
+	bottom: 0;
+}
+
 /* Sections
 	 ========================================================================== */
 

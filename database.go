@@ -2,12 +2,14 @@ package main
 
 import (
 	"context"
+	"errors"
 	"fmt"
-
 	"log"
 	"os"
+	"strconv"
+	"strings"
 
-	// "github.com/joho/godotenv"
+	"github.com/joho/godotenv"
 
 	firebase "firebase.google.com/go"
 	"firebase.google.com/go/db"
@@ -16,17 +18,17 @@ import (
 
 // Use godot package to load/read the .env file and
 // return the value of the key (for local env)
-// func goDotEnvVariable(key string) string {
+func goDotEnvVariable(key string) string {
 
-// 	// load .env file
-// 	err := godotenv.Load(".env")
+	// load .env file
+	err := godotenv.Load(".env")
 
-// 	if err != nil {
-// 		log.Fatalf("Error loading .env file")
-// 	}
+	if err != nil {
+		log.Fatalf("Error loading .env file")
+	}
 
-// 	return os.Getenv(key)
-// }
+	return os.Getenv(key)
+}
 
 // Initialize Firebase client
 var firebaseClient *db.Client
@@ -35,19 +37,20 @@ var firebaseClient *db.Client
 func initializeFirebase() error {
 	ctx := context.Background()
 
-	databaseURL, found := os.LookupEnv("DATABASE_URL")
-	if !found {
-		log.Fatalf("DATABASE_URL is not set in the environment variables")
-	}
-	// databaseURL := goDotEnvVariable("DATABASE_URL")
-	// if databaseURL == "" {
-	// 	return fmt.Errorf("DATABASE_URL is not set in the environment variables")
+	// databaseURL, found := os.LookupEnv("DATABASE_URL")
+	// if !found {
+	// 	log.Fatalf("DATABASE_URL is not set in the environment variables")
 	// }
+
+	databaseURL := goDotEnvVariable("DATABASE_URL")
+	if databaseURL == "" {
+		return fmt.Errorf("DATABASE_URL is not set in the environment variables")
+	}
 
 	conf := &firebase.Config{DatabaseURL: databaseURL}
 
-	opt := option.WithCredentialsFile("edusync-7bd5e-firebase-adminsdk-x49uh-af084a6314.json")
-	// opt := option.WithCredentialsFile("edusync-test-firebase-adminsdk-hk5kl-9af0162b09.json")
+	//opt := option.WithCredentialsFile("edusync-7bd5e-firebase-adminsdk-x49uh-af084a6314.json")
+	opt := option.WithCredentialsFile("edusync-test-firebase-adminsdk-hk5kl-9af0162b09.json")
 
 	app, err := firebase.NewApp(ctx, conf, opt)
 	if err != nil {
@@ -81,12 +84,52 @@ func readStudent(googleID string) (Student, error) {
 	return student, nil
 }
 
+func readStudents() ([]Student, error) {
+	var studentsMap map[string]Student
+	ref := firebaseClient.NewRef("students")
+	if err := ref.Get(context.TODO(), &studentsMap); err != nil {
+		return nil, fmt.Errorf("error reading students: %v", err)
+	}
+	// Convert map to slice
+	students := make([]Student, 0, len(studentsMap))
+	for _, student := range studentsMap {
+		students = append(students, student)
+	}
+	return students, nil
+}
+
+func searchStudents(name, class string) ([]Student, error) {
+	if name == "" && class == "" {
+		return nil, errors.New("name and class filters are required")
+	}
+	students, err := readStudents()
+	if err != nil {
+		return nil, err
+	}
+	var filteredStudents []Student
+	for _, student := range students {
+		if (name == "" || strings.Contains(strings.ToLower(student.Name), strings.ToLower(name))) &&
+			(class == "" || student.Class == class) {
+			filteredStudents = append(filteredStudents, student)
+		}
+	}
+	return filteredStudents, nil
+}
+
 func updateStudent(googleID string, updates map[string]interface{}) error {
+	if ageStr, ok := updates["age"].(string); ok {
+		age, err := strconv.Atoi(ageStr)
+		if err != nil {
+			return fmt.Errorf("error converting age to integer: %v", err)
+		}
+		updates["age"] = age
+	}
+
 	ref := firebaseClient.NewRef("students/" + googleID)
 	if err := ref.Update(context.TODO(), updates); err != nil {
 		return fmt.Errorf("error updating student: %v", err)
 	}
-	return ref.Update(context.TODO(), updates)
+	return nil
 }
 
 func deleteStudent(googleID string) error {
