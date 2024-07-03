@@ -27,7 +27,7 @@
                 students.forEach(student => {
                     const studentDiv = document.createElement('div');
                     studentDiv.className = 'student';
-                    studentDiv.innerHTML = `<a href="/admin/student/${student.google_id}/edit">${student.name}</a>`;
+                    studentDiv.innerHTML = `<a href="/admin/student/${student.google_id}/edit">${student.name}</a> - Class: ${student.class}`;
                     resultsDiv.appendChild(studentDiv);
                 });
             } else {
@@ -75,6 +75,7 @@
                 <input type="text" id="classFilter">
                 <button onclick="searchStudents()">Search</button>
             </div>
+			<br>
             <div id="results"></div>
         </div>
 	</div>

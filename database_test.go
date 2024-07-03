@@ -37,7 +37,7 @@ func TestCreateStudent(t *testing.T) {
 
 	// Create a new student
 	student := Student{
-		GoogleID:   "test-student",
+		GoogleID:   "test-student-0",
 		Name:       "John Doe",
 		Email:      "johndoe@example.com",
 		Age:        12,
