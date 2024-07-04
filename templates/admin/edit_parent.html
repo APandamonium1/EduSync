@@ -1,0 +1,115 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Edit Parent Details</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<link rel="stylesheet" type="text/css" href="/assets/css/style.css">
+	<link href="https://fonts.googleapis.com/css?family=Raleway:400,500,600,700" rel="stylesheet">
+    <script>
+        async function loadParent() {
+            const googleID = document.getElementById('googleID').value;
+            const response = await fetch(`/admin/parent/${googleID}`);
+            const parent = await response.json();
+            document.getElementById('name').value = parent.name;
+            document.getElementById('email').value = parent.email;
+            document.getElementById('contactNumber').value = parent.contact_no;
+            document.getElementById('role').value = parent.role;
+        }
+
+        async function updateParent() {
+            const googleID = document.getElementById('googleID').value;
+            const updates = {
+                name: document.getElementById('name').value,
+                email: document.getElementById('email').value,
+                contact_no: document.getElementById('contactNumber').value,
+                role: document.getElementById('role').value
+            };
+            await fetch(`/admin/parent/${googleID}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(updates)
+            });
+            alert('Parent updated successfully');
+            window.location.href = '/admin/search_parent';
+        }
+
+        function toggleEdit() {
+            const inputs = document.querySelectorAll('input');
+            inputs.forEach(input => {
+                input.disabled = !input.disabled;
+            });
+            document.getElementById('editButton').style.display = 'none';
+            document.getElementById('saveButton').style.display = 'block';
+        }
+
+        function validatePhoneNumber() {
+            const phoneNumber = document.getElementById('contactNumber').value;
+            const phoneNumberPattern = /^[689]\d{7}$/;
+            const errorElement = document.getElementById('phoneNumberError');
+
+            if (phoneNumberPattern.test(phoneNumber)) {
+                errorElement.textContent = ''; // Clear error message
+                document.getElementById('saveButton').disabled = false; // Enable save button
+            } else {
+                errorElement.textContent = 'Phone number must start with 6, 8, or 9 and have 8 digits.';
+                document.getElementById('saveButton').disabled = true; // Disable save button
+            }
+        }
+    </script>
+</head>
+<body onload="loadParent()">
+	<div id="page" class="site" itemscope itemtype="http://schema.org/LocalBusiness">
+		<header class="site-header">
+			<div class="main-header">
+				<div class="container">
+					<div class="logo-wrap" itemprop="logo">
+						<img src="/assets/images/site-logo.jpg" alt="Logo Image" style="width: 120px; height: auto;">
+					</div>
+					<div class="nav-wrap">
+						<nav class="nav-desktop">
+							<ul class="menu-list">
+								<li><a href="/admin">Home</a></li>
+                                <li><a href="/admin/search_student">Students</a></li>
+                                <li><a href="/admin/search_parent">Parents</a></li>
+                                <li><a href="/admin/search_instructor">Instructors</a></li>
+							</ul>
+						</nav>
+						<div id="bar">
+							<i class="fas fa-bars"></i>
+						</div>
+						<div id="close">
+							<i class="fas fa-times"></i>
+						</div>
+					</div>
+				</div>
+			</div>
+		</header>
+		<!-- Header Close -->
+		
+        <div class="container content">
+            <h1>Edit Parent Details</h1>
+            <input type="hidden" id="googleID" value="{{.GoogleID}}">
+            <form onsubmit="event.preventDefault(); updateParent();">
+                <div><label>Name: </label><input type="text" id="name" disabled></div>
+                <br>
+                <div><label>Email: </label><input type="text" id="email" disabled></div>
+                <br>
+                <div>
+                    <label>Contact Number: </label>
+                    <input type="text" id="contactNumber" disabled oninput="validatePhoneNumber()">
+                    <span id="phoneNumberError" class="error-message"></span>
+                </div>
+                <br>
+                <div><label>Role: </label><input type="text" id="role" disabled></div>
+                <br>
+                <button type="button" id="editButton" onclick="toggleEdit()">Edit</button>
+                <button type="submit" id="saveButton" style="display:none;">Save</button>
+            </form>
+        </div>
+	</div>
+	<script type="text/javascript" src="/assets/js/jquery-3.3.1.min.js"></script>
+	<script type="text/javascript" src="/assets/js/custom.js"></script>
+</body>
+</html>

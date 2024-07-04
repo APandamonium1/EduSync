@@ -2,7 +2,6 @@ package main
 
 import (
 	"context"
-	"errors"
 	"fmt"
 	"log"
 	"os"
@@ -100,7 +99,7 @@ func readStudents() ([]Student, error) {
 
 func searchStudents(name, class string) ([]Student, error) {
 	if name == "" && class == "" {
-		return nil, errors.New("name and class filters are required")
+		return readStudents()
 	}
 	students, err := readStudents()
 	if err != nil {
@@ -240,6 +239,68 @@ func deleteParent(googleID string) error {
 		return fmt.Errorf("error deleting parent: %v", err)
 	}
 	return ref.Delete(context.TODO())
+}
+
+func readParents() ([]Parent, error) {
+	var parentsMap map[string]Parent
+	ref := firebaseClient.NewRef("parents")
+	if err := ref.Get(context.TODO(), &parentsMap); err != nil {
+		return nil, fmt.Errorf("error reading students: %v", err)
+	}
+	// Convert map to slice
+	parents := make([]Parent, 0, len(parentsMap))
+	for _, parent := range parentsMap {
+		parents = append(parents, parent)
+	}
+	return parents, nil
+}
+
+func searchParents(name string) ([]Parent, error) {
+	if name == "" {
+		return readParents()
+	}
+	parents, err := readParents()
+	if err != nil {
+		return nil, err
+	}
+	var filteredParents []Parent
+	for _, parent := range parents {
+		if name == "" || strings.Contains(strings.ToLower(parent.Name), strings.ToLower(name)) {
+			filteredParents = append(filteredParents, parent)
+		}
+	}
+	return filteredParents, nil
+}
+
+func readInstructors() ([]Instructor, error) {
+	var instructorsMap map[string]Instructor
+	ref := firebaseClient.NewRef("instructors")
+	if err := ref.Get(context.TODO(), &instructorsMap); err != nil {
+		return nil, fmt.Errorf("error reading students: %v", err)
+	}
+	// Convert map to slice
+	instructors := make([]Instructor, 0, len(instructorsMap))
+	for _, instructor := range instructorsMap {
+		instructors = append(instructors, instructor)
+	}
+	return instructors, nil
+}
+
+func searchInstructors(name string) ([]Instructor, error) {
+	if name == "" {
+		return readInstructors()
+	}
+	instructors, err := readInstructors()
+	if err != nil {
+		return nil, err
+	}
+	var filteredInstructors []Instructor
+	for _, instructor := range instructors {
+		if name == "" || strings.Contains(strings.ToLower(instructor.Name), strings.ToLower(name)) {
+			filteredInstructors = append(filteredInstructors, instructor)
+		}
+	}
+	return filteredInstructors, nil
 }
 
 // func database() {
