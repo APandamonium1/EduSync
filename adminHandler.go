@@ -18,8 +18,8 @@ func AdminHandler(router *mux.Router) {
 		t.Execute(res, nil)
 	}).Methods("GET")
 
-	router.HandleFunc("/admin/search", func(res http.ResponseWriter, req *http.Request) {
-		t, err := template.ParseFiles("templates/admin/search.html")
+	router.HandleFunc("/admin/search_student", func(res http.ResponseWriter, req *http.Request) {
+		t, err := template.ParseFiles("templates/admin/search_student.html")
 		if err != nil {
 			http.Error(res, err.Error(), http.StatusInternalServerError)
 			return
@@ -27,7 +27,7 @@ func AdminHandler(router *mux.Router) {
 		t.Execute(res, nil)
 	}).Methods("GET")
 
-	router.HandleFunc("/admin/api/search", func(res http.ResponseWriter, req *http.Request) {
+	router.HandleFunc("/admin/api/search_student", func(res http.ResponseWriter, req *http.Request) {
 		name := req.URL.Query().Get("name")
 		class := req.URL.Query().Get("class")
 		students, err := searchStudents(name, class)
@@ -42,7 +42,7 @@ func AdminHandler(router *mux.Router) {
 	router.HandleFunc("/admin/student/{googleID}/edit", func(res http.ResponseWriter, req *http.Request) {
 		vars := mux.Vars(req)
 		googleID := vars["googleID"]
-		t, err := template.ParseFiles("templates/admin/edit.html")
+		t, err := template.ParseFiles("templates/admin/edit_student.html")
 		if err != nil {
 			http.Error(res, err.Error(), http.StatusInternalServerError)
 			return

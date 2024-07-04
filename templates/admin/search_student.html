@@ -12,7 +12,7 @@
         async function searchStudents() {
             const nameFilter = document.getElementById('nameFilter').value;
             const classFilter = document.getElementById('classFilter').value;
-            const response = await fetch(`/admin/api/search?name=${nameFilter}&class=${classFilter}`);
+            const response = await fetch(`/admin/api/search_student?name=${nameFilter}&class=${classFilter}`);
             
             if (!response.ok) {
                 const errorMessage = `Error: ${response.status} - ${response.statusText}`;

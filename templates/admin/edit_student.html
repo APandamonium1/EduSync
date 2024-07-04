@@ -46,7 +46,16 @@
                 body: JSON.stringify(updates)
             });
             alert('Student updated successfully');
-            window.location.href = '/admin/search';
+            window.location.href = '/admin/search_student';
+        }
+
+        function toggleEdit() {
+            const inputs = document.querySelectorAll('input');
+            inputs.forEach(input => {
+                input.disabled = !input.disabled;
+            });
+            document.getElementById('editButton').style.display = 'none';
+            document.getElementById('saveButton').style.display = 'block';
         }
     </script>
 </head>
@@ -84,21 +93,22 @@
             <h1>Edit Student Details</h1>
             <input type="hidden" id="googleID" value="{{.GoogleID}}">
             <form onsubmit="event.preventDefault(); updateStudent();">
-                <div><label>Name: </label><input type="text" id="name"></div>
+                <div><label>Name: </label><input type="text" id="name" disabled></div>
                 <br>
-                <div><label>Email: </label><input type="text" id="email"></div>
+                <div><label>Email: </label><input type="text" id="email" disabled></div>
                 <br>
-                <div><label>Age: </label><input type="number" id="age" min="4" max="100"></div>
+                <div><label>Age: </label><input type="number" id="age" min="4" max="100" disabled></div>
                 <br>
-                <div><label>Class: </label><input type="text" id="class"></div>
+                <div><label>Class: </label><input type="text" id="class" disabled></div>
                 <br>
-                <div><label>Instructor: </label><input type="text" id="instructor"></div>
+                <div><label>Instructor: </label><input type="text" id="instructor" disabled></div>
                 <br>
-                <div><label>Parent Name: </label><input type="text" id="parentName"></div>
+                <div><label>Parent Name: </label><input type="text" id="parentName" disabled></div>
                 <br>
-                <div><label>Role: </label><input type="text" id="role"></div>
+                <div><label>Role: </label><input type="text" id="role" disabled></div>
                 <br>
-                <button type="submit">Update</button>
+                <button type="button" id="editButton" onclick="toggleEdit()">Edit</button>
+                <button type="submit" id="saveButton" style="display:none;">Save</button>
             </form>
         </div>
 	</div>
