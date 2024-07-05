@@ -5,124 +5,130 @@ import (
 	// "github.com/google/uuid"
 )
 
-// Student struct for storing student information
-type Student struct {
+// User struct to represent the base user with common fields
+type User struct {
 	// ID            uuid.UUID `json:"id"`
 	GoogleID      string    `json:"google_id"`
 	Name          string    `json:"name"`
-	Age           int       `json:"age"`
-	LessonCredits float32   `json:"lesson_credits"`
 	Email         string    `json:"email"`
 	ContactNumber string    `json:"contact_number"`
-	Class         string    `json:"class"`
-	Instructor    string    `json:"instructor"`
-	ParentName    string    `json:"parent_name"`
 	Role          string    `json:"role"`
 	CreatedAt     time.Time `json:"created_at"`
 	UpdatedAt     time.Time `json:"updated_at"`
+}
+
+// Student struct for storing student information
+type Student struct {
+	User
+	Age           int     `json:"age"`
+	LessonCredits float32 `json:"lesson_credits"`
+	ClassID       string  `json:"class_id"`
+	ParentID      string  `json:"parent_id"`
+	// Instructor    string  `json:"instructor"`
+	// ParentName string `json:"parent_name"`
 }
 
 // Instructor struct for storing instructor information
 type Instructor struct {
-	// ID               uuid.UUID `json:"id"`
-	GoogleID         string    `json:"google_id"`
-	Name             string    `json:"name"`
-	ContactNumber    string    `json:"contact_number"`
-	Email            string    `json:"email"`
-	BasePay          float64   `json:"base_pay"`
-	NumberOfStudents int       `json:"number_of_students"`
-	Role             string    `json:"role"`
-	CreatedAt        time.Time `json:"created_at"`
-	UpdatedAt        time.Time `json:"updated_at"`
+	User
+	BasePay          float64 `json:"base_pay"`
+	NumberOfStudents int     `json:"number_of_students"`
 }
 
 type Admin struct {
-	// ID               uuid.UUID `json:"id"`
-	GoogleID      string    `json:"google_id"`
-	Name          string    `json:"name"`
-	ContactNumber string    `json:"contact_number"`
-	Email         string    `json:"email"`
-	BasePay       float64   `json:"base_pay"`
-	Incentive     float64   `json:"incentive"`
-	Role          string    `json:"role"`
-	CreatedAt     time.Time `json:"created_at"`
-	UpdatedAt     time.Time `json:"updated_at"`
+	User
+	BasePay   float64 `json:"base_pay"`
+	Incentive float64 `json:"incentive"`
 }
 
 // Parent struct for storing parent information
 type Parent struct {
-	// ID        uuid.UUID `json:"id"`
-	GoogleID      string    `json:"google_id"`
-	Name          string    `json:"name"`
-	Email         string    `json:"email"`
-	ContactNumber string    `json:"contact_no"`
-	Role          string    `json:"role"`
-	CreatedAt     time.Time `json:"created_at"`
-	UpdatedAt     time.Time `json:"updated_at"`
+	User
+}
+
+type Class struct {
+	ClassID    string  `json:"class_id"`
+	Name       string  `json:"class_name"`
+	Instructor string  `json:"instructor"`
+	Duration   float64 `json:"duration"`
 }
 
 // NewStudent creates a new Student instance
-// func NewStudent(name string, age int, lessonCredits float32, email string, contactNumber string, class string, instructor string, parentName string) Student {
-func NewStudent(googleID string, name string, age int, lessonCredits float32, email, contactNumber, class, instructor, parentName, role string) Student {
+// func NewStudent(googleID, name, email, contactNumber, class, instructor, parentName, role string, age int, lessonCredits float32) Student {
+func NewStudent(googleID, name, email, contactNumber, classID, parentID, role string, age int, lessonCredits float32) Student {
 	return Student{
-		// ID:            uuid.New(),
-		GoogleID:      googleID,
-		Name:          name,
+		User: User{
+			GoogleID:      googleID,
+			Name:          name,
+			Email:         email,
+			ContactNumber: contactNumber,
+			Role:          role,
+			CreatedAt:     time.Now(),
+			UpdatedAt:     time.Now(),
+		},
 		Age:           age,
 		LessonCredits: lessonCredits,
-		Email:         email,
-		ContactNumber: contactNumber,
-		Class:         class,
-		Instructor:    instructor,
-		ParentName:    parentName,
-		Role:          role,
-		CreatedAt:     time.Now(),
-		UpdatedAt:     time.Now(),
+		ClassID:       classID,
+		ParentID:      parentID,
+		// Instructor:    instructor,
+		// ParentName: parentName,
 	}
 }
 
 // NewInstructor creates a new Instructor instance
-// func NewInstructor(name string, contactNumber string, email string, basePay float64, numberOfStudents int) Instructor {
-func NewInstructor(googleID, name, contactNumber, email, role string, basePay float64, numberOfStudents int) Instructor {
+func NewInstructor(googleID, name, email, contactNumber, role string, basePay float64, numberOfStudents int) Instructor {
 	return Instructor{
-		// ID:               uuid.New(),
-		GoogleID:         googleID,
-		Name:             name,
-		ContactNumber:    contactNumber,
-		Email:            email,
+		User: User{
+			GoogleID:      googleID,
+			Name:          name,
+			Email:         email,
+			ContactNumber: contactNumber,
+			Role:          role,
+			CreatedAt:     time.Now(),
+			UpdatedAt:     time.Now(),
+		},
 		BasePay:          basePay,
 		NumberOfStudents: numberOfStudents,
-		Role:             role,
-		CreatedAt:        time.Now(),
-		UpdatedAt:        time.Now(),
 	}
 }
 
-func NewAdmin(googleID, name, contactNumber, email, role string, basePay, incentive float64) Admin {
+// NewAdmin creates a new Admin instance
+func NewAdmin(googleID, name, email, contactNumber, role string, basePay, incentive float64) Admin {
 	return Admin{
-		// ID:               uuid.New(),
-		GoogleID:      googleID,
-		Name:          name,
-		ContactNumber: contactNumber,
-		Email:         email,
-		BasePay:       basePay,
-		Incentive:     incentive,
-		Role:          role,
-		CreatedAt:     time.Now(),
-		UpdatedAt:     time.Now(),
+		User: User{
+			GoogleID:      googleID,
+			Name:          name,
+			Email:         email,
+			ContactNumber: contactNumber,
+			Role:          role,
+			CreatedAt:     time.Now(),
+			UpdatedAt:     time.Now(),
+		},
+		BasePay:   basePay,
+		Incentive: incentive,
 	}
 }
 
-// func NewParent(name string, email string, contactNo string) Parent {
+// NewParent creates a new Parent instance
 func NewParent(googleID, name, email, contactNumber, role string) Parent {
 	return Parent{
-		// ID:        uuid.New(),
-		GoogleID:      googleID,
-		Name:          name,
-		Email:         email,
-		ContactNumber: contactNumber,
-		Role:          role,
-		CreatedAt:     time.Now(),
-		UpdatedAt:     time.Now(),
+		User: User{
+			GoogleID:      googleID,
+			Name:          name,
+			Email:         email,
+			ContactNumber: contactNumber,
+			Role:          role,
+			CreatedAt:     time.Now(),
+			UpdatedAt:     time.Now(),
+		},
+	}
+}
+
+func NewClass(classID, name, instructor string, duration float64) Class {
+	return Class{
+		ClassID:    classID,
+		Name:       name,
+		Instructor: instructor,
+		Duration:   duration,
 	}
 }
