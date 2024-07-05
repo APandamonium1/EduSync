@@ -49,7 +49,7 @@ type Class struct {
 	ClassID    string  `json:"class_id"`
 	Name       string  `json:"class_name"`
 	Instructor string  `json:"instructor"`
-	Hours      float64 `json:"hours"`
+	Duration   float64 `json:"duration"`
 }
 
 // NewStudent creates a new Student instance
@@ -122,11 +122,11 @@ func NewParent(googleID, name, email, contactNumber, role string) Parent {
 	}
 }
 
-func NewClass(classID, name, instructor string, hours float64) Class {
+func NewClass(classID, name, instructor string, duration float64) Class {
 	return Class{
 		ClassID:    classID,
 		Name:       name,
 		Instructor: instructor,
-		Hours:      hours,
+		Duration:   duration,
 	}
 }
