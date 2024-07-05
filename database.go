@@ -36,14 +36,14 @@ var firebaseClient *db.Client
 func initializeFirebase() error {
 	ctx := context.Background()
 
-	// databaseURL, found := os.LookupEnv("DATABASE_URL")
-	// if !found {
-	// 	log.Fatalf("DATABASE_URL is not set in the environment variables")
-	// }
-	databaseURL := goDotEnvVariable("DATABASE_URL")
-	if databaseURL == "" {
-		return fmt.Errorf("DATABASE_URL is not set in the environment variables")
+	databaseURL, found := os.LookupEnv("DATABASE_URL")
+	if !found {
+		log.Fatalf("DATABASE_URL is not set in the environment variables")
 	}
+	// databaseURL := goDotEnvVariable("DATABASE_URL")
+	// if databaseURL == "" {
+	// 	return fmt.Errorf("DATABASE_URL is not set in the environment variables")
+	// }
 
 	conf := &firebase.Config{DatabaseURL: databaseURL}
 
