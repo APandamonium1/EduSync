@@ -91,18 +91,23 @@ func isSelf(user User, googleID string) bool {
 	return user.GoogleID == googleID
 }
 
-// TODO: check if student in instructor's class & if student is parent's child
-// Check if instructor can access student
-func canInstructorAccessStudent(instructorID, studentID string) bool {
-	// Implement logic to check if instructor can access the student
-	// This could involve checking if the student is in the instructor's class
-	return true
+// Check if instructor can access student (student's class' instructor = instructor name)
+func canInstructorAccessStudent(currentUser User, student Student, classes []Class) bool {
+	for _, class := range classes {
+		if class.Instructor == currentUser.GoogleID && class.ClassID == student.ClassID {
+			return true
+		}
+	}
+	return false
 }
 
-// Check if parent can access child
-func canParentAccessChild(parentID, childID string) bool {
+// Check if parent can access child (student's parent's name = parent name)
+func canParentAccessChild(currentUser User, student Student) bool {
 	// Implement logic to check if parent can access the child
-	return true
+	if currentUser.GoogleID == student.ParentName {
+		return true
+	}
+	return false
 }
 
 // CRUD operations with role checks
@@ -120,29 +125,29 @@ func createStudent(currentUser User, googleID string, student Student) error {
 	return ref.Set(context.TODO(), student)
 }
 
-func readStudent(currentUser User, googleID string) (Student, error) {
+func readStudent(currentUser User, student Student, classes []Class) (Student, error) {
 	// If user is not an admin, instructor, or parent, return error when attempting to read student
-	if !isAdmin(currentUser) || !(isSelf(currentUser, googleID) && isStudent(currentUser)) &&
-		!(currentUser.Role == "Instructor" && canInstructorAccessStudent(currentUser.GoogleID, googleID)) &&
-		!(currentUser.Role == "Parent" && canParentAccessChild(currentUser.GoogleID, googleID)) {
+	if !isAdmin(currentUser) || !(isSelf(currentUser, student.User.GoogleID) && isStudent(currentUser)) &&
+		!(currentUser.Role == "Instructor" && canInstructorAccessStudent(currentUser, student, classes)) &&
+		!(currentUser.Role == "Parent" && canParentAccessChild(currentUser, student)) {
 		return Student{}, fmt.Errorf("unauthorized access: you can only read your own details")
 	}
-	ref := firebaseClient.NewRef("students/" + googleID)
-	var student Student
+	ref := firebaseClient.NewRef("students/" + student.GoogleID)
+	// var student Student
 	if err := ref.Get(context.TODO(), &student); err != nil {
 		return Student{}, fmt.Errorf("error reading student: %v", err)
 	}
 	return student, nil
 }
 
-func updateStudent(currentUser User, googleID string, updates map[string]interface{}) error {
+func updateStudent(currentUser User, student Student, classes []Class, updates map[string]interface{}) error {
 	// If user is not admin, instructor, or parent, return error when attempting to update student
-	if !isAdmin(currentUser) || !(isSelf(currentUser, googleID) && isStudent(currentUser)) &&
-		!(currentUser.Role == "Instructor" && canInstructorAccessStudent(currentUser.GoogleID, googleID)) &&
-		!(currentUser.Role == "Parent" && canParentAccessChild(currentUser.GoogleID, googleID)) {
+	if !isAdmin(currentUser) || !(isSelf(currentUser, student.User.GoogleID) && isStudent(currentUser)) &&
+		!(currentUser.Role == "Instructor" && canInstructorAccessStudent(currentUser, student, classes)) &&
+		!(currentUser.Role == "Parent" && canParentAccessChild(currentUser, student)) {
 		return fmt.Errorf("unauthorized access: you can only update your own details")
 	}
-	ref := firebaseClient.NewRef("students/" + googleID)
+	ref := firebaseClient.NewRef("students/" + student.GoogleID)
 	if err := ref.Update(context.TODO(), updates); err != nil {
 		return fmt.Errorf("error updating student: %v", err)
 	}
