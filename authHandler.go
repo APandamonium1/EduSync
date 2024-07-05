@@ -50,8 +50,9 @@ func AuthHandler(router *mux.Router, config *Config) {
 		}
 
 		// Create or update the user in Firebase with the assigned role
-		student := NewStudent(user.UserID, user.Name, user.Email, "91234567", "TE", "Mr. Smith", "Jane Doe", role, 10, 10.0)
-		err = createStudent(student.User, student.User.GoogleID, student)
+		// student := NewStudent(user.UserID, user.Name, user.Email, "91234567", "TE", "Mr. Smith", "Jane Doe", role, 10, 10.0)
+		student := NewStudent(user.UserID, user.Name, user.Email, "91234567", "TE", "Jane Doe", role, 10, 10.0)
+		err = createStudent(student.User, student)
 		if err != nil {
 			log.Println("Error creating student:", err)
 		} else {
