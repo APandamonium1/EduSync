@@ -23,8 +23,9 @@ type Student struct {
 	Age           int     `json:"age"`
 	LessonCredits float32 `json:"lesson_credits"`
 	ClassID       string  `json:"class_id"`
+	ParentID      string  `json:"parent_id"`
 	// Instructor    string  `json:"instructor"`
-	ParentName string `json:"parent_name"`
+	// ParentName string `json:"parent_name"`
 }
 
 // Instructor struct for storing instructor information
@@ -54,7 +55,7 @@ type Class struct {
 
 // NewStudent creates a new Student instance
 // func NewStudent(googleID, name, email, contactNumber, class, instructor, parentName, role string, age int, lessonCredits float32) Student {
-func NewStudent(googleID, name, email, contactNumber, classID, parentName, role string, age int, lessonCredits float32) Student {
+func NewStudent(googleID, name, email, contactNumber, classID, parentID, role string, age int, lessonCredits float32) Student {
 	return Student{
 		User: User{
 			GoogleID:      googleID,
@@ -68,8 +69,9 @@ func NewStudent(googleID, name, email, contactNumber, classID, parentName, role 
 		Age:           age,
 		LessonCredits: lessonCredits,
 		ClassID:       classID,
+		ParentID:      parentID,
 		// Instructor:    instructor,
-		ParentName: parentName,
+		// ParentName: parentName,
 	}
 }
 
