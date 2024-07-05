@@ -9,6 +9,8 @@
 	<link rel="stylesheet" type="text/css" href="/assets/css/style.css">
 	<link href="https://fonts.googleapis.com/css?family=Raleway:400,500,600,700" rel="stylesheet">
     <script>
+        let initialStudent = {};
+        
         async function loadStudent() {
             const googleID = document.getElementById('googleID').value;
             const response = await fetch(`/admin/student/${googleID}`);
@@ -20,6 +22,20 @@
             document.getElementById('instructor').value = student.instructor;
             document.getElementById('parentName').value = student.parent_name;
             document.getElementById('role').value = student.role;
+
+            initialStudent = {...student}
+        }
+
+        function hasChanges() {
+            return (
+                document.getElementById('name').value !== initialStudent.name ||
+                document.getElementById('email').value !== initialStudent.email ||
+                parseInt(document.getElementById('age').value, 10) !== initialStudent.age ||
+                document.getElementById('class').value !== initialStudent.class ||
+                document.getElementById('instructor').value !== initialStudent.instructor ||
+                document.getElementById('parentName').value !== initialStudent.parent_name ||
+                document.getElementById('role').value !== initialStudent.role
+            );
         }
 
         async function updateStudent() {
@@ -28,6 +44,9 @@
             if (age < 4 || age > 100) {
                 alert('Age must be between 4 and 100.');
                 return;
+            }
+            if (!hasChanges()) {
+                return;  // No changes, so do not proceed with update
             }
             const updates = {
                 name: document.getElementById('name').value,
@@ -56,6 +75,10 @@
             });
             document.getElementById('editButton').style.display = 'none';
             document.getElementById('saveButton').style.display = 'block';
+        }
+
+        function goBack() {
+            window.history.back();
         }
     </script>
 </head>
@@ -107,8 +130,11 @@
                 <br>
                 <div><label>Role: </label><input type="text" id="role" disabled></div>
                 <br>
-                <button type="button" id="editButton" onclick="toggleEdit()">Edit</button>
-                <button type="submit" id="saveButton" style="display:none;">Save</button>
+                <div class="button-container">
+                    <button type="button" id="editButton" onclick="toggleEdit()">Edit</button>
+                    <button type="submit" id="saveButton" style="display:none;">Save</button>
+                    <button type="button" onclick="goBack()">Back</button>
+                </div>            
             </form>
         </div>
 	</div>

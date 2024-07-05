@@ -69,6 +69,11 @@ html {
 	bottom: 0;
 }
 
+.button-container {
+	display: flex;
+	gap: 10px; /* Adjust the gap between buttons as needed */
+}
+
 /* Sections
 	 ========================================================================== */
 
