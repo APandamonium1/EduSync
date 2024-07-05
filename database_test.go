@@ -28,7 +28,7 @@ var student = Student{
 	Age:           12,
 	LessonCredits: 10.0,
 	ClassID:       "te-6-10",
-	ParentName:    "Jane Doe",
+	ParentID:      "test-parent",
 }
 
 // Create a new instructor
@@ -92,13 +92,6 @@ func TestInitializeFirebase(t *testing.T) {
 
 // Testing for student CRUD operations
 func TestCreateStudent(t *testing.T) {
-	// // Initialize Firebase client
-	// err := initializeFirebase()
-	// if err != nil {
-	// 	t.Fatalf("Error initializing Firebase: %v", err)
-	// }
-
-	// err = createStudent(currentUser, student.GoogleID, student)
 	err := createStudent(currentUser, student)
 	if err != nil {
 		t.Fatalf("Error creating student: %v", err)
@@ -115,12 +108,6 @@ func TestCreateStudent(t *testing.T) {
 }
 
 func TestReadStudent(t *testing.T) {
-	// // Initialize Firebase client
-	// err := initializeFirebase()
-	// if err != nil {
-	// 	t.Fatalf("Error initializing Firebase: %v", err)
-	// }
-
 	readStudent, err := readStudent(currentUser, student, classes)
 	if err != nil {
 		t.Fatalf("Error reading student: %v", err)
@@ -129,24 +116,9 @@ func TestReadStudent(t *testing.T) {
 	if readStudent.GoogleID != "test-student" {
 		t.Errorf("Expected ID %v, got %v", "test-student", readStudent.GoogleID)
 	}
-
-	// student, err := readStudent(currentUser, "test-student")
-	// if err != nil {
-	// 	t.Fatalf("Error reading student: %v", err)
-	// }
-
-	// if student.User.GoogleID != "test-student" {
-	// 	t.Errorf("Expected ID %v, got %v", "test-student", student.GoogleID, student.User.GoogleID)
-	// }
 }
 
 func TestUpdateStudent(t *testing.T) {
-	// // Initialize Firebase client
-	// err := initializeFirebase()
-	// if err != nil {
-	// 	t.Fatalf("Error initializing Firebase: %v", err)
-	// }
-
 	// Update the student's email
 	updates := map[string]interface{}{
 		"name": "Updated Student",
@@ -170,12 +142,6 @@ func TestUpdateStudent(t *testing.T) {
 }
 
 func TestDeleteStudent(t *testing.T) {
-	// // Initialize Firebase client
-	// err := initializeFirebase()
-	// if err != nil {
-	// 	t.Fatalf("Error initializing Firebase: %v", err)
-	// }
-
 	// Delete the student
 	err := deleteStudent(currentUser, student)
 	if err != nil {
@@ -191,12 +157,6 @@ func TestDeleteStudent(t *testing.T) {
 
 // Testing for instructor CRUD operations
 func TestCreateInstructor(t *testing.T) {
-	// // Initialize Firebase client
-	// err := initializeFirebase()
-	// if err != nil {
-	// 	t.Fatalf("Error initializing Firebase: %v", err)
-	// }
-
 	err := createInstructor(currentUser, instructor)
 	if err != nil {
 		t.Fatalf("Error creating instructor: %v", err)
@@ -227,12 +187,6 @@ func TestReadInstructor(t *testing.T) {
 }
 
 func TestUpdateInstructor(t *testing.T) {
-	// // Initialize Firebase client
-	// err := initializeFirebase()
-	// if err != nil {
-	// 	t.Fatalf("Error initializing Firebase: %v", err)
-	// }
-
 	// Update the instructor's email
 	updates := map[string]interface{}{
 		"email": "amazing_instructor@nk.com",
@@ -256,12 +210,6 @@ func TestUpdateInstructor(t *testing.T) {
 }
 
 func TestDeleteInstructor(t *testing.T) {
-	// // Initialize Firebase client
-	// err := initializeFirebase()
-	// if err != nil {
-	// 	t.Fatalf("Error initializing Firebase: %v", err)
-	// }
-
 	// Delete the instructor
 	err := deleteInstructor(currentUser, instructor)
 	if err != nil {
@@ -277,12 +225,6 @@ func TestDeleteInstructor(t *testing.T) {
 
 // Testing for admin CRUD operations
 func TestCreateAdmin(t *testing.T) {
-	// // Initialize Firebase client
-	// err := initializeFirebase()
-	// if err != nil {
-	// 	t.Fatalf("Error initializing Firebase: %v", err)
-	// }
-
 	err := createAdmin(currentUser, admin)
 	if err != nil {
 		t.Fatalf("Error creating admin: %v", err)
@@ -312,12 +254,6 @@ func TestReadAdmin(t *testing.T) {
 }
 
 func TestUpdateAdmin(t *testing.T) {
-	// // Initialize Firebase client
-	// err := initializeFirebase()
-	// if err != nil {
-	// 	t.Fatalf("Error initializing Firebase: %v", err)
-	// }
-
 	// Update the admin's email
 	updates := map[string]interface{}{
 		"email": "amazing_admin@nk.com",
@@ -341,12 +277,6 @@ func TestUpdateAdmin(t *testing.T) {
 }
 
 func TestDeleteAdmin(t *testing.T) {
-	// // Initialize Firebase client
-	// err := initializeFirebase()
-	// if err != nil {
-	// 	t.Fatalf("Error initializing Firebase: %v", err)
-	// }
-
 	// Delete the admin
 	err := deleteAdmin(currentUser, admin)
 	if err != nil {
@@ -362,12 +292,6 @@ func TestDeleteAdmin(t *testing.T) {
 
 // Testing for parent CRUD operations
 func TestCreateParent(t *testing.T) {
-	// // Initialize Firebase client
-	// err := initializeFirebase()
-	// if err != nil {
-	// 	t.Fatalf("Error initializing Firebase: %v", err)
-	// }
-
 	err := createParent(currentUser, parent)
 	if err != nil {
 		t.Fatalf("Error creating parent: %v", err)
@@ -397,18 +321,12 @@ func TestReadParent(t *testing.T) {
 }
 
 func TestUpdateParent(t *testing.T) {
-	// Initialize Firebase client
-	err := initializeFirebase()
-	if err != nil {
-		t.Fatalf("Error initializing Firebase: %v", err)
-	}
-
 	// Update the parent's email
 	updates := map[string]interface{}{
 		"email": "jane_doe_parent@nk.com",
 	}
 
-	err = updateParent(currentUser, parent, updates)
+	err := updateParent(currentUser, parent, updates)
 	if err != nil {
 		t.Fatalf("Error updating parent: %v", err)
 	}
@@ -426,14 +344,8 @@ func TestUpdateParent(t *testing.T) {
 }
 
 func TestDeleteParent(t *testing.T) {
-	// Initialize Firebase client
-	err := initializeFirebase()
-	if err != nil {
-		t.Fatalf("Error initializing Firebase: %v", err)
-	}
-
 	// Delete the parent
-	err = deleteParent(currentUser, parent)
+	err := deleteParent(currentUser, parent)
 	if err != nil {
 		t.Fatalf("Error deleting parent: %v", err)
 	}
@@ -444,228 +356,3 @@ func TestDeleteParent(t *testing.T) {
 	// 	t.Error("Deleted parent still exists")
 	// }
 }
-
-// // import (
-// // 	"context"
-// // 	"fmt"
-// // 	"log"
-// // 	"testing"
-// // 	"time"
-
-// // 	firebase "firebase.google.com/go"
-// // 	"google.golang.org/api/option"
-// // )
-
-// // // Test using test database
-// // // func TestDatabase(t *testing.T) {
-// // // 	ctx := context.Background()
-
-// // // 	// configure database URL
-// // // 	conf := &firebase.Config{
-// // // 		DatabaseURL: "https://edusync-test-default-rtdb.firebaseio.com/",
-// // // 	}
-
-// // // 	// fetch service account key
-// // // 	opt := option.WithCredentialsFile("edusync-test-firebase-adminsdk-hk5kl-9af0162b09.json")
-
-// // // 	app, err := firebase.NewApp(ctx, conf, opt)
-// // // 	if err != nil {
-// // // 		t.Errorf("error in initializing firebase app: %v", err)
-// // // 	}
-
-// // // 	client, err := app.Database(ctx)
-// // // 	if err != nil {
-// // // 		t.Errorf("error in creating firebase DB client: %v", err)
-// // // 	}
-
-// // // 	// create ref at path students/:userId
-// // // 	ref := client.NewRef("students/" + fmt.Sprint(1))
-
-// // // 	// Test case 1: Successful set operation
-// // // 	data := map[string]interface{}{
-// // // 		"name":       "Jane Doe",
-// // // 		"age":        "7",
-// // // 		"class":      "Tech Explorer",
-// // // 		"instructor": "Scott Smith",
-// // // 	}
-// // // 	if err := ref.Set(ctx, data); err != nil {
-// // // 		t.Errorf("error in setting data: %v", err)
-// // // 	}
-
-// // // 	// Test case 2: Get the set data
-// // // 	var getData map[string]interface{}
-// // // 	if err := ref.Get(ctx, &getData); err != nil {
-// // // 		t.Errorf("error in getting data: %v", err)
-// // // 	}
-// // // 	if getData["name"] != "Jane Doe" {
-// // // 		t.Errorf("expected name to be 'Jane Doe', got %v", getData["name"])
-// // // 	}
-
-// // // 	// Test case 3: Update the data
-// // // 	updateData := map[string]interface{}{
-// // // 		"name": "John Doe",
-// // // 	}
-// // // 	if err := ref.Update(ctx, updateData); err != nil {
-// // // 		t.Errorf("error in updating data: %v", err)
-// // // 	}
-
-// // // 	// Test case 4: Get the updated data
-// // // 	var updatedData map[string]interface{}
-// // // 	if err := ref.Get(ctx, &updatedData); err != nil {
-// // // 		t.Errorf("error in getting updated data: %v", err)
-// // // 	}
-// // // 	if updatedData["name"] != "John Doe" {
-// // // 		t.Errorf("expected name to be 'John Doe', got %v", updatedData["name"])
-// // // 	}
-
-// // // 	// Test case 5: Delete the data
-// // // 	if err := ref.Delete(ctx); err != nil {
-// // // 		t.Errorf("error in deleting data: %v", err)
-// // // 	}
-
-// // // 	// Test case 6: Get the deleted data (should return an error)
-// // // 	var deletedData map[string]interface{}
-// // // 	// if err := ref.Get(ctx, &deletedData); err == nil {
-// // // 	// 	t.Errorf("expected error in getting deleted data, but got nil")
-// // // 	// }
-// // // 	if err := ref.Get(ctx, &deletedData); err == nil {
-// // // 		// If no error, check if the data is actually deleted
-// // // 		if deletedData != nil {
-// // // 			t.Errorf("Expected data to be deleted, but got %v", deletedData)
-// // // 		}
-// // // 	} else {
-// // // 		// Expecting an error, which indicates the data was not found
-// // // 		t.Logf("Received expected error after deletion: %v", err)
-// // // 	}
-// // // }
-
-// // // Test using actual database
-// // func TestDatabaseCRUD(t *testing.T) {
-// // 	ctx := context.Background()
-// // 	databaseURL := goDotEnvVariable("DATABASE_URL")
-// // 	// databaseURL, found := os.LookupEnv("DATABASE_URL")
-// // 	// if !found {
-// // 	// 	log.Fatalf("DATABASE_URL is not set in the environment variables")
-// // 	// }
-// // 	conf := &firebase.Config{DatabaseURL: databaseURL}
-// // 	opt := option.WithCredentialsFile("edusync-7bd5e-firebase-adminsdk-x49uh-af084a6314.json")
-// // 	// opt := option.WithCredentialsFile("$HOME/secrets/edusync-7bd5e-firebase-adminsdk-x49uh-af084a6314.json")
-
-// // 	app, err := firebase.NewApp(ctx, conf, opt)
-// // 	if err != nil {
-// // 		log.Fatalln("error in initializing firebase app: ", err)
-// // 	}
-
-// // 	client, err := app.Database(ctx)
-// // 	if err != nil {
-// // 		log.Fatalln("error in creating firebase DB client: ", err)
-// // 	}
-
-// // 	// Student operations
-// // 	// student := NewStudent("Jane Doe", 7, 119.5, "jane_doe@nk.com", "91234567", "Tech Explorer", "Scott Smith", "Jackie Doe")
-// // 	// err = createStudent(client, student.ID.String(), student)
-// // 	googleIDStudent := "google-id-student"
-// // 	student := NewStudent(googleIDStudent, "Jane Doe", 7, 119.5, "jane_doe@nk.com", "91234567", "Tech Explorer", "Scott Smith", "Jackie Doe")
-// // 	err = createStudent(client, student.GoogleID, student)
-// // 	if err != nil {
-// // 		log.Fatal(err)
-// // 	}
-// // 	fmt.Println("Student added/updated successfully!")
-
-// // 	// readStudent, err := readStudent(client, student.ID.String())
-// // 	readStudent, err := readStudent(client, student.GoogleID)
-// // 	if err != nil {
-// // 		log.Fatal(err)
-// // 	}
-// // 	fmt.Println("Student read successfully:", readStudent)
-
-// // 	studentUpdates := map[string]interface{}{
-// // 		"class":      "Tech Explorer 2",
-// // 		"updated_at": time.Now(),
-// // 	}
-// // 	// err = updateStudent(client, student.ID.String(), studentUpdates)
-// // 	err = updateStudent(client, student.GoogleID, studentUpdates)
-// // 	if err != nil {
-// // 		log.Fatal(err)
-// // 	}
-// // 	fmt.Println("Student updated successfully!")
-
-// // 	// err = deleteStudent(client, student.ID.String())
-// // 	err = deleteStudent(client, student.GoogleID)
-// // 	if err != nil {
-// // 		log.Fatal(err)
-// // 	}
-// // 	fmt.Println("Student deleted successfully!")
-
-// // 	// Instructor operations
-// // 	// instructor := NewInstructor("Scott Smith", "123-456-7890", "scott@example.com", 50000.00, 10)
-// // 	// err = createInstructor(client, instructor.ID.String(), instructor)
-// // 	googleIDInstructor := "google-id-instructor"
-// // 	instructor := NewInstructor(googleIDInstructor, "Scott Smith", "123-456-7890", "scott@example.com", 50000.00, 10)
-// // 	err = createInstructor(client, instructor.GoogleID, instructor)
-// // 	if err != nil {
-// // 		log.Fatal(err)
-// // 	}
-// // 	fmt.Println("Instructor added/updated successfully!")
-
-// // 	// readInstructor, err := readInstructor(client, instructor.ID.String())
-// // 	readInstructor, err := readInstructor(client, instructor.GoogleID)
-// // 	if err != nil {
-// // 		log.Fatal(err)
-// // 	}
-// // 	fmt.Println("Instructor read successfully:", readInstructor)
-
-// // 	instructorUpdates := map[string]interface{}{
-// // 		"base_pay":   55000.00,
-// // 		"updated_at": time.Now(),
-// // 	}
-// // 	// err = updateInstructor(client, instructor.ID.String(), instructorUpdates)
-// // 	err = updateInstructor(client, instructor.GoogleID, instructorUpdates)
-// // 	if err != nil {
-// // 		log.Fatal(err)
-// // 	}
-// // 	fmt.Println("Instructor updated successfully!")
-
-// // 	// err = deleteInstructor(client, instructor.ID.String())
-// // 	err = deleteInstructor(client, instructor.GoogleID)
-// // 	if err != nil {
-// // 		log.Fatal(err)
-// // 	}
-// // 	fmt.Println("Instructor deleted successfully!")
-
-// // 	// Parent operations
-// // 	// parent := NewParent("Jackie Doe", "jackjack@example.com", "98765432")
-// // 	// err = createParent(client, parent.ID.String(), parent)
-// // 	googleIDParent := "google-id-parent"
-// // 	parent := NewParent(googleIDParent, "Jackie Doe", "jackjack@example.com", "98765432")
-// // 	err = createParent(client, parent.GoogleID, parent)
-// // 	if err != nil {
-// // 		log.Fatal(err)
-// // 	}
-// // 	fmt.Println("Parent added/updated successfully!")
-
-// // 	// readParent, err := readParent(client, parent.ID.String())
-// // 	readParent, err := readParent(client, parent.GoogleID)
-// // 	if err != nil {
-// // 		log.Fatal(err)
-// // 	}
-// // 	fmt.Println("Parent read successfully:", readParent)
-
-// // 	parentUpdates := map[string]interface{}{
-// // 		"email":      "jackiejack@nk.com",
-// // 		"updated_at": time.Now(),
-// // 	}
-// // 	// err = updateParent(client, parent.ID.String(), parentUpdates)
-// // 	err = updateParent(client, parent.GoogleID, parentUpdates)
-// // 	if err != nil {
-// // 		log.Fatal(err)
-// // 	}
-// // 	fmt.Println("Parent updated successfully!")
-
-// // 	// err = deleteParent(client, parent.ID.String())
-// // 	err = deleteParent(client, parent.GoogleID)
-// // 	if err != nil {
-// // 		log.Fatal(err)
-// // 	}
-// // 	fmt.Println("Parent deleted successfully!")
-// // }

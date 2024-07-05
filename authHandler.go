@@ -36,14 +36,14 @@ func AuthHandler(router *mux.Router, config *Config) {
 			return
 		}
 
-		// Example role assignment logic
+		// Role assignment logic
 		var role string
 		switch user.Email {
-		case "admin@example.com":
+		case "admin@nk.com":
 			role = "Admin"
-		case "instructor@example.com":
+		case "instructor@nk.com":
 			role = "Instructor"
-		case "parent@example.com":
+		case "parent@nk.com":
 			role = "Parent"
 		default:
 			role = "Student"
