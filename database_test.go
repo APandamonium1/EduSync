@@ -1,34 +1,27 @@
 package main
 
 import (
-	// // "context"
-	// // "fmt"
-
-	// // "os"
-	// "reflect"
-
-	// // "strings"
 	"reflect"
 	"testing"
-	// // firebase "firebase.google.com/go"
-	// // "google.golang.org/api/option"
 )
 
 var currentUser = User{GoogleID: "admin-user", Role: "Admin"}
 
 // Create a new student
-var student = Student{
-	User: User{
-		GoogleID:      "test-student",
-		Name:          "John Doe",
-		Email:         "johndoe_student@example.com",
-		ContactNumber: "91234567",
-		Role:          "Student",
+var students = []Student{
+	{
+		User: User{
+			GoogleID:      "test-student",
+			Name:          "John Doe",
+			Email:         "johndoe_student@example.com",
+			ContactNumber: "91234567",
+			Role:          "Student",
+		},
+		Age:           12,
+		LessonCredits: 10.0,
+		ClassID:       "te-6-10",
+		ParentID:      "test-parent",
 	},
-	Age:           12,
-	LessonCredits: 10.0,
-	ClassID:       "te-6-10",
-	ParentID:      "test-parent",
 }
 
 // Create a new instructor
@@ -92,23 +85,23 @@ func TestInitializeFirebase(t *testing.T) {
 
 // Testing for student CRUD operations
 func TestCreateStudent(t *testing.T) {
-	err := createStudent(currentUser, student)
+	err := createStudent(currentUser, students[0])
 	if err != nil {
 		t.Fatalf("Error creating student: %v", err)
 	}
 
-	readStudent, err := readStudent(currentUser, student, classes)
+	readStudent, err := readStudent(currentUser, students[0], classes)
 	if err != nil {
 		t.Fatalf("Error reading student: %v", err)
 	}
 
-	if !reflect.DeepEqual(student, readStudent) {
+	if !reflect.DeepEqual(students[0], readStudent) {
 		t.Errorf("Created and read students do not match")
 	}
 }
 
 func TestReadStudent(t *testing.T) {
-	readStudent, err := readStudent(currentUser, student, classes)
+	readStudent, err := readStudent(currentUser, students[0], classes)
 	if err != nil {
 		t.Fatalf("Error reading student: %v", err)
 	}
@@ -124,13 +117,13 @@ func TestUpdateStudent(t *testing.T) {
 		"name": "Updated Student",
 	}
 
-	err := updateStudent(currentUser, student, classes, updates)
+	err := updateStudent(currentUser, students[0], classes, updates)
 	if err != nil {
 		t.Fatalf("Error updating student: %v", err)
 	}
 
 	// Read the updated student
-	readStudent, err := readStudent(currentUser, student, classes)
+	readStudent, err := readStudent(currentUser, students[0], classes)
 	if err != nil {
 		t.Fatalf("Error reading student after updating: %v", err)
 	}
@@ -143,7 +136,7 @@ func TestUpdateStudent(t *testing.T) {
 
 func TestDeleteStudent(t *testing.T) {
 	// Delete the student
-	err := deleteStudent(currentUser, student)
+	err := deleteStudent(currentUser, students[0])
 	if err != nil {
 		t.Fatalf("Error deleting student: %v", err)
 	}
@@ -354,5 +347,73 @@ func TestDeleteParent(t *testing.T) {
 	// _, err = readParent(googleID)
 	// if err == nil {
 	// 	t.Error("Deleted parent still exists")
+	// }
+}
+
+// Testing for class CRUD operations
+
+func TestCreateClass(t *testing.T) {
+	err := createClass(currentUser, classes[0])
+	if err != nil {
+		t.Fatalf("Error creating class: %v", err)
+	}
+
+	// Read the created class
+	readClass, err := readClass(currentUser, students, classes[0])
+	if err != nil {
+		t.Fatalf("Error reading class: %v", err)
+	}
+
+	// Assert that the created and read class are equal
+	if !reflect.DeepEqual(classes[0], readClass) {
+		t.Error("Created and read classes are not equal")
+	}
+}
+
+func TestReadClass(t *testing.T) {
+	class, err := readClass(currentUser, students, classes[0])
+	if err != nil {
+		t.Fatalf("Failed to read class: %v", err)
+	}
+
+	if class.ClassID != classes[0].ClassID {
+		t.Fatalf("Expected ID %v, got %v", classes[0].ClassID, class.ClassID)
+	}
+}
+
+func TestUpdateClass(t *testing.T) {
+	// Update the class's name
+	updates := map[string]interface{}{
+		"class_name": "DN",
+	}
+
+	err := updateClass(currentUser, classes[0], updates)
+	if err != nil {
+		t.Fatalf("Error updating class: %v", err)
+	}
+
+	// Read the updated class
+	readClass, err := readClass(currentUser, students, classes[0])
+	if err != nil {
+		t.Fatalf("Error reading class: %v", err)
+	}
+
+	// Assert that the updated class's name is correct
+	if readClass.Name != updates["class_name"] {
+		t.Errorf("Updated class's name is incorrect. Expected: %v, Got: %v", updates["class_name"], readClass.Name)
+	}
+}
+
+func TestDeleteClass(t *testing.T) {
+	// Delete the class
+	err := deleteClass(currentUser, classes[0])
+	if err != nil {
+		t.Fatalf("Error deleting class: %v", err)
+	}
+
+	// Try to read the deleted class
+	// _, err = readClass(currentUser, students, classes[0])
+	// if err == nil {
+	// 	t.Error("Deleted class still exists")
 	// }
 }

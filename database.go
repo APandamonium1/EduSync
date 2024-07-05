@@ -114,6 +114,26 @@ func canChildAccessParent(currentUser User, parent Parent) bool {
 	return currentUser.GoogleID == parent.GoogleID
 }
 
+// Check if student is in the class
+func isStudentInClass(currentUser User, students []Student, class Class) bool {
+	for _, student := range students {
+		if student.GoogleID == currentUser.GoogleID && student.ClassID == class.ClassID {
+			return true
+		}
+	}
+	return false
+}
+
+// Check if the parent's child is in the class
+func isParentChildInClass(currentUser User, students []Student, class Class) bool {
+	for _, student := range students {
+		if student.ParentID == currentUser.GoogleID && student.ClassID == class.ClassID {
+			return true
+		}
+	}
+	return false
+}
+
 // CRUD operations with role checks
 
 // Student CRUD
@@ -320,6 +340,59 @@ func deleteParent(currentUser User, parent Parent) error {
 	ref := firebaseClient.NewRef("parents/" + parent.GoogleID)
 	if err := ref.Delete(context.TODO()); err != nil {
 		return fmt.Errorf("error deleting parent: %v", err)
+	}
+	return ref.Delete(context.TODO())
+}
+
+// class CRUD
+
+func createClass(currentUser User, class Class) error {
+	// If user is not admin, return error when attempting to create class
+	if !isAdmin(currentUser) {
+		return fmt.Errorf("unauthorized access: only admins can create classes")
+	}
+	ref := firebaseClient.NewRef("classes/" + class.ClassID)
+	if err := ref.Set(context.TODO(), class); err != nil {
+		return fmt.Errorf("error creating class: %v", err)
+	}
+	return ref.Set(context.TODO(), class)
+}
+
+func readClass(currentUser User, students []Student, class Class) (Class, error) {
+	// If user is not admin or (self and class), return error when attempting to read class
+	if !isAdmin(currentUser) && //not admin
+		!isInstructor(currentUser) && //not instructor
+		!(isStudent(currentUser) && isStudentInClass(currentUser, students, class)) &&
+		!(isParent(currentUser) && isParentChildInClass(currentUser, students, class)) {
+		return Class{}, fmt.Errorf("unauthorized access: you can only read your own details")
+	}
+	ref := firebaseClient.NewRef("classes/" + class.ClassID)
+	if err := ref.Get(context.TODO(), &class); err != nil {
+		return Class{}, fmt.Errorf("error reading class: %v", err)
+	}
+	return class, nil
+}
+
+func updateClass(currentUser User, class Class, updates map[string]interface{}) error {
+	// If user is not admin or (self and class), return error when attempting to update class
+	if !isAdmin(currentUser) {
+		return fmt.Errorf("unauthorized access: you can only update your own details")
+	}
+	ref := firebaseClient.NewRef("classes/" + class.ClassID)
+	if err := ref.Update(context.TODO(), updates); err != nil {
+		return fmt.Errorf("error updating class: %v", err)
+	}
+	return ref.Update(context.TODO(), updates)
+}
+
+func deleteClass(currentUser User, class Class) error {
+	// If user is not admin, return error when attempting to delete class
+	if !isAdmin(currentUser) {
+		return fmt.Errorf("unauthorized access: only admins can delete classes")
+	}
+	ref := firebaseClient.NewRef("classes/" + class.ClassID)
+	if err := ref.Delete(context.TODO()); err != nil {
+		return fmt.Errorf("error deleting class: %v", err)
 	}
 	return ref.Delete(context.TODO())
 }
