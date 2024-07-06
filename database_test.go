@@ -69,6 +69,11 @@ var classes = []Class{
 	},
 }
 
+var announcement =  Announcement{
+	Title: "Test Announcement",
+	Content: "This is a test announcement."
+}
+
 func TestInitializeFirebase(t *testing.T) {
 	// Test case 1: FirebaseClient is set correctly
 	err := initializeFirebase()
@@ -415,5 +420,71 @@ func TestDeleteClass(t *testing.T) {
 	// _, err = readClass(currentUser, students, classes[0])
 	// if err == nil {
 	// 	t.Error("Deleted class still exists")
+	// }
+}
+
+func TestCreateAnnouncement(t *testing.T){
+	err := createAnnouncement(currentUser, announcement)
+	if err != nil {
+		t.Fatalf("Error creating announcement: %v", err)
+	}
+
+	// Read the announcement
+	readAnnouncement, err := readAnnouncement(currentUser, announcement)
+	if err != nil {
+		t.Fatalf("Error reading announcement: %v", err)
+		}
+
+	// Assert that the created and read announcement are equal
+	if !reflect.DeepEqual(announcement, readAnnouncement) {
+		t.Error("Created and read announcements are not equal")
+	}
+}
+
+func TestReadAnnouncement(t *testing.T) {
+	announcement, err := readAnnouncement(currentUser, announcement)
+	if err != nil {
+		t.Fatalf("Failed to read announcement: %v", err)
+	}
+
+	if announcement.Title != "Test Announcement" {
+		t.Fatalf("Expected Title %v, got %v", "Test Announcement", announcement.Title)
+	}
+}
+
+func TestUpdateAnnouncement(t *testing.T) {
+	// Update the announcement content
+	updates := map[string]interface{}{
+		"content": "This is an updated announcement.",
+	}
+
+	err := updateAnnouncement(currentUser, announcement, updates)
+	if err != nil {
+		t.Fatalf("Error updating announcement: %v", err)
+	}
+
+	// Read the updated announcement
+	readAnnouncement, err := readAnnouncement(currentUser, announcement)
+	if err != nil {
+		t.Fatalf("Error reading announcement: %v", err)
+	}
+
+	// Assert that the updated announcement's content is correct
+	if readAnnouncement.Content != updates["content"] {
+		t.Errorf("Updated announcement's content is incorrect. Expected: %v, Got: %v", updates["content"], readAnnouncement.Content)
+	}
+}
+
+func TestDeleteAnnouncement(t *testing.T) {
+	// Delete the announcement
+	err := deleteAnnouncement(currentUser, announcement)
+	if err != nil {
+		t.Fatalf("Error deleting announcement: %v", err)
+	}
+
+	// Try to read the deleted announcement
+	// _, err = readAnnouncement(currentUser, announcement)
+	// if err == nil {
+	// 	t.Error("Deleted announcement still exists")
 	// }
 }
