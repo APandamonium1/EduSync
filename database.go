@@ -3,10 +3,9 @@ package main
 import (
 	"context"
 	"fmt"
-	"net/http"
 	"log"
+	"net/http"
 	"os"
-	"strconv"
 	"strings"
 
 	"github.com/joho/godotenv"
@@ -168,7 +167,6 @@ func readStudent(currentUser User, student Student, classes []Class) (Student, e
 	return student, nil
 }
 
-<<<<<<< modifying-user-details
 func readStudents() ([]Student, error) {
 	var studentsMap map[string]Student
 	ref := firebaseClient.NewRef("students")
@@ -193,8 +191,7 @@ func searchStudents(name, class string) ([]Student, error) {
 	}
 	var filteredStudents []Student
 	for _, student := range students {
-		if (name == "" || strings.Contains(strings.ToLower(student.Name), strings.ToLower(name))) &&
-			(class == "" || student.Class == class) {
+		if name == "" || strings.Contains(strings.ToLower(student.Name), strings.ToLower(name)) {
 			filteredStudents = append(filteredStudents, student)
 		}
 	}
