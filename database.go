@@ -396,3 +396,56 @@ func deleteClass(currentUser User, class Class) error {
 	}
 	return ref.Delete(context.TODO())
 }
+
+
+//Announcements CRUD
+func createAnnouncement(currentUser User, announcement Announcement) error {
+	// If user is not admin, return error when attempting to create announcement
+	if !isAdmin(currentUser) {
+		return fmt.Errorf("unauthorized access: only admins can create announcements")
+	}
+	ref := firebaseClient.NewRef("announcements/" + announcement.AnnouncementID)
+	if err := ref.Set(context.TODO(), announcement); err != nil {
+		return fmt.Errorf("error creating announcement: %v", err)
+	}
+	return ref.Set(context.TODO(), announcement)
+}
+
+func readAnnouncement(currentUser User, announcement Announcement) error {
+	// If user is not admin, instructor, student or parent, return error when attempting to read announcement
+	if !isAdmin(currentUser) &&
+	!isInstructor(currentUser) &&
+	!isParent(currentUser) &&
+	!isStudent(currentUser) {
+		return fmt.Errorf("unauthorized access: you are not allowed to read this announcement")
+	}
+	ref := firebaseClient.NewRef("announcements/" + announcement.AnnouncementID)
+	if err := ref.Get(context.TODO(), &announcement); err != nil {
+		return fmt.Errorf("error reading announcement: %v", err)
+	}
+	return ref.Get(context.TODO(), &announcement)
+}
+
+func updateAnnouncement(currentUser User, announcement Announcement) error {
+	// If user is not admin, return error when attempting to update announcement
+	if !isAdmin(currentUser) {
+		return fmt.Errorf("unauthorized access: only admins can update this announcement")
+	}
+	ref := firebaseClient.NewRef("announcements/" + announcement.AnnouncementID)
+	if err := ref.Update(context.TODO(), announcement); err != nil {
+		return fmt.Errorf("error updating announcement: %v", err)
+	}
+
+}
+
+func deleteAnnouncement(currentUser User, announcement Announcement) error {
+	// If user is not admin, return error when attempting to delete announcement
+	if !isAdmin(currentUser) {
+		return fmt.Errorf("unauthorized access: only admins can delete announcements")
+	}
+	ref := firebaseClient.NewRef("announcements/" + announcement.AnnouncementID)
+	if err := ref.Delete(context.TODO()); err != nil {
+		return fmt.Errorf("error deleting announcement: %v", err)
+	}
+	
+}
