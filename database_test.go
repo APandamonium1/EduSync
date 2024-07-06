@@ -91,7 +91,7 @@ func TestCreateStudent(t *testing.T) {
 		t.Fatalf("Error creating student: %v", err)
 	}
 
-	readStudent, err := readStudent(currentUser, students[0], classes)
+	readStudent, err := readStudent(currentUser, students[0].GoogleID)
 	if err != nil {
 		t.Fatalf("Error reading student: %v", err)
 	}
@@ -102,7 +102,7 @@ func TestCreateStudent(t *testing.T) {
 }
 
 func TestReadStudent(t *testing.T) {
-	readStudent, err := readStudent(currentUser, students[0], classes)
+	readStudent, err := readStudent(currentUser, students[0].GoogleID)
 	if err != nil {
 		t.Fatalf("Error reading student: %v", err)
 	}
@@ -118,13 +118,13 @@ func TestUpdateStudent(t *testing.T) {
 		"name": "Updated Student",
 	}
 
-	err := updateStudent(currentUser, students[0], classes, updates)
+	err := updateStudent(currentUser, students[0].GoogleID, updates)
 	if err != nil {
 		t.Fatalf("Error updating student: %v", err)
 	}
 
 	// Read the updated student
-	readStudent, err := readStudent(currentUser, students[0], classes)
+	readStudent, err := readStudent(currentUser, students[0].GoogleID)
 	if err != nil {
 		t.Fatalf("Error reading student after updating: %v", err)
 	}
@@ -157,7 +157,7 @@ func TestCreateInstructor(t *testing.T) {
 	}
 
 	// Read the created instructor
-	readInstructor, err := readInstructor(currentUser, instructor)
+	readInstructor, err := readInstructor(currentUser, instructor.GoogleID)
 	if err != nil {
 		t.Fatalf("Error reading instructor: %v", err)
 	}
@@ -170,7 +170,7 @@ func TestCreateInstructor(t *testing.T) {
 
 func TestReadInstructor(t *testing.T) {
 
-	instructor, err := readInstructor(currentUser, instructor)
+	instructor, err := readInstructor(currentUser, instructor.GoogleID)
 	if err != nil {
 		t.Fatalf("Failed to read instructor: %v", err)
 	}
@@ -186,13 +186,13 @@ func TestUpdateInstructor(t *testing.T) {
 		"email": "amazing_instructor@nk.com",
 	}
 
-	err := updateInstructor(currentUser, instructor, updates)
+	err := updateInstructor(currentUser, instructor.GoogleID, updates)
 	if err != nil {
 		t.Fatalf("Error updating instructor: %v", err)
 	}
 
 	// Read the updated instructor
-	readInstructor, err := readInstructor(currentUser, instructor)
+	readInstructor, err := readInstructor(currentUser, instructor.GoogleID)
 	if err != nil {
 		t.Fatalf("Error reading instructor: %v", err)
 	}
@@ -225,7 +225,7 @@ func TestCreateAdmin(t *testing.T) {
 	}
 
 	// Read the created admin
-	readAdmin, err := readAdmin(currentUser, admin)
+	readAdmin, err := readAdmin(currentUser, admin.GoogleID)
 	if err != nil {
 		t.Fatalf("Error reading admin: %v", err)
 	}
@@ -237,7 +237,7 @@ func TestCreateAdmin(t *testing.T) {
 }
 
 func TestReadAdmin(t *testing.T) {
-	admin, err := readAdmin(currentUser, admin)
+	admin, err := readAdmin(currentUser, admin.GoogleID)
 	if err != nil {
 		t.Fatalf("Failed to read instructor: %v", err)
 	}
@@ -253,13 +253,13 @@ func TestUpdateAdmin(t *testing.T) {
 		"email": "amazing_admin@nk.com",
 	}
 
-	err := updateAdmin(currentUser, admin, updates)
+	err := updateAdmin(currentUser, admin.GoogleID, updates)
 	if err != nil {
 		t.Fatalf("Error updating admin: %v", err)
 	}
 
 	// Read the updated admin
-	readAdmin, err := readAdmin(currentUser, admin)
+	readAdmin, err := readAdmin(currentUser, admin.GoogleID)
 	if err != nil {
 		t.Fatalf("Error reading admin: %v", err)
 	}
@@ -292,7 +292,7 @@ func TestCreateParent(t *testing.T) {
 	}
 
 	// Read the created parent
-	readParent, err := readParent(currentUser, parent)
+	readParent, err := readParent(currentUser, parent.GoogleID)
 	if err != nil {
 		t.Fatalf("Error reading parent: %v", err)
 	}
@@ -304,7 +304,7 @@ func TestCreateParent(t *testing.T) {
 }
 
 func TestReadParent(t *testing.T) {
-	parent, err := readParent(currentUser, parent)
+	parent, err := readParent(currentUser, parent.GoogleID)
 	if err != nil {
 		t.Fatalf("Failed to read parent: %v", err)
 	}
@@ -320,13 +320,13 @@ func TestUpdateParent(t *testing.T) {
 		"email": "jane_doe_parent@nk.com",
 	}
 
-	err := updateParent(currentUser, parent, updates)
+	err := updateParent(currentUser, parent.GoogleID, updates)
 	if err != nil {
 		t.Fatalf("Error updating parent: %v", err)
 	}
 
 	// Read the updated parent
-	readParent, err := readParent(currentUser, parent)
+	readParent, err := readParent(currentUser, parent.GoogleID)
 	if err != nil {
 		t.Fatalf("Error reading parent: %v", err)
 	}
@@ -360,7 +360,7 @@ func TestCreateClass(t *testing.T) {
 	}
 
 	// Read the created class
-	readClass, err := readClass(currentUser, students, classes[0])
+	readClass, err := readClass(currentUser, students, classes[0].ClassID)
 	if err != nil {
 		t.Fatalf("Error reading class: %v", err)
 	}
@@ -372,7 +372,7 @@ func TestCreateClass(t *testing.T) {
 }
 
 func TestReadClass(t *testing.T) {
-	class, err := readClass(currentUser, students, classes[0])
+	class, err := readClass(currentUser, students, classes[0].ClassID)
 	if err != nil {
 		t.Fatalf("Failed to read class: %v", err)
 	}
@@ -394,7 +394,7 @@ func TestUpdateClass(t *testing.T) {
 	}
 
 	// Read the updated class
-	readClass, err := readClass(currentUser, students, classes[0])
+	readClass, err := readClass(currentUser, students, classes[0].ClassID)
 	if err != nil {
 		t.Fatalf("Error reading class: %v", err)
 	}
