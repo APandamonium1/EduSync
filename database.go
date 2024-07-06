@@ -3,6 +3,7 @@ package main
 import (
 	"context"
 	"fmt"
+	"net/http"
 	"log"
 	"os"
 	"strconv"
@@ -65,24 +66,109 @@ func initializeFirebase() error {
 	return nil
 }
 
+// Utility function to get current user
+func getCurrentUser(req *http.Request) (User, error) {
+	// Implement session or context based user retrieval
+	return User{}, nil
+}
+
+// Utility functions to check roles
+func isAdmin(user User) bool {
+	return user.Role == "Admin"
+}
+
+func isInstructor(user User) bool {
+	return user.Role == "Instructor"
+}
+
+func isParent(user User) bool {
+	return user.Role == "Parent"
+}
+
+func isStudent(user User) bool {
+	return user.Role == "Student"
+}
+
+// Function to check if CurrentUser is checking their own details
+func isSelf(user User, googleID string) bool {
+	return user.GoogleID == googleID
+}
+
+// Check if instructor can access student (student's class' instructor = instructor name)
+func canInstructorAccessStudent(currentUser User, student Student, classes []Class) bool {
+	for _, class := range classes {
+		if class.Instructor == currentUser.GoogleID && class.ClassID == student.ClassID {
+			return true
+		}
+	}
+	return false
+}
+
+// Check if parent can access child (student's parent's id = parent id)
+func canParentAccessChild(currentUser User, student Student) bool {
+	// Implement logic to check if parent can access the child
+	return currentUser.GoogleID == student.ParentID
+}
+
+// Check if student can access parent (student's parent's name = parent name)
+func canChildAccessParent(currentUser User, parent Parent) bool {
+	// Implement logic to check if parent can access the child
+	return currentUser.GoogleID == parent.GoogleID
+}
+
+// Check if student is in the class
+func isStudentInClass(currentUser User, students []Student, class Class) bool {
+	for _, student := range students {
+		if student.GoogleID == currentUser.GoogleID && student.ClassID == class.ClassID {
+			return true
+		}
+	}
+	return false
+}
+
+// Check if the parent's child is in the class
+func isParentChildInClass(currentUser User, students []Student, class Class) bool {
+	for _, student := range students {
+		if student.ParentID == currentUser.GoogleID && student.ClassID == class.ClassID {
+			return true
+		}
+	}
+	return false
+}
+
+// CRUD operations with role checks
+
 // Student CRUD
-func createStudent(googleID string, student Student) error {
-	ref := firebaseClient.NewRef("students/" + googleID)
+func createStudent(currentUser User, student Student) error {
+	// If user is not an admin, return error when attempting to create student
+	if !isAdmin(currentUser) {
+		return fmt.Errorf("unauthorized access: only admins can create students")
+	}
+	ref := firebaseClient.NewRef("students/" + student.GoogleID)
 	if err := ref.Set(context.TODO(), student); err != nil {
 		return fmt.Errorf("error creating student: %v", err)
 	}
 	return ref.Set(context.TODO(), student)
 }
 
-func readStudent(googleID string) (Student, error) {
-	ref := firebaseClient.NewRef("students/" + googleID)
-	var student Student
+func readStudent(currentUser User, student Student, classes []Class) (Student, error) {
+	// If user is not an admin, instructor, or parent, return error when attempting to read student
+	if !isAdmin(currentUser) && //not admin
+		!(isSelf(currentUser, student.GoogleID) && isStudent(currentUser)) && //not student and reading self
+		!(currentUser.Role == "Instructor" && canInstructorAccessStudent(currentUser, student, classes)) && //instructor can access only their students' info
+		!(currentUser.Role == "Parent" && canParentAccessChild(currentUser, student)) { // parent can access only their child's info
+		return Student{}, fmt.Errorf("unauthorized access: you can only read your own details or the details of students you are authorized to access")
+	}
+
+	ref := firebaseClient.NewRef("students/" + student.GoogleID)
+	// var student Student
 	if err := ref.Get(context.TODO(), &student); err != nil {
 		return Student{}, fmt.Errorf("error reading student: %v", err)
 	}
 	return student, nil
 }
 
+<<<<<<< modifying-user-details
 func readStudents() ([]Student, error) {
 	var studentsMap map[string]Student
 	ref := firebaseClient.NewRef("students")
@@ -115,24 +201,28 @@ func searchStudents(name, class string) ([]Student, error) {
 	return filteredStudents, nil
 }
 
-func updateStudent(googleID string, updates map[string]interface{}) error {
-	if ageStr, ok := updates["age"].(string); ok {
-		age, err := strconv.Atoi(ageStr)
-		if err != nil {
-			return fmt.Errorf("error converting age to integer: %v", err)
-		}
-		updates["age"] = age
+func updateStudent(currentUser User, student Student, classes []Class, updates map[string]interface{}) error {
+	// If user is not admin, instructor, or parent, return error when attempting to update student
+	if !isAdmin(currentUser) && //not admin
+		!(isSelf(currentUser, student.GoogleID) && isStudent(currentUser)) && //not student and reading self
+		!(currentUser.Role == "Instructor" && canInstructorAccessStudent(currentUser, student, classes)) && //instructor can access only their students' info
+		!(currentUser.Role == "Parent" && canParentAccessChild(currentUser, student)) { // parent can access only their child's info {
+		return fmt.Errorf("unauthorized access: you can only update your own details")
 	}
+	ref := firebaseClient.NewRef("students/" + student.GoogleID)
 
-	ref := firebaseClient.NewRef("students/" + googleID)
 	if err := ref.Update(context.TODO(), updates); err != nil {
 		return fmt.Errorf("error updating student: %v", err)
 	}
 	return nil
 }
 
-func deleteStudent(googleID string) error {
-	ref := firebaseClient.NewRef("students/" + googleID)
+func deleteStudent(currentUser User, student Student) error {
+	// If user is not admin, return error when attempting to delete student
+	if !isAdmin(currentUser) {
+		return fmt.Errorf("unauthorized access: only admins can delete students")
+	}
+	ref := firebaseClient.NewRef("students/" + student.GoogleID)
 	if err := ref.Delete(context.TODO()); err != nil {
 		return fmt.Errorf("error deleting student: %v", err)
 	}
@@ -140,33 +230,81 @@ func deleteStudent(googleID string) error {
 }
 
 // Instructor CRUD
-func createInstructor(googleID string, instructor Instructor) error {
-	ref := firebaseClient.NewRef("instructors/" + googleID)
+func createInstructor(currentUser User, instructor Instructor) error {
+	// If user is not admin, return error when attempting to create instructor
+	if !isAdmin(currentUser) {
+		return fmt.Errorf("unauthorized access: only admins can create instructors")
+	}
+	ref := firebaseClient.NewRef("instructors/" + instructor.GoogleID)
 	if err := ref.Set(context.TODO(), instructor); err != nil {
 		return fmt.Errorf("error creating instructor: %v", err)
 	}
 	return ref.Set(context.TODO(), instructor)
 }
 
-func readInstructor(googleID string) (Instructor, error) {
-	ref := firebaseClient.NewRef("instructors/" + googleID)
-	var instructor Instructor
+func readInstructor(currentUser User, instructor Instructor) (Instructor, error) {
+	// If user is not admin or (self & instructor), return error when attempting to read instructor
+	if !isAdmin(currentUser) && //not admin
+		!(isSelf(currentUser, instructor.GoogleID) && isInstructor(currentUser)) {
+		return Instructor{}, fmt.Errorf("unauthorized access: you can only read your own details")
+	}
+	ref := firebaseClient.NewRef("instructors/" + instructor.GoogleID)
 	if err := ref.Get(context.TODO(), &instructor); err != nil {
 		return Instructor{}, fmt.Errorf("error reading instructor: %v", err)
 	}
 	return instructor, nil
 }
 
-func updateInstructor(googleID string, updates map[string]interface{}) error {
-	ref := firebaseClient.NewRef("instructors/" + googleID)
+func readInstructors() ([]Instructor, error) {
+	var instructorsMap map[string]Instructor
+	ref := firebaseClient.NewRef("instructors")
+	if err := ref.Get(context.TODO(), &instructorsMap); err != nil {
+		return nil, fmt.Errorf("error reading students: %v", err)
+	}
+	// Convert map to slice
+	instructors := make([]Instructor, 0, len(instructorsMap))
+	for _, instructor := range instructorsMap {
+		instructors = append(instructors, instructor)
+	}
+	return instructors, nil
+}
+
+func searchInstructors(name string) ([]Instructor, error) {
+	if name == "" {
+		return readInstructors()
+	}
+	instructors, err := readInstructors()
+	if err != nil {
+		return nil, err
+	}
+	var filteredInstructors []Instructor
+	for _, instructor := range instructors {
+		if name == "" || strings.Contains(strings.ToLower(instructor.Name), strings.ToLower(name)) {
+			filteredInstructors = append(filteredInstructors, instructor)
+		}
+	}
+	return filteredInstructors, nil
+}
+
+func updateInstructor(currentUser User, instructor Instructor, updates map[string]interface{}) error {
+	// If user is not admin or (self & instructor), return error when attempting to update instructor
+	if !isAdmin(currentUser) && //not admin
+		!(isSelf(currentUser, instructor.GoogleID) && isInstructor(currentUser)) {
+		return fmt.Errorf("unauthorized access: you can only update your own details")
+	}
+	ref := firebaseClient.NewRef("instructors/" + instructor.GoogleID)
 	if err := ref.Update(context.TODO(), updates); err != nil {
 		return fmt.Errorf("error updating instructor: %v", err)
 	}
 	return ref.Update(context.TODO(), updates)
 }
 
-func deleteInstructor(googleID string) error {
-	ref := firebaseClient.NewRef("instructors/" + googleID)
+func deleteInstructor(currentUser User, instructor Instructor) error {
+	// If user is not admin, return error when attempting to delete instructor
+	if !isAdmin(currentUser) {
+		return fmt.Errorf("unauthorized access: only admins can delete instructors")
+	}
+	ref := firebaseClient.NewRef("instructors/" + instructor.GoogleID)
 	if err := ref.Delete(context.TODO()); err != nil {
 		return fmt.Errorf("error deleting instructor: %v", err)
 	}
@@ -174,33 +312,48 @@ func deleteInstructor(googleID string) error {
 }
 
 // Admin CRUD
-func createAdmin(googleID string, admin Admin) error {
-	ref := firebaseClient.NewRef("admins/" + googleID)
+func createAdmin(currentUser User, admin Admin) error {
+	// If user is not admin, return error when attempting to create admin
+	if !isAdmin(currentUser) {
+		return fmt.Errorf("unauthorized access: only admins can create admins")
+	}
+	ref := firebaseClient.NewRef("admins/" + admin.GoogleID)
 	if err := ref.Set(context.TODO(), admin); err != nil {
 		return fmt.Errorf("error creating admin: %v", err)
 	}
 	return ref.Set(context.TODO(), admin)
 }
 
-func readAdmin(googleID string) (Admin, error) {
-	ref := firebaseClient.NewRef("admins/" + googleID)
-	var admin Admin
+func readAdmin(currentUser User, admin Admin) (Admin, error) {
+	// If user is not admin, return error when attempting to read admin
+	if !isAdmin(currentUser) {
+		return Admin{}, fmt.Errorf("unauthorized access: you can only read your own details")
+	}
+	ref := firebaseClient.NewRef("admins/" + admin.GoogleID)
 	if err := ref.Get(context.TODO(), &admin); err != nil {
 		return Admin{}, fmt.Errorf("error reading admin: %v", err)
 	}
 	return admin, nil
 }
 
-func updateAdmin(googleID string, updates map[string]interface{}) error {
-	ref := firebaseClient.NewRef("admins/" + googleID)
+func updateAdmin(currentUser User, admin Admin, updates map[string]interface{}) error {
+	// If user is not admin, return error when attempting to update admin
+	if !isAdmin(currentUser) {
+		return fmt.Errorf("unauthorized access: you can only update your own details")
+	}
+	ref := firebaseClient.NewRef("admins/" + admin.GoogleID)
 	if err := ref.Update(context.TODO(), updates); err != nil {
 		return fmt.Errorf("error updating admin: %v", err)
 	}
 	return ref.Update(context.TODO(), updates)
 }
 
-func deleteAdmin(googleID string) error {
-	ref := firebaseClient.NewRef("admins/" + googleID)
+func deleteAdmin(currentUser User, admin Admin) error {
+	// If user is not admin, return error when attempting to delete admin
+	if !isAdmin(currentUser) {
+		return fmt.Errorf("unauthorized access: only admins can delete admins")
+	}
+	ref := firebaseClient.NewRef("admins/" + admin.GoogleID)
 	if err := ref.Delete(context.TODO()); err != nil {
 		return fmt.Errorf("error deleting admin: %v", err)
 	}
@@ -208,37 +361,30 @@ func deleteAdmin(googleID string) error {
 }
 
 // Parent CRUD
-func createParent(googleID string, parent Parent) error {
-	ref := firebaseClient.NewRef("parents/" + googleID)
+func createParent(currentUser User, parent Parent) error {
+	// If user is not admin, return error when attempting to create parent
+	if !isAdmin(currentUser) {
+		return fmt.Errorf("unauthorized access: only admins can create parents")
+	}
+	ref := firebaseClient.NewRef("parents/" + parent.GoogleID)
 	if err := ref.Set(context.TODO(), parent); err != nil {
 		return fmt.Errorf("error creating parent: %v", err)
 	}
 	return ref.Set(context.TODO(), parent)
 }
 
-func readParent(googleID string) (Parent, error) {
-	ref := firebaseClient.NewRef("parents/" + googleID)
-	var parent Parent
+func readParent(currentUser User, parent Parent) (Parent, error) {
+	// If user is not admin or (self and parent), return error when attempting to update parent
+	if !isAdmin(currentUser) && //not admin
+		!(isSelf(currentUser, parent.GoogleID) && isParent(currentUser)) && //not parent and reading self
+		!(currentUser.Role == "Student" && canChildAccessParent(currentUser, parent)) {
+		return Parent{}, fmt.Errorf("unauthorized access: you can only read your own details")
+	}
+	ref := firebaseClient.NewRef("parents/" + parent.GoogleID)
 	if err := ref.Get(context.TODO(), &parent); err != nil {
 		return Parent{}, fmt.Errorf("error reading parent: %v", err)
 	}
 	return parent, nil
-}
-
-func updateParent(googleID string, updates map[string]interface{}) error {
-	ref := firebaseClient.NewRef("parents/" + googleID)
-	if err := ref.Update(context.TODO(), updates); err != nil {
-		return fmt.Errorf("error updating parent: %v", err)
-	}
-	return ref.Update(context.TODO(), updates)
-}
-
-func deleteParent(googleID string) error {
-	ref := firebaseClient.NewRef("parents/" + googleID)
-	if err := ref.Delete(context.TODO()); err != nil {
-		return fmt.Errorf("error deleting parent: %v", err)
-	}
-	return ref.Delete(context.TODO())
 }
 
 func readParents() ([]Parent, error) {
@@ -272,35 +418,80 @@ func searchParents(name string) ([]Parent, error) {
 	return filteredParents, nil
 }
 
-func readInstructors() ([]Instructor, error) {
-	var instructorsMap map[string]Instructor
-	ref := firebaseClient.NewRef("instructors")
-	if err := ref.Get(context.TODO(), &instructorsMap); err != nil {
-		return nil, fmt.Errorf("error reading students: %v", err)
+func updateParent(currentUser User, parent Parent, updates map[string]interface{}) error {
+	if !isAdmin(currentUser) && //not admin
+		!(isSelf(currentUser, parent.GoogleID) && isParent(currentUser)) {
+		return fmt.Errorf("unauthorized access: you can only update your own details")
 	}
-	// Convert map to slice
-	instructors := make([]Instructor, 0, len(instructorsMap))
-	for _, instructor := range instructorsMap {
-		instructors = append(instructors, instructor)
+	ref := firebaseClient.NewRef("parents/" + parent.GoogleID)
+	if err := ref.Update(context.TODO(), updates); err != nil {
+		return fmt.Errorf("error updating parent: %v", err)
 	}
-	return instructors, nil
+	return ref.Update(context.TODO(), updates)
 }
 
-func searchInstructors(name string) ([]Instructor, error) {
-	if name == "" {
-		return readInstructors()
+func deleteParent(currentUser User, parent Parent) error {
+	// If user is not admin, return error when attempting to delete parent
+	if !isAdmin(currentUser) {
+		return fmt.Errorf("unauthorized access: only admins can delete parents")
 	}
-	instructors, err := readInstructors()
-	if err != nil {
-		return nil, err
+	ref := firebaseClient.NewRef("parents/" + parent.GoogleID)
+	if err := ref.Delete(context.TODO()); err != nil {
+		return fmt.Errorf("error deleting parent: %v", err)
 	}
-	var filteredInstructors []Instructor
-	for _, instructor := range instructors {
-		if name == "" || strings.Contains(strings.ToLower(instructor.Name), strings.ToLower(name)) {
-			filteredInstructors = append(filteredInstructors, instructor)
-		}
+	return ref.Delete(context.TODO())
+}
+
+// class CRUD
+func createClass(currentUser User, class Class) error {
+	// If user is not admin, return error when attempting to create class
+	if !isAdmin(currentUser) {
+		return fmt.Errorf("unauthorized access: only admins can create classes")
 	}
-	return filteredInstructors, nil
+	ref := firebaseClient.NewRef("classes/" + class.ClassID)
+	if err := ref.Set(context.TODO(), class); err != nil {
+		return fmt.Errorf("error creating class: %v", err)
+	}
+	return ref.Set(context.TODO(), class)
+}
+
+func readClass(currentUser User, students []Student, class Class) (Class, error) {
+	// If user is not admin or (self and class), return error when attempting to read class
+	if !isAdmin(currentUser) && //not admin
+		!isInstructor(currentUser) && //not instructor
+		!(isStudent(currentUser) && isStudentInClass(currentUser, students, class)) &&
+		!(isParent(currentUser) && isParentChildInClass(currentUser, students, class)) {
+		return Class{}, fmt.Errorf("unauthorized access: you can only read your own details")
+	}
+	ref := firebaseClient.NewRef("classes/" + class.ClassID)
+	if err := ref.Get(context.TODO(), &class); err != nil {
+		return Class{}, fmt.Errorf("error reading class: %v", err)
+	}
+	return class, nil
+}
+
+func updateClass(currentUser User, class Class, updates map[string]interface{}) error {
+	// If user is not admin or (self and class), return error when attempting to update class
+	if !isAdmin(currentUser) {
+		return fmt.Errorf("unauthorized access: you can only update your own details")
+	}
+	ref := firebaseClient.NewRef("classes/" + class.ClassID)
+	if err := ref.Update(context.TODO(), updates); err != nil {
+		return fmt.Errorf("error updating class: %v", err)
+	}
+	return ref.Update(context.TODO(), updates)
+}
+
+func deleteClass(currentUser User, class Class) error {
+	// If user is not admin, return error when attempting to delete class
+	if !isAdmin(currentUser) {
+		return fmt.Errorf("unauthorized access: only admins can delete classes")
+	}
+	ref := firebaseClient.NewRef("classes/" + class.ClassID)
+	if err := ref.Delete(context.TODO()); err != nil {
+		return fmt.Errorf("error deleting class: %v", err)
+	}
+	return ref.Delete(context.TODO())
 }
 
 // func database() {
@@ -450,154 +641,4 @@ func searchInstructors(name string) ([]Instructor, error) {
 // 		log.Fatal(err)
 // 	}
 // 	fmt.Println("Parent deleted successfully!")
-// }
-
-// Student CRUD
-// func createStudent(client *db.Client, userId string, student Student) error {
-// 	ref := client.NewRef("students/" + userId)
-// 	return ref.Set(context.TODO(), student)
-// }
-
-// func readStudent(client *db.Client, userId string) (Student, error) {
-// 	ref := client.NewRef("students/" + userId)
-// 	var student Student
-// 	if err := ref.Get(context.TODO(), &student); err != nil {
-// 		return Student{}, err
-// 	}
-// 	return student, nil
-// }
-
-// func updateStudent(client *db.Client, userId string, updates map[string]interface{}) error {
-// 	ref := client.NewRef("students/" + userId)
-// 	return ref.Update(context.TODO(), updates)
-// }
-
-//	func deleteStudent(client *db.Client, userId string) error {
-//		ref := client.NewRef("students/" + userId)
-//		return ref.Delete(context.TODO())
-//	}
-
-// Instructor CRUD
-// func createInstructor(client *db.Client, userId string, instructor Instructor) error {
-// 	ref := client.NewRef("instructors/" + userId)
-// 	return ref.Set(context.TODO(), instructor)
-// }
-
-// func readInstructor(client *db.Client, userId string) (Instructor, error) {
-// 	ref := client.NewRef("instructors/" + userId)
-// 	var instructor Instructor
-// 	if err := ref.Get(context.TODO(), &instructor); err != nil {
-// 		return Instructor{}, err
-// 	}
-// 	return instructor, nil
-// }
-
-// func updateInstructor(client *db.Client, userId string, updates map[string]interface{}) error {
-// 	ref := client.NewRef("instructors/" + userId)
-// 	return ref.Update(context.TODO(), updates)
-// }
-
-//	func deleteInstructor(client *db.Client, userId string) error {
-//		ref := client.NewRef("instructors/" + userId)
-//		return ref.Delete(context.TODO())
-//	}
-
-// Parent CRUD
-// func createParent(client *db.Client, userId string, parent Parent) error {
-// 	ref := client.NewRef("parents/" + userId)
-// 	return ref.Set(context.TODO(), parent)
-// }
-
-// func readParent(client *db.Client, userId string) (Parent, error) {
-// 	ref := client.NewRef("parents/" + userId)
-// 	var parent Parent
-// 	if err := ref.Get(context.TODO(), &parent); err != nil {
-// 		return Parent{}, err
-// 	}
-// 	return parent, nil
-// }
-
-// func updateParent(client *db.Client, userId string, updates map[string]interface{}) error {
-// 	ref := client.NewRef("parents/" + userId)
-// 	return ref.Update(context.TODO(), updates)
-// }
-
-//	func deleteParent(client *db.Client, userId string) error {
-//		ref := client.NewRef("parents/" + userId)
-//		return ref.Delete(context.TODO())
-//	}
-
-// // Student CRUD Ver 2
-// func createStudent(client *db.Client, googleID string, student Student) error {
-// 	ref := client.NewRef("students/" + googleID)
-// 	return ref.Set(context.TODO(), student)
-// }
-
-// func readStudent(client *db.Client, googleID string) (Student, error) {
-// 	ref := client.NewRef("students/" + googleID)
-// 	var student Student
-// 	if err := ref.Get(context.TODO(), &student); err != nil {
-// 		return Student{}, err
-// 	}
-// 	return student, nil
-// }
-
-// func updateStudent(client *db.Client, googleID string, updates map[string]interface{}) error {
-// 	ref := client.NewRef("students/" + googleID)
-// 	return ref.Update(context.TODO(), updates)
-// }
-
-// func deleteStudent(client *db.Client, googleID string) error {
-// 	ref := client.NewRef("students/" + googleID)
-// 	return ref.Delete(context.TODO())
-// }
-
-// // Instructor CRUD Ver 2
-// func createInstructor(client *db.Client, googleID string, instructor Instructor) error {
-// 	ref := client.NewRef("instructors/" + googleID)
-// 	return ref.Set(context.TODO(), instructor)
-// }
-
-// func readInstructor(client *db.Client, googleID string) (Instructor, error) {
-// 	ref := client.NewRef("instructors/" + googleID)
-// 	var instructor Instructor
-// 	if err := ref.Get(context.TODO(), &instructor); err != nil {
-// 		return Instructor{}, err
-// 	}
-// 	return instructor, nil
-// }
-
-// func updateInstructor(client *db.Client, googleID string, updates map[string]interface{}) error {
-// 	ref := client.NewRef("instructors/" + googleID)
-// 	return ref.Update(context.TODO(), updates)
-// }
-
-// func deleteInstructor(client *db.Client, googleID string) error {
-// 	ref := client.NewRef("instructors/" + googleID)
-// 	return ref.Delete(context.TODO())
-// }
-
-// // Parent CRUD Ver 2
-// func createParent(client *db.Client, googleID string, parent Parent) error {
-// 	ref := client.NewRef("parents/" + googleID)
-// 	return ref.Set(context.TODO(), parent)
-// }
-
-// func readParent(client *db.Client, googleID string) (Parent, error) {
-// 	ref := client.NewRef("parents/" + googleID)
-// 	var parent Parent
-// 	if err := ref.Get(context.TODO(), &parent); err != nil {
-// 		return Parent{}, err
-// 	}
-// 	return parent, nil
-// }
-
-// func updateParent(client *db.Client, googleID string, updates map[string]interface{}) error {
-// 	ref := client.NewRef("parents/" + googleID)
-// 	return ref.Update(context.TODO(), updates)
-// }
-
-// func deleteParent(client *db.Client, googleID string) error {
-// 	ref := client.NewRef("parents/" + googleID)
-// 	return ref.Delete(context.TODO())
 // }
