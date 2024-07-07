@@ -6,65 +6,22 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"os"
 	"strings"
-
-	"github.com/joho/godotenv"
 
 	firebase "firebase.google.com/go"
 	"firebase.google.com/go/db"
-	"google.golang.org/api/option"
+	"github.com/gorilla/sessions"
 )
 
-// Use godot package to load/read the .env file and
-// return the value of the key (for local env)
-func goDotEnvVariable(key string) string {
+var firebaseClient *db.Client
+var store = sessions.NewCookieStore([]byte("1L6x-SPtG8-EqJUkR7htTJx-5K4rt-ZTKeh-rxPw-AM="))
 
-	// load .env file
-	err := godotenv.Load(".env")
-
-	if err != nil {
-		log.Fatalf("Error loading .env file")
-	}
-
-	return os.Getenv(key)
-}
-
-// Initialize Firebase client
-var (
-	firebaseClient *db.Client
-	firebaseApp    *firebase.App
-)
-
-// InitializeFirebase initializes the Firebase app and sets the global firebaseClient variable
-func initializeFirebase() error {
-	ctx := context.Background()
-
-	// databaseURL, found := os.LookupEnv("DATABASE_URL")
-	// if !found {
-	// 	log.Fatalf("DATABASE_URL is not set in the environment variables")
-	// }
-
-	databaseURL := goDotEnvVariable("DATABASE_URL")
-	if databaseURL == "" {
-		return fmt.Errorf("DATABASE_URL is not set in the environment variables")
-	}
-
-	conf := &firebase.Config{DatabaseURL: databaseURL}
-
-	//opt := option.WithCredentialsFile("edusync-7bd5e-firebase-adminsdk-x49uh-af084a6314.json")
-	opt := option.WithCredentialsFile("edusync-test-firebase-adminsdk-hk5kl-9af0162b09.json")
-
-	firebaseApp, err := firebase.NewApp(ctx, conf, opt)
-	if err != nil {
-		return fmt.Errorf("error initializing firebase app: %v", err)
-	}
-
-	client, err := firebaseApp.Database(ctx)
+func initDB(app *firebase.App) error {
+	// Initialize Firebase client
+	client, err := app.Database(context.Background())
 	if err != nil {
 		return fmt.Errorf("error creating firebase DB client: %v", err)
 	}
-
 	firebaseClient = client
 	return nil
 }
@@ -152,6 +109,48 @@ func isParentChildInClass(currentUser User, students []Student, class Class) boo
 		}
 	}
 	return false
+}
+
+func getUserRole(email string) (User, string, error) {
+	ctx := context.Background()
+	var user User
+	var userRole string
+
+	// Check if firebaseClient is initialized
+	if firebaseClient == nil {
+		log.Println("Firebase client is not initialized")
+		return user, userRole, fmt.Errorf("firebase client is not initialized")
+	}
+
+	// Map categories to Firebase references
+	categoryRefs := map[string]string{
+		"Student":    "/students",
+		"Parent":     "/parents",
+		"Instructor": "/instructors",
+		"Admin":      "/admins",
+	}
+
+	// Iterate through each category and check if the email exists
+	for category, ref := range categoryRefs {
+		categoryRef := firebaseClient.NewRef(ref)
+		dataSnapshot, err := categoryRef.OrderByChild("email").EqualTo(email).GetOrdered(ctx)
+		if err != nil {
+			log.Printf("Error fetching data from %s: %v", category, err)
+			continue
+		}
+
+		// Check if dataSnapshot has any children
+		if len(dataSnapshot) > 0 {
+			userRole = category
+			// Assuming dataSnapshot[0] is the first match and it contains the user data
+			if err := dataSnapshot[0].Unmarshal(&user); err != nil {
+				log.Printf("Error unmarshalling data for %s: %v", category, err)
+				continue
+			}
+			break
+		}
+	}
+	return user, userRole, nil
 }
 
 // CRUD operations with role checks

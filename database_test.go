@@ -13,7 +13,7 @@ var students = []Student{
 		User: User{
 			GoogleID:      "test-student",
 			Name:          "John Doe",
-			Email:         "johndoe_student@example.com",
+			Email:         "jeyvianangjieen@gmail.com",
 			ContactNumber: "91234567",
 			Role:          "Student",
 		},
