@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>Edit Instructor Details</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<link rel="stylesheet" type="text/css" href="/assets/css/style.css">
+	<link href="https://fonts.googleapis.com/css?family=Raleway:400,500,600,700" rel="stylesheet">
+    <script>
+        let initialStudent = {};
+
+        async function loadInstructor() {
+            const googleID = document.getElementById('googleID').value;
+            const response = await fetch(`/admin/instructor/${googleID}`);
+            const instructor = await response.json();
+            document.getElementById('name').value = instructor.name;
+            document.getElementById('contactNumber').value = instructor.contact_number;
+            document.getElementById('email').value = instructor.email;
+            document.getElementById('basePay').value = instructor.base_pay;
+            document.getElementById('role').value = instructor.role;
+        
+            initialStudent = {...student}
+        }
+
+        function hasChanges() {
+            return (
+                document.getElementById('name').value !== initialStudent.name ||
+                document.getElementById('email').value !== initialStudent.email ||
+                parseInt(document.getElementById('age').value, 10) !== initialStudent.age ||
+                document.getElementById('class').value !== initialStudent.class ||
+                document.getElementById('instructor').value !== initialStudent.instructor ||
+                document.getElementById('parentName').value !== initialStudent.parent_name ||
+                document.getElementById('role').value !== initialStudent.role
+            );
+        }
+
+        async function updateInstructor() {
+            const googleID = document.getElementById('googleID').value;
+            if (!hasChanges()) {
+                return;  // No changes, so do not proceed with update
+            }
+            const updates = {
+                name: document.getElementById('name').value,
+                contact_number: document.getElementById('contactNumber').value,
+                email: document.getElementById('email').value,
+                base_pay: parseFloat(document.getElementById('basePay').value),
+                role: document.getElementById('role').value
+            };
+            await fetch(`/admin/instructor/${googleID}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(updates)
+            });
+            alert('Instructor updated successfully');
+            window.location.href = '/admin/search_instructor';
+        }
+
+        function toggleEdit() {
+            const inputs = document.querySelectorAll('input');
+            inputs.forEach(input => {
+                input.disabled = !input.disabled;
+            });
+            document.getElementById('editButton').style.display = 'none';
+            document.getElementById('saveButton').style.display = 'block';
+        }
+
+        function validatePhoneNumber() {
+            const phoneNumber = document.getElementById('contactNumber').value;
+            const phoneNumberPattern = /^[689]\d{7}$/;
+            const errorElement = document.getElementById('phoneNumberError');
+
+            if (phoneNumberPattern.test(phoneNumber)) {
+                errorElement.textContent = ''; // Clear error message
+                document.getElementById('saveButton').disabled = false; // Enable save button
+            } else {
+                errorElement.textContent = 'Phone number must start with 6, 8, or 9 and have 8 digits.';
+                document.getElementById('saveButton').disabled = true; // Disable save button
+            }
+        }
+
+        function goBack() {
+            window.history.back();
+        }
+    </script>
+</head>
+<body onload="loadInstructor()">
+	<div id="page" class="site" itemscope itemtype="http://schema.org/LocalBusiness">
+		<header class="site-header">
+			<div class="main-header">
+				<div class="container">
+					<div class="logo-wrap" itemprop="logo">
+						<img src="/assets/images/site-logo.jpg" alt="Logo Image" style="width: 120px; height: auto;">
+					</div>
+					<div class="nav-wrap">
+						<nav class="nav-desktop">
+							<ul class="menu-list">
+								<li><a href="/admin">Home</a></li>
+                                <li><a href="/admin/search_student">Students</a></li>
+                                <li><a href="/admin/search_parent">Parents</a></li>
+                                <li><a href="/admin/search_instructor">Instructors</a></li>
+							</ul>
+						</nav>
+						<div id="bar">
+							<i class="fas fa-bars"></i>
+						</div>
+						<div id="close">
+							<i class="fas fa-times"></i>
+						</div>
+					</div>
+				</div>
+			</div>
+		</header>
+		<!-- Header Close -->
+		
+        <div class="container content">
+            <h1>Edit Instructor Details</h1>
+            <input type="hidden" id="googleID" value="{{.GoogleID}}">
+            <form onsubmit="event.preventDefault(); updateInstructor();">
+                <div><label>Name: </label><input type="text" id="name" disabled></div>
+                <br>
+                <div>
+                    <label>Contact Number: </label>
+                    <input type="text" id="contactNumber" disabled oninput="validatePhoneNumber()">
+                    <span id="phoneNumberError" class="error-message"></span>
+                </div>
+                <br>
+                <div><label>Email: </label><input type="text" id="email" disabled></div>
+                <br>
+                <div><label>Base Pay: </label><input type="number" step="0.01" id="basePay" disabled></div>
+                <br>
+                <div><label>Role: </label><input type="text" id="role" disabled></div>
+                <br>
+                <div class="button-container">
+                    <button type="button" id="editButton" onclick="toggleEdit()">Edit</button>
+                    <button type="submit" id="saveButton" style="display:none;">Save</button>
+                    <button type="button" onclick="goBack()">Back</button>
+                </div>              
+            </form>
+        </div>
+	</div>
+	<script type="text/javascript" src="/assets/js/jquery-3.3.1.min.js"></script>
+	<script type="text/javascript" src="/assets/js/custom.js"></script>
+</body>
+</html>

@@ -1,6 +1,7 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
 	"html/template"
 	"log"
@@ -24,10 +25,7 @@ func AuthHandler(router *mux.Router, config *Config) {
 	store.Options.Secure = isProd
 
 	gothic.Store = store
-
-	goth.UseProviders(
-		google.New(config.GoogleClientID, config.GoogleClientSecret, "https://localhost:8080/auth/google/callback", "email", "profile"),
-	)
+	goth.UseProviders(google.New(config.GoogleClientID, config.GoogleClientSecret, "https://localhost:8080/auth/google/callback", "email", "profile"))
 
 	router.HandleFunc("/auth/{provider}/callback", func(res http.ResponseWriter, req *http.Request) {
 		user, err := gothic.CompleteUserAuth(res, req)
@@ -36,35 +34,63 @@ func AuthHandler(router *mux.Router, config *Config) {
 			return
 		}
 
-		// Role assignment logic
-		var role string
-		switch user.Email {
-		case "admin@nk.com":
-			role = "Admin"
-		case "instructor@nk.com":
-			role = "Instructor"
-		case "parent@nk.com":
-			role = "Parent"
-		default:
-			role = "Student"
-		}
-
-		// Create or update the user in Firebase with the assigned role
-		// student := NewStudent(user.UserID, user.Name, user.Email, "91234567", "TE", "Mr. Smith", "Jane Doe", role, 10, 10.0)
-		student := NewStudent(user.UserID, user.Name, user.Email, "91234567", "TE", "Jane Doe", role, 10, 10.0)
-		err = createStudent(student.User, student)
+		userObj, userRole, err := getUserRole(user.Email)
 		if err != nil {
-			log.Println("Error creating student:", err)
-		} else {
-			log.Println("Student created/updated successfully!")
-		}
-
-		t, err := template.ParseFiles("templates/success.html")
-		if err != nil {
-			http.Error(res, err.Error(), http.StatusInternalServerError)
+			fmt.Fprintln(res, err)
 			return
 		}
-		t.Execute(res, user)
+		log.Println("User role:", userRole)
+
+		// Only store the user object into the session if userRole is not an empty string
+		if userRole != "" {
+			// Create a User object with the user role
+			currentUser := User{
+				GoogleID:      user.UserID,
+				Name:          user.Name,
+				Email:         user.Email,
+				ContactNumber: userObj.ContactNumber, // Use contact number from the retrieved user object
+				Role:          userObj.Role,
+				CreatedAt:     userObj.CreatedAt,
+				UpdatedAt:     userObj.UpdatedAt,
+			}
+
+			// Serialize the user object to JSON
+			userData, err := json.Marshal(currentUser)
+			if err != nil {
+				http.Error(res, err.Error(), http.StatusInternalServerError)
+				return
+			}
+
+			// Get the session and store the user data
+			session, err := store.Get(req, "auth-session")
+			if err != nil {
+				http.Error(res, err.Error(), http.StatusInternalServerError)
+				return
+			}
+			session.Values["user"] = userData
+			err = session.Save(req, res)
+			if err != nil {
+				http.Error(res, err.Error(), http.StatusInternalServerError)
+				return
+			}
+
+			// Redirect based on user role
+			if userRole == "Admin" {
+				AdminHandler(router)
+				http.Redirect(res, req, "/admin", http.StatusFound)
+			} else if userRole == "Instructor" {
+				InstructorHandler(router)
+				http.Redirect(res, req, "/instructor", http.StatusFound)
+			} else if userRole == "Student" {
+				StudentHandler(router)
+				http.Redirect(res, req, "/student", http.StatusFound)
+			} else if userRole == "Parent" {
+				ParentHandler(router)
+				http.Redirect(res, req, "/parent", http.StatusFound)
+			}
+		} else {
+			http.Redirect(res, req, "/unregistered", http.StatusFound)
+		}
 	}).Methods("GET")
 
 	router.HandleFunc("/auth/{provider}", func(res http.ResponseWriter, req *http.Request) {
