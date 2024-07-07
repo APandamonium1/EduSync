@@ -1,4 +1,3 @@
-
 package main
 
 import (
@@ -55,11 +54,11 @@ type Class struct {
 }
 
 type Announcement struct {
-	AnnouncementID        int       `json:"announcement_id"`
-	Subject     string    `json:"subject"`
-	Content   string    `json:"content"`
-	CreatedAt time.Time `json:"created_at"`
-	UpdatedAt time.Time `json:"updated_at"`
+	AnnouncementID string    `json:"announcement_id"`
+	Subject        string    `json:"subject"`
+	Content        string    `json:"content"`
+	CreatedAt      time.Time `json:"created_at"`
+	UpdatedAt      time.Time `json:"updated_at"`
 }
 
 // NewStudent creates a new Student instance
@@ -142,12 +141,12 @@ func NewClass(classID, name, instructor string, duration float64) Class {
 	}
 }
 
-func NewAnnouncement(announcementID int, subject string, content string, createdAt time.Time, updatedAt time.Time) Announcement {
+func NewAnnouncement(announcementID, subject, content string, createdAt, updatedAt time.Time) Announcement {
 	return Announcement{
-		AnnouncementID:        announcementID,
-		Subject:     subject,
-		Content:   content,
-		CreatedAt: createdAt,
-		UpdatedAt: updatedAt,
+		AnnouncementID: announcementID,
+		Subject:        subject,
+		Content:        content,
+		CreatedAt:      createdAt,
+		UpdatedAt:      updatedAt,
 	}
 }

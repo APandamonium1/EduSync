@@ -69,9 +69,9 @@ var classes = []Class{
 	},
 }
 
-var announcement =  Announcement{
-	Title: "Test Announcement",
-	Content: "This is a test announcement."
+var announcement = Announcement{
+	Subject: "Test Announcement",
+	Content: "This is a test announcement.",
 }
 
 func TestInitializeFirebase(t *testing.T) {
@@ -423,7 +423,7 @@ func TestDeleteClass(t *testing.T) {
 	// }
 }
 
-func TestCreateAnnouncement(t *testing.T){
+func TestCreateAnnouncement(t *testing.T) {
 	err := createAnnouncement(currentUser, announcement)
 	if err != nil {
 		t.Fatalf("Error creating announcement: %v", err)
@@ -433,7 +433,7 @@ func TestCreateAnnouncement(t *testing.T){
 	readAnnouncement, err := readAnnouncement(currentUser, announcement)
 	if err != nil {
 		t.Fatalf("Error reading announcement: %v", err)
-		}
+	}
 
 	// Assert that the created and read announcement are equal
 	if !reflect.DeepEqual(announcement, readAnnouncement) {
@@ -447,8 +447,8 @@ func TestReadAnnouncement(t *testing.T) {
 		t.Fatalf("Failed to read announcement: %v", err)
 	}
 
-	if announcement.Title != "Test Announcement" {
-		t.Fatalf("Expected Title %v, got %v", "Test Announcement", announcement.Title)
+	if announcement.Subject != "Test Announcement" {
+		t.Fatalf("Expected Title %v, got %v", "Test Announcement", announcement.Subject)
 	}
 }
 
