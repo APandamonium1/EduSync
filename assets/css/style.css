@@ -60,6 +60,20 @@ html {
 	-webkit-text-size-adjust: 100%; /* 2 */
 }
 
+.content{
+	font-size: 16px;
+	margin-bottom: 100px;
+}
+
+.page-footer {
+	bottom: 0;
+}
+
+.button-container {
+	display: flex;
+	gap: 10px; /* Adjust the gap between buttons as needed */
+}
+
 /* Sections
 	 ========================================================================== */
 

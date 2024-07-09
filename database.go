@@ -2,72 +2,49 @@ package main
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
-	"net/http"
-
 	"log"
-	"os"
-
-	"github.com/joho/godotenv"
+	"net/http"
+	"strings"
 
 	firebase "firebase.google.com/go"
 	"firebase.google.com/go/db"
-	"google.golang.org/api/option"
+	"github.com/gorilla/sessions"
 )
 
-// Use godot package to load/read the .env file and
-// return the value of the key (for local env)
-func goDotEnvVariable(key string) string {
-
-	// load .env file
-	err := godotenv.Load(".env")
-
-	if err != nil {
-		log.Fatalf("Error loading .env file")
-	}
-
-	return os.Getenv(key)
-}
-
-// Initialize Firebase client
 var firebaseClient *db.Client
+var store = sessions.NewCookieStore([]byte("1L6x-SPtG8-EqJUkR7htTJx-5K4rt-ZTKeh-rxPw-AM="))
 
-// InitializeFirebase initializes the Firebase app and sets the global firebaseClient variable
-func initializeFirebase() error {
-	ctx := context.Background()
-
-	databaseURL, found := os.LookupEnv("DATABASE_URL")
-	if !found {
-		log.Fatalf("DATABASE_URL is not set in the environment variables")
-	}
-	opt := option.WithCredentialsFile("edusync-7bd5e-firebase-adminsdk-x49uh-af084a6314.json")
-
-	// databaseURL := goDotEnvVariable("DATABASE_URL")
-	// if databaseURL == "" {
-	// 	return fmt.Errorf("DATABASE_URL is not set in the environment variables")
-	// }
-	// opt := option.WithCredentialsFile("edusync-test-firebase-adminsdk-hk5kl-9af0162b09.json")
-
-	conf := &firebase.Config{DatabaseURL: databaseURL}
-
-	app, err := firebase.NewApp(ctx, conf, opt)
-	if err != nil {
-		return fmt.Errorf("error initializing firebase app: %v", err)
-	}
-
-	client, err := app.Database(ctx)
+func initDB(app *firebase.App) error {
+	// Initialize Firebase client
+	client, err := app.Database(context.Background())
 	if err != nil {
 		return fmt.Errorf("error creating firebase DB client: %v", err)
 	}
-
 	firebaseClient = client
 	return nil
 }
 
 // Utility function to get current user
-func getCurrentUser(req *http.Request) (User, error) {
-	// Implement session or context based user retrieval
-	return User{}, nil
+func GetCurrentUser(req *http.Request) (User, error) {
+	session, err := store.Get(req, "auth-session")
+	if err != nil {
+		return User{}, err
+	}
+
+	userData, ok := session.Values["user"].([]byte)
+	if !ok || userData == nil {
+		return User{}, fmt.Errorf("user not found in session")
+	}
+
+	var user User
+	err = json.Unmarshal(userData, &user)
+	if err != nil {
+		return User{}, err
+	}
+
+	return user, nil
 }
 
 // Utility functions to check roles
@@ -134,6 +111,48 @@ func isParentChildInClass(currentUser User, students []Student, class Class) boo
 	return false
 }
 
+func getUserRole(email string) (User, string, error) {
+	ctx := context.Background()
+	var user User
+	var userRole string
+
+	// Check if firebaseClient is initialized
+	if firebaseClient == nil {
+		log.Println("Firebase client is not initialized")
+		return user, userRole, fmt.Errorf("firebase client is not initialized")
+	}
+
+	// Map categories to Firebase references
+	categoryRefs := map[string]string{
+		"Student":    "/students",
+		"Parent":     "/parents",
+		"Instructor": "/instructors",
+		"Admin":      "/admins",
+	}
+
+	// Iterate through each category and check if the email exists
+	for category, ref := range categoryRefs {
+		categoryRef := firebaseClient.NewRef(ref)
+		dataSnapshot, err := categoryRef.OrderByChild("email").EqualTo(email).GetOrdered(ctx)
+		if err != nil {
+			log.Printf("Error fetching data from %s: %v", category, err)
+			continue
+		}
+
+		// Check if dataSnapshot has any children
+		if len(dataSnapshot) > 0 {
+			userRole = category
+			// Assuming dataSnapshot[0] is the first match and it contains the user data
+			if err := dataSnapshot[0].Unmarshal(&user); err != nil {
+				log.Printf("Error unmarshalling data for %s: %v", category, err)
+				continue
+			}
+			break
+		}
+	}
+	return user, userRole, nil
+}
+
 // CRUD operations with role checks
 
 // Student CRUD
@@ -149,7 +168,18 @@ func createStudent(currentUser User, student Student) error {
 	return ref.Set(context.TODO(), student)
 }
 
-func readStudent(currentUser User, student Student, classes []Class) (Student, error) {
+func readStudent(currentUser User, studentGoogleID string) (Student, error) {
+	ref := firebaseClient.NewRef("students/" + studentGoogleID)
+	var student Student
+	if err := ref.Get(context.TODO(), &student); err != nil {
+		return Student{}, fmt.Errorf("error reading student: %v", err)
+	}
+
+	classes, err := readAllClasses(currentUser)
+	if err != nil {
+		return Student{}, fmt.Errorf("error reading classes: %v", err)
+	}
+
 	// If user is not an admin, instructor, or parent, return error when attempting to read student
 	if !isAdmin(currentUser) && //not admin
 		!(isSelf(currentUser, student.GoogleID) && isStudent(currentUser)) && //not student and reading self
@@ -158,15 +188,53 @@ func readStudent(currentUser User, student Student, classes []Class) (Student, e
 		return Student{}, fmt.Errorf("unauthorized access: you can only read your own details or the details of students you are authorized to access")
 	}
 
-	ref := firebaseClient.NewRef("students/" + student.GoogleID)
-	// var student Student
-	if err := ref.Get(context.TODO(), &student); err != nil {
-		return Student{}, fmt.Errorf("error reading student: %v", err)
-	}
 	return student, nil
 }
 
-func updateStudent(currentUser User, student Student, classes []Class, updates map[string]interface{}) error {
+func readStudents() ([]Student, error) {
+	var studentsMap map[string]Student
+	ref := firebaseClient.NewRef("students")
+	if err := ref.Get(context.TODO(), &studentsMap); err != nil {
+		return nil, fmt.Errorf("error reading students: %v", err)
+	}
+	// Convert map to slice
+	students := make([]Student, 0, len(studentsMap))
+	for _, student := range studentsMap {
+		students = append(students, student)
+	}
+	return students, nil
+}
+
+func searchStudents(name, class string) ([]Student, error) {
+	if name == "" && class == "" {
+		return readStudents()
+	}
+	students, err := readStudents()
+	if err != nil {
+		return nil, err
+	}
+	var filteredStudents []Student
+	for _, student := range students {
+		if name == "" || strings.Contains(strings.ToLower(student.Name), strings.ToLower(name)) {
+			filteredStudents = append(filteredStudents, student)
+		}
+	}
+	return filteredStudents, nil
+}
+
+func updateStudent(currentUser User, studentGoogleID string, updates map[string]interface{}) error {
+	// Fetch the student information using the provided GoogleID
+	student, err := readStudent(currentUser, studentGoogleID)
+	if err != nil {
+		return fmt.Errorf("error fetching student: %v", err)
+	}
+
+	// Fetch all classes
+	classes, err := readAllClasses(currentUser)
+	if err != nil {
+		return fmt.Errorf("error reading classes: %v", err)
+	}
+
 	// If user is not admin, instructor, or parent, return error when attempting to update student
 	if !isAdmin(currentUser) && //not admin
 		!(isSelf(currentUser, student.GoogleID) && isStudent(currentUser)) && //not student and reading self
@@ -175,10 +243,11 @@ func updateStudent(currentUser User, student Student, classes []Class, updates m
 		return fmt.Errorf("unauthorized access: you can only update your own details")
 	}
 	ref := firebaseClient.NewRef("students/" + student.GoogleID)
+
 	if err := ref.Update(context.TODO(), updates); err != nil {
 		return fmt.Errorf("error updating student: %v", err)
 	}
-	return ref.Update(context.TODO(), updates)
+	return nil
 }
 
 func deleteStudent(currentUser User, student Student) error {
@@ -206,20 +275,60 @@ func createInstructor(currentUser User, instructor Instructor) error {
 	return ref.Set(context.TODO(), instructor)
 }
 
-func readInstructor(currentUser User, instructor Instructor) (Instructor, error) {
+func readInstructor(currentUser User, instructorGoogleID string) (Instructor, error) {
+	ref := firebaseClient.NewRef("instructors/" + instructorGoogleID)
+	var instructor Instructor
+	if err := ref.Get(context.TODO(), &instructor); err != nil {
+		return Instructor{}, fmt.Errorf("error reading instructor: %v", err)
+	}
+
 	// If user is not admin or (self & instructor), return error when attempting to read instructor
 	if !isAdmin(currentUser) && //not admin
 		!(isSelf(currentUser, instructor.GoogleID) && isInstructor(currentUser)) {
 		return Instructor{}, fmt.Errorf("unauthorized access: you can only read your own details")
 	}
-	ref := firebaseClient.NewRef("instructors/" + instructor.GoogleID)
-	if err := ref.Get(context.TODO(), &instructor); err != nil {
-		return Instructor{}, fmt.Errorf("error reading instructor: %v", err)
-	}
+
 	return instructor, nil
 }
 
-func updateInstructor(currentUser User, instructor Instructor, updates map[string]interface{}) error {
+func readInstructors() ([]Instructor, error) {
+	var instructorsMap map[string]Instructor
+	ref := firebaseClient.NewRef("instructors")
+	if err := ref.Get(context.TODO(), &instructorsMap); err != nil {
+		return nil, fmt.Errorf("error reading students: %v", err)
+	}
+	// Convert map to slice
+	instructors := make([]Instructor, 0, len(instructorsMap))
+	for _, instructor := range instructorsMap {
+		instructors = append(instructors, instructor)
+	}
+	return instructors, nil
+}
+
+func searchInstructors(name string) ([]Instructor, error) {
+	if name == "" {
+		return readInstructors()
+	}
+	instructors, err := readInstructors()
+	if err != nil {
+		return nil, err
+	}
+	var filteredInstructors []Instructor
+	for _, instructor := range instructors {
+		if name == "" || strings.Contains(strings.ToLower(instructor.Name), strings.ToLower(name)) {
+			filteredInstructors = append(filteredInstructors, instructor)
+		}
+	}
+	return filteredInstructors, nil
+}
+
+func updateInstructor(currentUser User, instructorGoogleID string, updates map[string]interface{}) error {
+	// Fetch the instructor information using the provided GoogleID
+	instructor, err := readInstructor(currentUser, instructorGoogleID)
+	if err != nil {
+		return fmt.Errorf("error fetching instructor: %v", err)
+	}
+
 	// If user is not admin or (self & instructor), return error when attempting to update instructor
 	if !isAdmin(currentUser) && //not admin
 		!(isSelf(currentUser, instructor.GoogleID) && isInstructor(currentUser)) {
@@ -257,19 +366,27 @@ func createAdmin(currentUser User, admin Admin) error {
 	return ref.Set(context.TODO(), admin)
 }
 
-func readAdmin(currentUser User, admin Admin) (Admin, error) {
+func readAdmin(currentUser User, adminGoogleID string) (Admin, error) {
+	ref := firebaseClient.NewRef("admins/" + adminGoogleID)
+	var admin Admin
+	if err := ref.Get(context.TODO(), &admin); err != nil {
+		return Admin{}, fmt.Errorf("error reading admin: %v", err)
+	}
+
 	// If user is not admin, return error when attempting to read admin
 	if !isAdmin(currentUser) {
 		return Admin{}, fmt.Errorf("unauthorized access: you can only read your own details")
 	}
-	ref := firebaseClient.NewRef("admins/" + admin.GoogleID)
-	if err := ref.Get(context.TODO(), &admin); err != nil {
-		return Admin{}, fmt.Errorf("error reading admin: %v", err)
-	}
 	return admin, nil
 }
 
-func updateAdmin(currentUser User, admin Admin, updates map[string]interface{}) error {
+func updateAdmin(currentUser User, adminGoogleID string, updates map[string]interface{}) error {
+	// Fetch the admin information using the provided GoogleID
+	admin, err := readAdmin(currentUser, adminGoogleID)
+	if err != nil {
+		return fmt.Errorf("error fetching admin: %v", err)
+	}
+
 	// If user is not admin, return error when attempting to update admin
 	if !isAdmin(currentUser) {
 		return fmt.Errorf("unauthorized access: you can only update your own details")
@@ -306,21 +423,60 @@ func createParent(currentUser User, parent Parent) error {
 	return ref.Set(context.TODO(), parent)
 }
 
-func readParent(currentUser User, parent Parent) (Parent, error) {
+func readParent(currentUser User, parentGoogleID string) (Parent, error) {
+	ref := firebaseClient.NewRef("parents/" + parentGoogleID)
+	var parent Parent
+	if err := ref.Get(context.TODO(), &parent); err != nil {
+		return Parent{}, fmt.Errorf("error reading parent: %v", err)
+	}
+
 	// If user is not admin or (self and parent), return error when attempting to update parent
 	if !isAdmin(currentUser) && //not admin
 		!(isSelf(currentUser, parent.GoogleID) && isParent(currentUser)) && //not parent and reading self
 		!(currentUser.Role == "Student" && canChildAccessParent(currentUser, parent)) {
 		return Parent{}, fmt.Errorf("unauthorized access: you can only read your own details")
 	}
-	ref := firebaseClient.NewRef("parents/" + parent.GoogleID)
-	if err := ref.Get(context.TODO(), &parent); err != nil {
-		return Parent{}, fmt.Errorf("error reading parent: %v", err)
-	}
 	return parent, nil
 }
 
-func updateParent(currentUser User, parent Parent, updates map[string]interface{}) error {
+func readParents() ([]Parent, error) {
+	var parentsMap map[string]Parent
+	ref := firebaseClient.NewRef("parents")
+	if err := ref.Get(context.TODO(), &parentsMap); err != nil {
+		return nil, fmt.Errorf("error reading students: %v", err)
+	}
+	// Convert map to slice
+	parents := make([]Parent, 0, len(parentsMap))
+	for _, parent := range parentsMap {
+		parents = append(parents, parent)
+	}
+	return parents, nil
+}
+
+func searchParents(name string) ([]Parent, error) {
+	if name == "" {
+		return readParents()
+	}
+	parents, err := readParents()
+	if err != nil {
+		return nil, err
+	}
+	var filteredParents []Parent
+	for _, parent := range parents {
+		if name == "" || strings.Contains(strings.ToLower(parent.Name), strings.ToLower(name)) {
+			filteredParents = append(filteredParents, parent)
+		}
+	}
+	return filteredParents, nil
+}
+
+func updateParent(currentUser User, parentGoogleID string, updates map[string]interface{}) error {
+	// Fetch the parent information using the provided GoogleID
+	parent, err := readParent(currentUser, parentGoogleID)
+	if err != nil {
+		return fmt.Errorf("error fetching parent: %v", err)
+	}
+
 	if !isAdmin(currentUser) && //not admin
 		!(isSelf(currentUser, parent.GoogleID) && isParent(currentUser)) {
 		return fmt.Errorf("unauthorized access: you can only update your own details")
@@ -345,7 +501,6 @@ func deleteParent(currentUser User, parent Parent) error {
 }
 
 // class CRUD
-
 func createClass(currentUser User, class Class) error {
 	// If user is not admin, return error when attempting to create class
 	if !isAdmin(currentUser) {
@@ -358,7 +513,13 @@ func createClass(currentUser User, class Class) error {
 	return ref.Set(context.TODO(), class)
 }
 
-func readClass(currentUser User, students []Student, class Class) (Class, error) {
+func readClass(currentUser User, students []Student, classID string) (Class, error) {
+	ref := firebaseClient.NewRef("classes/" + classID)
+	var class Class
+	if err := ref.Get(context.TODO(), &class); err != nil {
+		return Class{}, fmt.Errorf("error reading class: %v", err)
+	}
+
 	// If user is not admin or (self and class), return error when attempting to read class
 	if !isAdmin(currentUser) && //not admin
 		!isInstructor(currentUser) && //not instructor
@@ -366,11 +527,28 @@ func readClass(currentUser User, students []Student, class Class) (Class, error)
 		!(isParent(currentUser) && isParentChildInClass(currentUser, students, class)) {
 		return Class{}, fmt.Errorf("unauthorized access: you can only read your own details")
 	}
-	ref := firebaseClient.NewRef("classes/" + class.ClassID)
-	if err := ref.Get(context.TODO(), &class); err != nil {
-		return Class{}, fmt.Errorf("error reading class: %v", err)
-	}
 	return class, nil
+}
+
+func readAllClasses(currentUser User) ([]Class, error) {
+	ref := firebaseClient.NewRef("classes")
+
+	var classesMap map[string]Class
+	if err := ref.Get(context.TODO(), &classesMap); err != nil {
+		return nil, fmt.Errorf("error reading classes: %v", err)
+	}
+
+	var classes []Class
+	for _, class := range classesMap {
+		// If user is not authorized to read the class, skip it
+		if !isAdmin(currentUser) && // not admin
+			!isInstructor(currentUser) { // not instructor
+			continue
+		}
+		classes = append(classes, class)
+	}
+
+	return classes, nil
 }
 
 func updateClass(currentUser User, class Class, updates map[string]interface{}) error {

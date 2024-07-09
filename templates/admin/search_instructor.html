@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>EduSync</title>
+    <meta name="viewport" content="width=device-width">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" type="text/css" href="/assets/css/owl.carousel.css">
+    <link rel="stylesheet" type="text/css" href="/assets/css/inner-page-style.css">
+    <link rel="stylesheet" type="text/css" href="/assets/css/style.css">
+    <link href="https://fonts.googleapis.com/css?family=Raleway:400,500,600,700" rel="stylesheet">
+    <script>
+        async function fetchInstructors(url) {
+            const response = await fetch(url);
+
+            if (!response.ok) {
+                const errorMessage = `Error: ${response.status} - ${response.statusText}`;
+                throw new Error(errorMessage);
+            }
+                
+            const instructors = await response.json();
+            const resultsDiv = document.getElementById('results');
+            resultsDiv.innerHTML = '';
+
+            if (instructors && instructors.length > 0) {
+                instructors.forEach(instructor => {
+                    const instructorDiv = document.createElement('div');
+                    instructorDiv.className = 'parent';
+                    instructorDiv.innerHTML = `<a href="/admin/instructor/${instructor.google_id}/edit"><strong>${instructor.name}</strong></a>  -  ${instructor.email}`;
+                    resultsDiv.appendChild(instructorDiv);
+                });
+            } else {
+                resultsDiv.innerHTML = 'No instructors found.';
+            }
+        }
+
+        async function searchInstructors() {
+            const nameFilter = document.getElementById('nameFilter').value;
+            const response = await fetch(`/admin/api/search_instructor?name=${nameFilter}`);
+            
+            if (!response.ok) {
+                const errorMessage = `Error: ${response.status} - ${response.statusText}`;
+                throw new Error(errorMessage);
+            }
+            
+            const instructors = await response.json();
+            const resultsDiv = document.getElementById('results');
+            resultsDiv.innerHTML = '';
+
+            if (instructors && instructors.length > 0) {
+                instructors.forEach(instructor => {
+                    const instructorDiv = document.createElement('div');
+                    instructorDiv.className = 'parent';
+                    instructorDiv.innerHTML = `<a href="/admin/instructor/${instructor.google_id}/edit"><strong>${instructor.name}</strong></a>  -  ${instructor.email}`;
+                    resultsDiv.appendChild(instructorDiv);
+                });
+            } else {
+                resultsDiv.innerHTML = 'No instructors found.';
+            }
+        }
+
+        window.onload = async function() {
+            await fetchInstructors(`/admin/api/search_instructor`);
+        }
+    </script>
+</head>
+<body>
+    <div id="page" class="site" itemscope itemtype="http://schema.org/LocalBusiness">
+        <header class="site-header">
+            <div class="main-header">
+                <div class="container">
+                    <div class="logo-wrap" itemprop="logo">
+                        <img src="/assets/images/site-logo.jpg" alt="Logo Image" style="width: 120px; height: auto;">
+                        <!-- <h1>Education</h1> -->
+                    </div>
+                    <div class="nav-wrap">
+                        <nav class="nav-desktop">
+                            <ul class="menu-list">
+                                <li><a href="/admin">Home</a></li>
+                                <li><a href="/admin/search_student">Students</a></li>
+                                <li><a href="/admin/search_parent">Parents</a></li>
+                                <li><a href="/admin/search_instructor">Instructors</a></li>
+                                <li><a href="">Users</a></li>
+                            </ul>
+                        </nav>
+                        <div id="bar">
+                            <i class="fas fa-bars"></i>
+                        </div>
+                        <div id="close">
+                            <i class="fas fa-times"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </header>
+        <hr>
+        <!-- Header Close -->
+        <div class="container content">
+            <h1>Search Instructors</h1>
+            <div>
+                <label for="nameFilter">Name:</label>
+                <input type="text" id="nameFilter">
+                <button onclick="searchInstructors()">Search</button>
+            </div>
+            <br>
+            <div id="results"></div>
+        </div>
+    </div>
+    <script type="text/javascript" src="/assets/js/jquery-3.3.1.min.js"></script>
+    <script type="text/javascript" src="/assets/js/all.js"></script>
+    <script type="text/javascript" src="/assets/js/isotope.pkgd.min.js"></script>
+    <script type="text/javascript" src="/assets/js/owl.carousel.js"></script>
+    <script type="text/javascript" src="/assets/js/jquery.flexslider.js"></script>
+    <script type="text/javascript" src="/assets/js/jquery.rateyo.js"></script>
+    <script type="text/javascript" src="/assets/js/custom.js"></script>
+</body>
+</html>

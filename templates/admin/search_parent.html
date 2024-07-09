@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>EduSync</title>
+    <meta name="viewport" content="width=device-width">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" type="text/css" href="/assets/css/owl.carousel.css">
+    <link rel="stylesheet" type="text/css" href="/assets/css/inner-page-style.css">
+    <link rel="stylesheet" type="text/css" href="/assets/css/style.css">
+    <link href="https://fonts.googleapis.com/css?family=Raleway:400,500,600,700" rel="stylesheet">
+    <script>
+        async function fetchParents(url) {
+            const response = await fetch(url);
+
+            if (!response.ok) {
+                const errorMessage = `Error: ${response.status} - ${response.statusText}`;
+                throw new Error(errorMessage);
+            }
+                
+            const parents = await response.json();
+            const resultsDiv = document.getElementById('results');
+            resultsDiv.innerHTML = '';
+
+            if (parents && parents.length > 0) {
+                parents.forEach(parent => {
+                    const parentDiv = document.createElement('div');
+                    parentDiv.className = 'parent';
+                    parentDiv.innerHTML = `<a href="/admin/parent/${parent.google_id}/edit"><strong>${parent.name}</strong></a>  -  ${parent.email}`;
+                    resultsDiv.appendChild(parentDiv);
+                });
+            } else {
+                resultsDiv.innerHTML = 'No parents found.';
+            }
+        }
+
+        async function searchParents() {
+            const nameFilter = document.getElementById('nameFilter').value;
+            const response = await fetch(`/admin/api/search_parent?name=${nameFilter}`);
+            
+            if (!response.ok) {
+                const errorMessage = `Error: ${response.status} - ${response.statusText}`;
+                throw new Error(errorMessage);
+            }
+            
+            const parents = await response.json();
+            const resultsDiv = document.getElementById('results');
+            resultsDiv.innerHTML = '';
+
+            if (parents && parents.length > 0) {
+                parents.forEach(parent => {
+                    const parentDiv = document.createElement('div');
+                    parentDiv.className = 'parent';
+                    parentDiv.innerHTML = `<a href="/admin/parent/${parent.google_id}/edit"><strong>${parent.name}</strong></a>  -  ${parent.email}`;
+                    resultsDiv.appendChild(parentDiv);
+                });
+            } else {
+                resultsDiv.innerHTML = 'No parents found.';
+            }
+        }
+
+        window.onload = async function() {
+            await fetchParents(`/admin/api/search_parent`);
+        }
+    </script>
+</head>
+<body>
+    <div id="page" class="site" itemscope itemtype="http://schema.org/LocalBusiness">
+        <header class="site-header">
+            <div class="main-header">
+                <div class="container">
+                    <div class="logo-wrap" itemprop="logo">
+                        <img src="/assets/images/site-logo.jpg" alt="Logo Image" style="width: 120px; height: auto;">
+                        <!-- <h1>Education</h1> -->
+                    </div>
+                    <div class="nav-wrap">
+                        <nav class="nav-desktop">
+                            <ul class="menu-list">
+                                <li><a href="/admin">Home</a></li>
+                                <li><a href="/admin/search_student">Students</a></li>
+                                <li><a href="/admin/search_parent">Parents</a></li>
+                                <li><a href="/admin/search_instructor">Instructors</a></li>
+                                <li><a href="">Users</a></li>
+                            </ul>
+                        </nav>
+                        <div id="bar">
+                            <i class="fas fa-bars"></i>
+                        </div>
+                        <div id="close">
+                            <i class="fas fa-times"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </header>
+        <hr>
+        <!-- Header Close -->
+        <div class="container content">
+            <h1>Search Parents</h1>
+            <div>
+                <label for="nameFilter">Name:</label>
+                <input type="text" id="nameFilter">
+                <button onclick="searchParents()">Search</button>
+            </div>
+            <br>
+            <div id="results"></div>
+        </div>
+    </div>
+    <script type="text/javascript" src="/assets/js/jquery-3.3.1.min.js"></script>
+    <script type="text/javascript" src="/assets/js/all.js"></script>
+    <script type="text/javascript" src="/assets/js/isotope.pkgd.min.js"></script>
+    <script type="text/javascript" src="/assets/js/owl.carousel.js"></script>
+    <script type="text/javascript" src="/assets/js/jquery.flexslider.js"></script>
+    <script type="text/javascript" src="/assets/js/jquery.rateyo.js"></script>
+    <script type="text/javascript" src="/assets/js/custom.js"></script>
+</body>
+</html>

@@ -10,6 +10,10 @@ import (
 func init() {
 	// database()
 	initializeFirebase()
+	err := initializeFirebase()
+	if err != nil {
+		log.Fatalf("Failed to initialize Firebase: %v", err)
+	}
 }
 
 func main() {
@@ -27,7 +31,8 @@ func main() {
 
 	// Set up authentication routes
 	AuthHandler(router, config)
-	RoleHandler(router)
+	MainHandler(router)
+	AdminHandler(router)
 
 	log.Println("listening on localhost:8080")
 	err = http.ListenAndServeTLS(":8080", "cert.pem", "key.pem", router)
