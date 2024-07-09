@@ -575,151 +575,54 @@ func deleteClass(currentUser User, class Class) error {
 	return ref.Delete(context.TODO())
 }
 
-// func database() {
-// 	// Find home directory.
-// 	// home, err := os.Getwd()
-// 	// if err != nil {
-// 	// 	return err
-// 	// }
+// Announcements CRUD
+func createAnnouncement(currentUser User, announcement Announcement) error {
+	// If user is not admin, return error when attempting to create announcement
+	if !isAdmin(currentUser) {
+		return fmt.Errorf("unauthorized access: only admins can create announcements")
+	}
+	ref := firebaseClient.NewRef("admins/" + announcement.AnnouncementID)
+	if err := ref.Set(context.TODO(), announcement); err != nil {
+		return fmt.Errorf("error creating admin: %v", err)
+	}
+	return ref.Set(context.TODO(), announcement)
+}
 
-// 	ctx := context.Background()
+func readAnnouncement(currentUser User, announcement Announcement) (Announcement, error) {
+	// If user is not admin, return error when attempting to read admin
+	if !isAdmin(currentUser) &&
+		!isInstructor(currentUser) &&
+		!isParent(currentUser) &&
+		!isStudent(currentUser) {
+		return Announcement{}, fmt.Errorf("unauthorized access: you are not allowed to read this announcement")
+	}
+	ref := firebaseClient.NewRef("announcements/" + announcement.AnnouncementID)
+	if err := ref.Get(context.TODO(), &announcement); err != nil {
+		return Announcement{}, fmt.Errorf("error reading admin: %v", err)
+	}
+	return announcement, nil
+}
 
-// 	// configure database URL
-// 	// databaseURL := goDotEnvVariable("DATABASE_URL")
-// 	// if databaseURL == "" {
-// 	// 	return fmt.Errorf("DATABASE_URL is not set in the .env file")
-// 	// }
-// 	// databaseURL, found := os.LookupEnv("DATABASE_URL")
-// 	// if !found {
-// 	// 	log.Fatalf("DATABASE_URL is not set in the environment variables")
-// 	// }
-// 	// conf := &firebase.Config{DatabaseURL: databaseURL}
+func updateAnnouncement(currentUser User, announcement Announcement, updates map[string]interface{}) error {
+	// If user is not admin, return error when attempting to update announcement
+	if !isAdmin(currentUser) {
+		return fmt.Errorf("unauthorized access: only admins can update this announcement")
+	}
+	ref := firebaseClient.NewRef("announcements/" + announcement.AnnouncementID)
+	if err := ref.Update(context.TODO(), updates); err != nil {
+		return fmt.Errorf("error updating announcement: %v", err)
+	}
+	return ref.Update(context.TODO(), updates)
+}
 
-// 	conf := &firebase.Config{
-// 		DatabaseURL: "https://edusync-test-default-rtdb.firebaseio.com/",
-// 	}
-
-// 	// Set up the Firebase app with the provided JSON file containing the service account key.
-// 	// opt := option.WithCredentialsFile(home + "edusync-test-firebase-adminsdk-hk5kl-9af0162b09.json")
-// 	opt := option.WithCredentialsFile("edusync-test-firebase-adminsdk-hk5kl-9af0162b09.json")
-// 	// opt := option.WithCredentialsFile("edusync-7bd5e-firebase-adminsdk-x49uh-af084a6314.json")
-// 	// opt := option.WithCredentialsFile("$HOME/secrets/edusync-7bd5e-firebase-adminsdk-x49uh-af084a6314.json")
-
-// 	app, err := firebase.NewApp(ctx, conf, opt)
-// 	if err != nil {
-// 		log.Fatalln("error in initializing firebase app: ", err)
-// 	}
-
-// 	client, err := app.Database(ctx)
-// 	if err != nil {
-// 		log.Fatalln("error in creating firebase DB client: ", err)
-// 	}
-
-// 	// Student operations
-// 	// student := NewStudent("Jane Doe", 7, 119.5, "jane_doe@nk.com", "91234567", "Tech Explorer", "Scott Smith", "Jackie Doe")
-// 	// err = createStudent(client, student.ID.String(), student)
-// 	googleIDStudent := "google-id-student"
-// 	student := NewStudent(googleIDStudent, "Jane Doe", 7, 119.5, "jane_doe@nk.com", "91234567", "Tech Explorer", "Scott Smith", "Jackie Doe")
-// 	err = createStudent(client, student.GoogleID, student)
-// 	if err != nil {
-// 		log.Fatal(err)
-// 	}
-// 	fmt.Println("Student added/updated successfully!")
-
-// 	// readStudent, err := readStudent(client, student.ID.String())
-// 	readStudent, err := readStudent(client, student.GoogleID)
-// 	if err != nil {
-// 		log.Fatal(err)
-// 	}
-// 	fmt.Println("Student read successfully:", readStudent)
-
-// 	studentUpdates := map[string]interface{}{
-// 		"class":      "Tech Explorer 2",
-// 		"updated_at": time.Now(),
-// 	}
-// 	// err = updateStudent(client, student.ID.String(), studentUpdates)
-// 	err = updateStudent(client, student.GoogleID, studentUpdates)
-// 	if err != nil {
-// 		log.Fatal(err)
-// 	}
-// 	fmt.Println("Student updated successfully!")
-
-// 	// err = deleteStudent(client, student.ID.String())
-// 	err = deleteStudent(client, student.GoogleID)
-// 	if err != nil {
-// 		log.Fatal(err)
-// 	}
-// 	fmt.Println("Student deleted successfully!")
-
-// 	// Instructor operations
-// 	// instructor := NewInstructor("Scott Smith", "123-456-7890", "scott@example.com", 50000.00, 10)
-// 	// err = createInstructor(client, instructor.ID.String(), instructor)
-// 	googleIDInstructor := "google-id-instructor"
-// 	instructor := NewInstructor(googleIDInstructor, "Scott Smith", "123-456-7890", "scott@example.com", 50000.00, 10)
-// 	err = createInstructor(client, instructor.GoogleID, instructor)
-// 	if err != nil {
-// 		log.Fatal(err)
-// 	}
-// 	fmt.Println("Instructor added/updated successfully!")
-
-// 	// readInstructor, err := readInstructor(client, instructor.ID.String())
-// 	readInstructor, err := readInstructor(client, instructor.GoogleID)
-// 	if err != nil {
-// 		log.Fatal(err)
-// 	}
-// 	fmt.Println("Instructor read successfully:", readInstructor)
-
-// 	instructorUpdates := map[string]interface{}{
-// 		"base_pay":   55000.00,
-// 		"updated_at": time.Now(),
-// 	}
-// 	// err = updateInstructor(client, instructor.ID.String(), instructorUpdates)
-// 	err = updateInstructor(client, instructor.GoogleID, instructorUpdates)
-// 	if err != nil {
-// 		log.Fatal(err)
-// 	}
-// 	fmt.Println("Instructor updated successfully!")
-
-// 	// err = deleteInstructor(client, instructor.ID.String())
-// 	err = deleteInstructor(client, instructor.GoogleID)
-// 	if err != nil {
-// 		log.Fatal(err)
-// 	}
-// 	fmt.Println("Instructor deleted successfully!")
-
-// 	// Parent operations
-// 	// parent := NewParent("Jackie Doe", "jackjack@example.com", "98765432")
-// 	// err = createParent(client, parent.ID.String(), parent)
-// 	googleIDParent := "google-id-parent"
-// 	parent := NewParent(googleIDParent, "Jackie Doe", "jackjack@example.com", "98765432")
-// 	err = createParent(client, parent.GoogleID, parent)
-// 	if err != nil {
-// 		log.Fatal(err)
-// 	}
-// 	fmt.Println("Parent added/updated successfully!")
-
-// 	// readParent, err := readParent(client, parent.ID.String())
-// 	readParent, err := readParent(client, parent.GoogleID)
-// 	if err != nil {
-// 		log.Fatal(err)
-// 	}
-// 	fmt.Println("Parent read successfully:", readParent)
-
-// 	parentUpdates := map[string]interface{}{
-// 		"email":      "jackiejack@nk.com",
-// 		"updated_at": time.Now(),
-// 	}
-// 	// err = updateParent(client, parent.ID.String(), parentUpdates)
-// 	err = updateParent(client, parent.GoogleID, parentUpdates)
-// 	if err != nil {
-// 		log.Fatal(err)
-// 	}
-// 	fmt.Println("Parent updated successfully!")
-
-// 	// err = deleteParent(client, parent.ID.String())
-// 	err = deleteParent(client, parent.GoogleID)
-// 	if err != nil {
-// 		log.Fatal(err)
-// 	}
-// 	fmt.Println("Parent deleted successfully!")
-// }
+func deleteAnnouncement(currentUser User, announcement Announcement) error {
+	// If user is not admin, return error when attempting to delete announcement
+	if !isAdmin(currentUser) {
+		return fmt.Errorf("unauthorized access: only admins can delete announcements")
+	}
+	ref := firebaseClient.NewRef("announcements/" + announcement.AnnouncementID)
+	if err := ref.Delete(context.TODO()); err != nil {
+		return fmt.Errorf("error deleting announcement: %v", err)
+	}
+	return ref.Delete(context.TODO())
+}

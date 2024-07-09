@@ -47,10 +47,20 @@ type Parent struct {
 }
 
 type Class struct {
-	ClassID    string  `json:"class_id"`
-	Name       string  `json:"class_name"`
-	Instructor string  `json:"instructor"`
-	Duration   float64 `json:"duration"`
+	ClassID    string    `json:"class_id"`
+	Name       string    `json:"class_name"`
+	Instructor string    `json:"instructor"`
+	Duration   float64   `json:"duration"`
+	CreatedAt  time.Time `json:"created_at"`
+	UpdatedAt  time.Time `json:"updated_at"`
+}
+
+type Announcement struct {
+	AnnouncementID string    `json:"announcement_id"`
+	Subject        string    `json:"subject"`
+	Content        string    `json:"content"`
+	CreatedAt      time.Time `json:"created_at"`
+	UpdatedAt      time.Time `json:"updated_at"`
 }
 
 // NewStudent creates a new Student instance
@@ -124,11 +134,23 @@ func NewParent(googleID, name, email, contactNumber, role string) Parent {
 	}
 }
 
-func NewClass(classID, name, instructor string, duration float64) Class {
+func NewClass(classID, name, instructor string, duration float64, createdAt, updatedAt time.Time) Class {
 	return Class{
 		ClassID:    classID,
 		Name:       name,
 		Instructor: instructor,
 		Duration:   duration,
+		CreatedAt:  createdAt,
+		UpdatedAt:  updatedAt,
+	}
+}
+
+func NewAnnouncement(announcementID, subject, content string, createdAt, updatedAt time.Time) Announcement {
+	return Announcement{
+		AnnouncementID: announcementID,
+		Subject:        subject,
+		Content:        content,
+		CreatedAt:      createdAt,
+		UpdatedAt:      updatedAt,
 	}
 }

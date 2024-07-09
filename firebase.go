@@ -34,16 +34,15 @@ func initializeFirebase() error {
 	if !found {
 		log.Fatalf("DATABASE_URL is not set in the environment variables")
 	}
+	opt := option.WithCredentialsFile("edusync-7bd5e-firebase-adminsdk-x49uh-af084a6314.json")
 
 	// databaseURL := goDotEnvVariable("DATABASE_URL")
 	// if databaseURL == "" {
 	// 	return fmt.Errorf("DATABASE_URL is not set in the environment variables")
 	// }
+	// opt := option.WithCredentialsFile("edusync-test-firebase-adminsdk-hk5kl-9af0162b09.json")
 
 	conf := &firebase.Config{DatabaseURL: databaseURL}
-
-	opt := option.WithCredentialsFile("edusync-7bd5e-firebase-adminsdk-x49uh-af084a6314.json")
-	//opt := option.WithCredentialsFile("edusync-test-firebase-adminsdk-hk5kl-9af0162b09.json")
 
 	app, err := firebase.NewApp(ctx, conf, opt)
 	if err != nil {
