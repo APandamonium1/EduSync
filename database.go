@@ -371,7 +371,11 @@ func updateInstructor(instructorGoogleID string, updates map[string]interface{},
 	return ref.Update(context.TODO(), updates)
 }
 
-func deleteInstructor(currentUser User, instructor Instructor) error {
+func deleteInstructor(instructor Instructor, req *http.Request) error {
+	currentUser, err := GetCurrentUser(req)
+	if err != nil {
+		return fmt.Errorf("error getting current user: %v", err)
+	}
 	// If user is not admin, return error when attempting to delete instructor
 	if !isAdmin(currentUser) {
 		return fmt.Errorf("unauthorized access: only admins can delete instructors")
