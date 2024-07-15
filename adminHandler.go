@@ -45,7 +45,7 @@ func AdminHandler(router *mux.Router) {
 
 		currentUser, err := GetCurrentUser(req)
 		if err != nil {
-			http.Error(res, "Unauthorized", http.StatusUnauthorized)
+			http.Error(res, err.Error(), http.StatusInternalServerError)
 			return
 		}
 
@@ -69,7 +69,7 @@ func AdminHandler(router *mux.Router) {
 
 		currentUser, err := GetCurrentUser(req)
 		if err != nil {
-			http.Error(res, "Unauthorized", http.StatusUnauthorized)
+			http.Error(res, err.Error(), http.StatusInternalServerError)
 			return
 		}
 

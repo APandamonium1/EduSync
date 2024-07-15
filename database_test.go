@@ -13,7 +13,7 @@ var students = []Student{
 		User: User{
 			GoogleID:      "test-student",
 			Name:          "John Doe",
-			Email:         "jeyvianangjieen@gmail.com",
+			Email:         "jeyvianang112462@gmail.com",
 			ContactNumber: "91234567",
 			Role:          "Student",
 		},
@@ -43,7 +43,7 @@ var admin = Admin{
 		GoogleID:      "test-admin",
 		Name:          "Awesomeness",
 		ContactNumber: "99999999",
-		Email:         "awesome_admin@nk.com",
+		Email:         "jeyvianangjieen@gmail.com",
 		Role:          "Admin",
 	},
 	BasePay:   15,

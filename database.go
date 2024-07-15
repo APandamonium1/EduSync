@@ -30,7 +30,7 @@ func initDB(app *firebase.App) error {
 func GetCurrentUser(req *http.Request) (User, error) {
 	session, err := store.Get(req, "auth-session")
 	if err != nil {
-		return User{}, err
+		return User{}, fmt.Errorf("error retrieving session: %v", err)
 	}
 
 	userData, ok := session.Values["user"].([]byte)
@@ -41,7 +41,7 @@ func GetCurrentUser(req *http.Request) (User, error) {
 	var user User
 	err = json.Unmarshal(userData, &user)
 	if err != nil {
-		return User{}, err
+		return User{}, fmt.Errorf("error unmarshalling user data: %v", err)
 	}
 
 	return user, nil

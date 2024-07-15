@@ -9,6 +9,21 @@
 	<link rel="stylesheet" type="text/css" href="/assets/css/style.css">
 	<link href="https://fonts.googleapis.com/css?family=Raleway:400,500,600,700" rel="stylesheet">
     <script>
+		const daysOfWeek = ["Monday", "Tuesday", "Wednesday", "Thursday", "Friday", "Saturday", "Sunday"];
+
+        function formatClassID(classID) {
+            const parts = classID.split('-');
+            if (parts.length !== 3) {
+                return classID;  // Return as is if format is unexpected
+            }
+            const prefix = parts[0].toUpperCase();
+            const day = daysOfWeek[parseInt(parts[1], 10)-1];
+            const hour = parseInt(parts[2], 10);
+            const period = hour >= 12 ? 'pm' : 'am';
+            const formattedHour = hour > 12 ? hour - 12 : hour;
+            return `${prefix}-${day}-${formattedHour}${period}`;
+        }
+
 		async function fetchStudents(url) {
 			const response = await fetch(url);
 
@@ -25,7 +40,7 @@
 				students.forEach(student => {
 					const studentDiv = document.createElement('div');
 					studentDiv.className = 'student';
-					studentDiv.innerHTML = `<a href="/admin/student/${student.google_id}/edit"><strong>${student.name}</strong></a>  -  ${student.class}`;
+					studentDiv.innerHTML = `<a href="/admin/student/${student.google_id}/edit"><strong>${student.name}</strong></a>  -  <strong>${formatClassID(student.class_id)}</strong>`;
 					resultsDiv.appendChild(studentDiv);
 				});
 			} else {
@@ -51,7 +66,7 @@
                 students.forEach(student => {
                     const studentDiv = document.createElement('div');
                     studentDiv.className = 'student';
-                    studentDiv.innerHTML = `<a href="/admin/student/${student.google_id}/edit"><strong>${student.name}</strong></a>  -  ${student.class}`;
+                    studentDiv.innerHTML = `<a href="/admin/student/${student.google_id}/edit"><strong>${student.name}</strong></a>  -  <strong>${formatClassID(student.class_id)}</strong>`;
                     resultsDiv.appendChild(studentDiv);
                 });
             } else {
@@ -84,7 +99,7 @@
 							</ul>
 						</nav>
 						<div id="bar">
-							<i class="fas fa-bars"></i>s
+							<i class="fas fa-bars"></i>
 						</div>
 						<div id="close">
 							<i class="fas fa-times"></i>
