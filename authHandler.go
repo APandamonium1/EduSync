@@ -34,7 +34,7 @@ func AuthHandler(router *mux.Router, config *Config) {
 	}
 
 	gothic.Store = store
-	goth.UseProviders(google.New(config.GoogleClientID, config.GoogleClientSecret, "https://localhost:8080/auth/google/callback", "email", "profile"))
+	goth.UseProviders(google.New(config.GoogleClientID, config.GoogleClientSecret, "https://localhost:8080/auth/google/callback", "email", "profile", "https://www.googleapis.com/auth/drive.file"))
 
 	router.HandleFunc("/auth/{provider}/callback", func(res http.ResponseWriter, req *http.Request) {
 		user, err := gothic.CompleteUserAuth(res, req)
@@ -52,36 +52,6 @@ func AuthHandler(router *mux.Router, config *Config) {
 
 		// Only store the user object into the session if userRole is not an empty string
 		if userRole != "" {
-			// // Create a User object with the user role
-			// currentUser := User{
-			// 	GoogleID:      user.UserID,
-			// 	Name:          user.Name,
-			// 	Email:         user.Email,
-			// 	ContactNumber: userObj.ContactNumber, // Use contact number from the retrieved user object
-			// 	Role:          userObj.Role,
-			// 	CreatedAt:     userObj.CreatedAt,
-			// 	UpdatedAt:     userObj.UpdatedAt,
-			// }
-
-			// // Serialize the user object to JSON
-			// userData, err := json.Marshal(currentUser)
-			// if err != nil {
-			// 	http.Error(res, err.Error(), http.StatusInternalServerError)
-			// 	return
-			// }
-
-			// // Get the session and store the user data
-			// session, err := store.Get(req, "auth-session")
-			// if err != nil {
-			// 	http.Error(res, err.Error(), http.StatusInternalServerError)
-			// 	return
-			// }
-			// session.Values["user"] = userData
-			// err = session.Save(req, res)
-			// if err != nil {
-			// 	http.Error(res, err.Error(), http.StatusInternalServerError)
-			// 	return
-			// }
 
 			SetCurrentUser(res, req, userObj)
 
