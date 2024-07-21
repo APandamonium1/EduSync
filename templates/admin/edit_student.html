@@ -22,6 +22,7 @@
             document.getElementById('lessonCredits').value = student.lesson_credits;
             document.getElementById('classID').value = student.class_id;
             document.getElementById('parentID').value = student.parent_id;
+            document.getElementById('folderID').value = student.folder_id;
             document.getElementById('role').value = student.role;
 
             initialStudent = { ...student };
@@ -36,6 +37,7 @@
                 parseFloat(document.getElementById('lessonCredits').value) !== initialStudent.lesson_credits ||
                 document.getElementById('classID').value !== initialStudent.class_id ||
                 document.getElementById('parentID').value !== initialStudent.parent_id ||
+                document.getElementById('folderID').value !== initialStudent.folder_id ||
                 document.getElementById('role').value !== initialStudent.role
             );
         }
@@ -58,6 +60,7 @@
                 lesson_credits: parseFloat(document.getElementById('lessonCredits').value),
                 class_id: document.getElementById('classID').value,
                 parent_id: document.getElementById('parentID').value,
+                folder_id: document.getElementById('folderID').value,
                 role: document.getElementById('role').value
             };
             await fetch(`/admin/student/${googleID}`, {
@@ -131,6 +134,8 @@
                 <div><label>Class ID: </label><input type="text" id="classID" disabled></div>
                 <br>
                 <div><label>Parent ID: </label><input type="text" id="parentID" disabled></div>
+                <br>
+                <div><label>Folder ID: </label><input type="text" id="folderID" disabled></div>
                 <br>
                 <div><label>Role: </label><input type="text" id="role" disabled></div>
                 <br>

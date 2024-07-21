@@ -24,6 +24,7 @@ type Student struct {
 	LessonCredits float32 `json:"lesson_credits"`
 	ClassID       string  `json:"class_id"`
 	ParentID      string  `json:"parent_id"`
+	FolderID      string  `json:"folder_id"`
 	// Instructor    string  `json:"instructor"`
 	// ParentName string `json:"parent_name"`
 }
@@ -48,6 +49,7 @@ type Parent struct {
 
 type Class struct {
 	ClassID    string    `json:"class_id"`
+	FolderID   string    `json:"folder_id"`
 	Name       string    `json:"class_name"`
 	Instructor string    `json:"instructor"`
 	Duration   float64   `json:"duration"`
