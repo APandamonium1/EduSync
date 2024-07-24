@@ -14,7 +14,22 @@ import (
 )
 
 var firebaseClient *db.Client
-var store = sessions.NewCookieStore([]byte("1L6x-SPtG8-EqJUkR7htTJx-5K4rt-ZTKeh-rxPw-AM="))
+
+func SessionCookie() (string, error) {
+	sessionCookieStore := goDotEnvVariable("SESSION_COOKIE_STORE")
+	if sessionCookieStore == "" {
+		return sessionCookieStore, fmt.Errorf("SESSION_COOKIE_STORE is not set in the environment variables")
+	}
+	// sessionCookieStore, found := os.LookupEnv("SESSION_COOKIE_STORE")
+	// if !found {
+	// 	log.Fatalf("SESSION_COOKIE_STORE is not set in the environment variables")
+	// }
+
+	return sessionCookieStore, nil
+}
+
+var sessionCookieStore, err = SessionCookie()
+var store = sessions.NewCookieStore([]byte(sessionCookieStore))
 
 func initDB(app *firebase.App) error {
 	// Initialize Firebase client
