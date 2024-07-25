@@ -689,7 +689,7 @@ func createAnnouncement(announcement Announcement, req *http.Request) error {
 	if !isAdmin(currentUser) {
 		return fmt.Errorf("unauthorized access: only admins can create announcements")
 	}
-	ref := firebaseClient.NewRef("admins/" + announcement.AnnouncementID)
+	ref := firebaseClient.NewRef("announcements/" + announcement.AnnouncementID)
 	if err := ref.Set(context.TODO(), announcement); err != nil {
 		return fmt.Errorf("error creating admin: %v", err)
 	}
