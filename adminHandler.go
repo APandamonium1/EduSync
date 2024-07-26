@@ -43,13 +43,7 @@ func AdminHandler(router *mux.Router) {
 		vars := mux.Vars(req)
 		googleID := vars["googleID"]
 
-		currentUser, err := GetCurrentUser(req)
-		if err != nil {
-			http.Error(res, err.Error(), http.StatusInternalServerError)
-			return
-		}
-
-		student, err := readStudent(currentUser, googleID)
+		student, err := readStudent(googleID, req)
 		if err != nil {
 			http.Error(res, err.Error(), http.StatusInternalServerError)
 			return
@@ -67,15 +61,9 @@ func AdminHandler(router *mux.Router) {
 		vars := mux.Vars(req)
 		googleID := vars["googleID"]
 
-		currentUser, err := GetCurrentUser(req)
-		if err != nil {
-			http.Error(res, err.Error(), http.StatusInternalServerError)
-			return
-		}
-
 		switch req.Method {
 		case http.MethodGet:
-			student, err := readStudent(currentUser, googleID)
+			student, err := readStudent(googleID, req)
 			if err != nil {
 				http.Error(res, err.Error(), http.StatusInternalServerError)
 				return
@@ -88,7 +76,7 @@ func AdminHandler(router *mux.Router) {
 				http.Error(res, err.Error(), http.StatusBadRequest)
 				return
 			}
-			if err := updateStudent(currentUser, googleID, updates); err != nil {
+			if err := updateStudent(googleID, updates, req); err != nil {
 				http.Error(res, err.Error(), http.StatusInternalServerError)
 				return
 			}
@@ -120,13 +108,13 @@ func AdminHandler(router *mux.Router) {
 		vars := mux.Vars(req)
 		googleID := vars["googleID"]
 
-		currentUser, err := GetCurrentUser(req)
-		if err != nil {
-			http.Error(res, "Unauthorized", http.StatusUnauthorized)
-			return
-		}
+		// currentUser, err := GetCurrentUser(req)
+		// if err != nil {
+		// 	http.Error(res, "Unauthorized", http.StatusUnauthorized)
+		// 	return
+		// }
 
-		parent, err := readParent(currentUser, googleID)
+		parent, err := readParent(googleID, req)
 		if err != nil {
 			http.Error(res, err.Error(), http.StatusInternalServerError)
 			return
@@ -144,15 +132,15 @@ func AdminHandler(router *mux.Router) {
 		vars := mux.Vars(req)
 		googleID := vars["googleID"]
 
-		currentUser, err := GetCurrentUser(req)
-		if err != nil {
-			http.Error(res, "Unauthorized", http.StatusUnauthorized)
-			return
-		}
+		// currentUser, err := GetCurrentUser(req)
+		// if err != nil {
+		// 	http.Error(res, "Unauthorized", http.StatusUnauthorized)
+		// 	return
+		// }
 
 		switch req.Method {
 		case http.MethodGet:
-			parent, err := readParent(currentUser, googleID)
+			parent, err := readParent(googleID, req)
 			if err != nil {
 				http.Error(res, err.Error(), http.StatusInternalServerError)
 				return
@@ -165,7 +153,7 @@ func AdminHandler(router *mux.Router) {
 				http.Error(res, err.Error(), http.StatusBadRequest)
 				return
 			}
-			if err := updateParent(currentUser, googleID, updates); err != nil {
+			if err := updateParent(googleID, updates, req); err != nil {
 				http.Error(res, err.Error(), http.StatusInternalServerError)
 				return
 			}
@@ -197,13 +185,13 @@ func AdminHandler(router *mux.Router) {
 		vars := mux.Vars(req)
 		googleID := vars["googleID"]
 
-		currentUser, err := GetCurrentUser(req)
-		if err != nil {
-			http.Error(res, "Unauthorized", http.StatusUnauthorized)
-			return
-		}
+		// currentUser, err := GetCurrentUser(req)
+		// if err != nil {
+		// 	http.Error(res, "Unauthorized", http.StatusUnauthorized)
+		// 	return
+		// }
 
-		instructor, err := readInstructor(currentUser, googleID)
+		instructor, err := readInstructor(googleID, req)
 		if err != nil {
 			http.Error(res, err.Error(), http.StatusInternalServerError)
 			return
@@ -221,15 +209,15 @@ func AdminHandler(router *mux.Router) {
 		vars := mux.Vars(req)
 		googleID := vars["googleID"]
 
-		currentUser, err := GetCurrentUser(req)
-		if err != nil {
-			http.Error(res, "Unauthorized", http.StatusUnauthorized)
-			return
-		}
+		// currentUser, err := GetCurrentUser(req)
+		// if err != nil {
+		// 	http.Error(res, "Unauthorized", http.StatusUnauthorized)
+		// 	return
+		// }
 
 		switch req.Method {
 		case http.MethodGet:
-			instructor, err := readInstructor(currentUser, googleID)
+			instructor, err := readInstructor(googleID, req)
 			if err != nil {
 				http.Error(res, err.Error(), http.StatusInternalServerError)
 				return
@@ -242,7 +230,7 @@ func AdminHandler(router *mux.Router) {
 				http.Error(res, err.Error(), http.StatusBadRequest)
 				return
 			}
-			if err := updateInstructor(currentUser, googleID, updates); err != nil {
+			if err := updateInstructor(googleID, updates, req); err != nil {
 				http.Error(res, err.Error(), http.StatusInternalServerError)
 				return
 			}

@@ -7,6 +7,7 @@ on:
 
 env:
   DATABASE_URL: ${{secrets.DATABASE_URL}}
+  COOKIESTORE: ${{secrets.COOKIESTORE}}
   # FIREBASE_ADMIN_PASSPHRASE: ${{secrets.FIREBASE_ADMIN_PASSPHRASE}}
 
 jobs:
