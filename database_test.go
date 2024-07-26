@@ -47,11 +47,11 @@ var (
 
 	instructor = Instructor{
 		User: User{
-			GoogleID:      "test-instructor",
-			Name:          "Awesomeness",
-			Email:         "awesome_instructor@nk.com",
-			ContactNumber: "99999999",
-			Role:          "Instructor",
+			GoogleID:      "test-student",
+			Name:          "John Doe",
+			Email:         "jeyvianang112462@gmail.com",
+			ContactNumber: "91234567",
+			Role:          "Student",
 		},
 		BasePay:          15,
 		NumberOfStudents: 24,
@@ -69,15 +69,18 @@ var (
 		Incentive: 24,
 	}
 
-	parent = Parent{
-		User: User{
-			GoogleID:      "test-parent",
-			Name:          "Awesomeness",
-			ContactNumber: "99999999",
-			Email:         "janedoe_parent@nk.com",
-			Role:          "Parent",
-		},
-	}
+// Create a new admin
+var admin = Admin{
+	User: User{
+		GoogleID:      "test-admin",
+		Name:          "Awesomeness",
+		ContactNumber: "99999999",
+		Email:         "jeyvianangjieen@gmail.com",
+		Role:          "Admin",
+	},
+	BasePay:   15,
+	Incentive: 24,
+}
 
 	classes = []Class{
 		{

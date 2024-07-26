@@ -43,12 +43,6 @@ func AdminHandler(router *mux.Router) {
 		vars := mux.Vars(req)
 		googleID := vars["googleID"]
 
-		// currentUser, err := GetCurrentUser(req)
-		// if err != nil {
-		// 	http.Error(res, "Unauthorized", http.StatusUnauthorized)
-		// 	return
-		// }
-
 		student, err := readStudent(googleID, req)
 		if err != nil {
 			http.Error(res, err.Error(), http.StatusInternalServerError)
@@ -66,12 +60,6 @@ func AdminHandler(router *mux.Router) {
 	router.HandleFunc("/admin/student/{googleID}", func(res http.ResponseWriter, req *http.Request) {
 		vars := mux.Vars(req)
 		googleID := vars["googleID"]
-
-		// currentUser, err := GetCurrentUser(req)
-		// if err != nil {
-		// 	http.Error(res, "Unauthorized", http.StatusUnauthorized)
-		// 	return
-		// }
 
 		switch req.Method {
 		case http.MethodGet:
