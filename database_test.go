@@ -47,7 +47,7 @@ var (
 
 	instructor = Instructor{
 		User: User{
-			GoogleID:      "test-student",
+			GoogleID:      "test-instructor",
 			Name:          "John Doe",
 			Email:         "jeyvianang112462@gmail.com",
 			ContactNumber: "91234567",
