@@ -69,18 +69,15 @@ var (
 		Incentive: 24,
 	}
 
-// Create a new admin
-var admin = Admin{
-	User: User{
-		GoogleID:      "test-admin",
-		Name:          "Awesomeness",
-		ContactNumber: "99999999",
-		Email:         "jeyvianangjieen@gmail.com",
-		Role:          "Admin",
-	},
-	BasePay:   15,
-	Incentive: 24,
-}
+	parent = Parent{
+		User: User{
+			GoogleID:      "test-parent",
+			Name:          "Awesomeness",
+			ContactNumber: "99999999",
+			Email:         "janedoe_parent@nk.com",
+			Role:          "Parent",
+		},
+	}
 
 	classes = []Class{
 		{
