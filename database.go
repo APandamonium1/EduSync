@@ -21,6 +21,7 @@ func SessionCookie() (string, error) {
 	// if sessionCookieStore == "" {
 	// 	return sessionCookieStore, fmt.Errorf("SESSION_COOKIE_STORE is not set in the environment variables")
 	// }
+
 	sessionCookieStore, found := os.LookupEnv("SESSION_COOKIE_STORE")
 	if !found {
 		log.Fatalf("SESSION_COOKIE_STORE is not set in the environment variables")
