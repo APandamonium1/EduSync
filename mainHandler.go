@@ -1,3 +1,9 @@
+/*
+Gofmt formats Go programs.
+It uses tabs for indentation and blanks for alignment.
+Alignment assumes that an editor is using a fixed-width font.
+package main
+*/
 package main
 
 import (
@@ -8,6 +14,13 @@ import (
 )
 
 func MainHandler(router *mux.Router) {
+	/*
+		Gofmt formats Go programs.
+		It uses tabs for indentation and blanks for alignment.
+		Alignment assumes that an editor is using a fixed-width font.
+		package main
+		MAIN
+	*/
 	router.HandleFunc("/", func(res http.ResponseWriter, req *http.Request) {
 		t, err := template.ParseFiles("templates/index.html")
 		if err != nil {

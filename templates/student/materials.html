@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Google Drive Files</title>
+</head>
+<body>
+    <h1>Files in Google Drive Folder</h1>
+    <ul id="file-list"></ul>
+
+    <script>
+        async function fetchFiles() {
+            const response = await fetch('/files');
+            const files = await response.json();
+            const fileList = document.getElementById('file-list');
+            files.forEach(file => {
+                const listItem = document.createElement('li');
+                listItem.textContent = `${file.name} (${file.mimeType})`;
+                fileList.appendChild(listItem);
+            });
+        }
+
+        window.onload = fetchFiles;
+    </script>
+</body>
+</html>
