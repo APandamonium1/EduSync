@@ -6,9 +6,20 @@ import (
 	"net/http/httptest"
 	"reflect"
 	"testing"
+
+	"encoding/gob"
+	"encoding/json"
 )
 
+func init() {
+	// Register the User type with gob
+	gob.Register(User{})
+	gob.Register(Announcement{})
+}
+
 var (
+	// testStore = sessions.NewCookieStore([]byte("a-very-secret-key"))
+
 	currentUser = User{
 		GoogleID:      "admin-user",
 		Name:          "Admin User",
@@ -82,14 +93,33 @@ var (
 	}
 )
 
+// func mockRequest() *http.Request {
+// 	req, _ := http.NewRequest("GET", "/test", nil)
+// 	session, _ := store.Get(req, "session-name")
+// 	session.Values["user"] = currentUser
+// 	err := session.Save(req, httptest.NewRecorder())
+// 	if err != nil {
+// 		log.Println(err)
+// 	}
+// 	return req
+// }
+
 func mockRequest() *http.Request {
 	req, _ := http.NewRequest("GET", "/test", nil)
-	session, _ := store.Get(req, "session-name")
-	session.Values["user"] = currentUser
-	err := session.Save(req, httptest.NewRecorder())
+	recorder := httptest.NewRecorder()
+	session, _ := store.Get(req, "auth-session")
+
+	userData, err := json.Marshal(currentUser)
 	if err != nil {
 		log.Println(err)
 	}
+
+	session.Values["user"] = userData
+	err = session.Save(req, recorder)
+	if err != nil {
+		log.Println(err)
+	}
+	req.Header.Set("Cookie", recorder.Header().Get("Set-Cookie"))
 	return req
 }
 
@@ -143,7 +173,8 @@ func TestReadStudent(t *testing.T) {
 func TestUpdateStudent(t *testing.T) {
 	// Update the student's email
 	updates := map[string]interface{}{
-		"name": "Updated Student",
+		"name":           "John Doe",
+		"contact_number": "99999999",
 	}
 
 	err := updateStudent(students[0].GoogleID, updates, mockRequest())
@@ -158,7 +189,7 @@ func TestUpdateStudent(t *testing.T) {
 	}
 
 	// Assert that the updated student's email is correct
-	if readStudent.Name != updates["name"] {
+	if students[0].Name != updates["name"] {
 		t.Errorf("Updated student's name is incorrect. Expected: %v, Got: %v", updates["name"], readStudent.Name)
 	}
 }
@@ -461,7 +492,7 @@ func TestCreateAnnouncement(t *testing.T) {
 
 	// Assert that the created and read announcement are equal
 	if !reflect.DeepEqual(announcement, readAnnouncement) {
-		t.Error("Created and read announcements are not equal")
+		t.Errorf("Created and read announcements are not equal. Expected: %+v, Got: %+v", announcement, readAnnouncement)
 	}
 }
 

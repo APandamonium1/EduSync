@@ -699,7 +699,7 @@ func createAnnouncement(announcement Announcement, req *http.Request) error {
 func readAnnouncement(announcementID string, req *http.Request) (Announcement, error) {
 	ref := firebaseClient.NewRef("announcements/" + announcementID)
 	var announcement Announcement
-	if err := ref.Get(context.TODO(), &announcementID); err != nil {
+	if err := ref.Get(context.TODO(), &announcement); err != nil {
 		return Announcement{}, fmt.Errorf("error reading admin: %v", err)
 	}
 
@@ -708,7 +708,7 @@ func readAnnouncement(announcementID string, req *http.Request) (Announcement, e
 		return Announcement{}, fmt.Errorf("error getting current user: %v", err)
 	}
 
-	// If user is not admin, return error when attempting to read admin
+	// If user is not NK user, return error when attempting to read admin
 	if !isAdmin(currentUser) &&
 		!isInstructor(currentUser) &&
 		!isParent(currentUser) &&
