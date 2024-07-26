@@ -5,7 +5,7 @@ import (
 	// "github.com/google/uuid"
 )
 
-// User struct to represent the base user with common fields
+// User represent the base user with common fields
 type User struct {
 	// ID            uuid.UUID `json:"id"`
 	GoogleID      string    `json:"google_id"`
@@ -17,7 +17,7 @@ type User struct {
 	UpdatedAt     time.Time `json:"updated_at"`
 }
 
-// Student struct for storing student information
+// Student represents struct for storing student information
 type Student struct {
 	User
 	Age           int     `json:"age"`
