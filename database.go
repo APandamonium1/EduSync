@@ -719,6 +719,37 @@ func readAnnouncement(announcementID string, req *http.Request) (Announcement, e
 	return announcement, nil
 }
 
+func readAnnouncements() ([]Announcement, error) {
+	var announcementsMap map[string]Announcement
+	ref := firebaseClient.NewRef("announcements")
+	if err := ref.Get(context.TODO(), &announcementsMap); err != nil {
+		return nil, fmt.Errorf("error reading announcements: %v", err)
+	}
+	// Convert map to slice
+	announcements := make([]Announcement, 0, len(announcementsMap))
+	for _, student := range announcementsMap {
+		announcements = append(announcements, student)
+	}
+	return announcements, nil
+}
+
+func searchAnnouncements(subject string) ([]Announcement, error) {
+	if subject == "" {
+		return readAnnouncements()
+	}
+	announcements, err := readAnnouncements()
+	if err != nil {
+		return nil, err
+	}
+	var filteredAnnouncements []Announcement
+	for _, announcement := range announcements {
+		if subject == "" || strings.Contains(strings.ToLower(announcement.Subject), strings.ToLower(subject)) {
+			filteredAnnouncements = append(filteredAnnouncements, announcement)
+		}
+	}
+	return filteredAnnouncements, nil
+}
+
 func updateAnnouncement(announcement Announcement, updates map[string]interface{}, req *http.Request) error {
 	currentUser, err := GetCurrentUser(req)
 	if err != nil {
