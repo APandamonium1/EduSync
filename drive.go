@@ -56,15 +56,6 @@ func DriveHandler(router *mux.Router) {
 
 		fmt.Fprintf(res, "File '%s' uploaded successfully. File ID: %s\n", uploadedFile.Name, uploadedFile.Id)
 	}).Methods("POST")
-
-	router.HandleFunc("/student/materials", func(res http.ResponseWriter, req *http.Request) {
-		t, err := template.ParseFiles("templates/student/materials.html")
-		if err != nil {
-			http.Error(res, err.Error(), http.StatusInternalServerError)
-			return
-		}
-		t.Execute(res, nil)
-	}).Methods("GET")
 }
 
 func createDriveService() (*drive.Service, error) {

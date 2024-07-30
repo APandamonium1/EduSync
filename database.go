@@ -89,6 +89,71 @@ func GetCurrentUser(req *http.Request) (User, error) {
 	return user, nil
 }
 
+// Utility function to get current instructor
+func GetCurrentInstructor(req *http.Request) (Instructor, error) {
+	user, err := GetCurrentUser(req)
+	if err != nil {
+		return Instructor{}, err
+	}
+
+	if user.Role != "Instructor" {
+		return Instructor{}, fmt.Errorf("current user is not an instructor")
+	}
+
+	// Query Firebase to find the instructor object with the same email as the user
+	ref := firebaseClient.NewRef("instructors")
+	var instructorsMap map[string]Instructor
+	if err := ref.Get(context.TODO(), &instructorsMap); err != nil {
+		return Instructor{}, fmt.Errorf("error reading instructors: %v", err)
+	}
+
+	// Find the instructor with the same email as the user
+	var instructor Instructor
+	found := false
+	for _, i := range instructorsMap {
+		if i.Email == user.Email {
+			instructor = i
+			found = true
+			break
+		}
+	}
+	if !found {
+		return Instructor{}, fmt.Errorf("instructor not found for the current user")
+	}
+	return instructor, nil
+}
+
+// Handler to get classes for the current instructor
+func GetInstructorClasses(res http.ResponseWriter, req *http.Request) {
+	instructor, err := GetCurrentInstructor(req)
+	if err != nil {
+		http.Error(res, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	// Query Firebase to get classes for the instructor
+	ref := firebaseClient.NewRef("classes")
+	var classesMap map[string]Class
+	if err := ref.Get(context.TODO(), &classesMap); err != nil {
+		http.Error(res, fmt.Sprintf("error reading classes: %v", err), http.StatusInternalServerError)
+		return
+	}
+
+	// Filter classes by instructor's email
+	var instructorClasses []Class
+	for _, class := range classesMap {
+		if class.Instructor == instructor.Email {
+			instructorClasses = append(instructorClasses, class)
+		}
+	}
+
+	// Return the instructor's classes as JSON
+	res.Header().Set("Content-Type", "application/json")
+	if err := json.NewEncoder(res).Encode(instructorClasses); err != nil {
+		http.Error(res, fmt.Sprintf("error encoding response: %v", err), http.StatusInternalServerError)
+	}
+}
+
 // Utility function to get current student
 func GetCurrentStudent(req *http.Request) (Student, error) {
 	user, err := GetCurrentUser(req)

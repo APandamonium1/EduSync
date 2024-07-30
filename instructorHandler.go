@@ -16,4 +16,17 @@ func InstructorHandler(router *mux.Router) {
 		}
 		t.Execute(res, nil)
 	}).Methods("GET")
+
+	router.HandleFunc("/instructor/classes", func(res http.ResponseWriter, req *http.Request) {
+		t, err := template.ParseFiles("templates/instructor/classes.html")
+		if err != nil {
+			http.Error(res, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		t.Execute(res, nil)
+	}).Methods("GET")
+
+	router.HandleFunc("/instructor/classes/get-classes", func(res http.ResponseWriter, req *http.Request) {
+		GetInstructorClasses(res, req)
+	}).Methods("GET")
 }

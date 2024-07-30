@@ -29,7 +29,7 @@ var instructor = Instructor{
 	User: User{
 		GoogleID:      "test-instructor",
 		Name:          "Awesomeness",
-		Email:         "awesome_instructor@nk.com",
+		Email:         "jeyvianang112462@gmail.com",
 		ContactNumber: "99999999",
 		Role:          "Instructor",
 	},
@@ -65,9 +65,10 @@ var parent = Parent{
 // Create a dummy class for testing
 var classes = []Class{
 	{
-		ClassID:  "te-6-10",
-		Name:     "Test Class",
-		FolderID: "1xN6TgYK_ldQL86fj89_vLS3A7L7BIZlj",
+		ClassID:    "te-6-11",
+		Name:       "Test Class",
+		Instructor: "jeyvianang112462@gmail.com",
+		FolderID:   "1zrj8iUefB9D0u1RXT8Pi0-At8aQf9n2m",
 	},
 }
 
