@@ -2,11 +2,9 @@ package main
 
 import (
 	"context"
-	"encoding/json"
 	"fmt"
 	"html/template"
 	"io"
-	"log"
 	"net/http"
 	"os"
 
@@ -59,29 +57,14 @@ func DriveHandler(router *mux.Router) {
 		fmt.Fprintf(res, "File '%s' uploaded successfully. File ID: %s\n", uploadedFile.Name, uploadedFile.Id)
 	}).Methods("POST")
 
-	router.HandleFunc("/materials", func(res http.ResponseWriter, req *http.Request) {
+	router.HandleFunc("/student/materials", func(res http.ResponseWriter, req *http.Request) {
 		t, err := template.ParseFiles("templates/student/materials.html")
 		if err != nil {
 			http.Error(res, err.Error(), http.StatusInternalServerError)
 			return
 		}
 		t.Execute(res, nil)
-	}).Methods("POST")
-
-	router.HandleFunc("/materials/fetch", func(res http.ResponseWriter, req *http.Request) {
-		srv, err := createDriveService()
-		if err != nil {
-			log.Fatalf("Unable to create Drive service: %v", err)
-		}
-
-		files, err := listFiles(srv, FolderID)
-		if err != nil {
-			log.Fatalf("Unable to retrieve files: %v", err)
-		}
-
-		res.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(res).Encode(files)
-	}).Methods("POST")
+	}).Methods("GET")
 }
 
 func createDriveService() (*drive.Service, error) {
@@ -120,13 +103,4 @@ func uploadFileToDrive(srv *drive.Service, folderID string, file io.Reader, file
 	}
 
 	return res, nil
-}
-
-func listFiles(service *drive.Service, folderID string) ([]*drive.File, error) {
-	query := fmt.Sprintf("'%s' in parents", folderID)
-	fileList, err := service.Files.List().Q(query).PageSize(10).Fields("nextPageToken, files(id, name, mimeType)").Do()
-	if err != nil {
-		return nil, err
-	}
-	return fileList.Files, nil
 }

@@ -26,6 +26,48 @@ func initDB(app *firebase.App) error {
 	return nil
 }
 
+func getUserRole(email string) (User, string, error) {
+	ctx := context.Background()
+	var user User
+	var userRole string
+
+	// Check if firebaseClient is initialized
+	if firebaseClient == nil {
+		log.Println("Firebase client is not initialized")
+		return user, userRole, fmt.Errorf("firebase client is not initialized")
+	}
+
+	// Map categories to Firebase references
+	categoryRefs := map[string]string{
+		"Student":    "/students",
+		"Parent":     "/parents",
+		"Instructor": "/instructors",
+		"Admin":      "/admins",
+	}
+
+	// Iterate through each category and check if the email exists
+	for category, ref := range categoryRefs {
+		categoryRef := firebaseClient.NewRef(ref)
+		dataSnapshot, err := categoryRef.OrderByChild("email").EqualTo(email).GetOrdered(ctx)
+		if err != nil {
+			log.Printf("Error fetching data from %s: %v", category, err)
+			continue
+		}
+
+		// Check if dataSnapshot has any children
+		if len(dataSnapshot) > 0 {
+			userRole = category
+			// Assuming dataSnapshot[0] is the first match and it contains the user data
+			if err := dataSnapshot[0].Unmarshal(&user); err != nil {
+				log.Printf("Error unmarshalling data for %s: %v", category, err)
+				continue
+			}
+			break
+		}
+	}
+	return user, userRole, nil
+}
+
 // Utility function to get current user
 func GetCurrentUser(req *http.Request) (User, error) {
 	session, err := store.Get(req, "auth-session")
@@ -45,6 +87,72 @@ func GetCurrentUser(req *http.Request) (User, error) {
 	}
 
 	return user, nil
+}
+
+// Utility function to get current student
+func GetCurrentStudent(req *http.Request) (Student, error) {
+	user, err := GetCurrentUser(req)
+	if err != nil {
+		return Student{}, err
+	}
+
+	if user.Role != "Student" {
+		return Student{}, fmt.Errorf("current user is not a student")
+	}
+
+	// Query Firebase to find the student object with the same email as the user
+	ref := firebaseClient.NewRef("students")
+	var studentsMap map[string]Student
+	if err := ref.Get(context.TODO(), &studentsMap); err != nil {
+		return Student{}, fmt.Errorf("error reading students: %v", err)
+	}
+
+	// Find the student with the same email as the user
+	var student Student
+	found := false
+	for _, s := range studentsMap {
+		if s.Email == user.Email {
+			student = s
+			found = true
+			break
+		}
+	}
+	if !found {
+		return Student{}, fmt.Errorf("student not found for the current user")
+	}
+	return student, nil
+}
+
+// Function to get the folder ID of a student's class
+func GetStudentFolder(req *http.Request) (string, error) {
+	student, err := GetCurrentStudent(req)
+	if err != nil {
+		return "", err
+	}
+
+	classID := student.ClassID
+	if classID == "" {
+		return "", fmt.Errorf("student is not enrolled in any class")
+	}
+
+	// Fetch class information based on ClassID
+	class, err := GetClassByID(classID)
+	if err != nil {
+		return "", err
+	}
+	return class.FolderID, nil
+}
+
+// Function to fetch a class by its ID from Firebase
+func GetClassByID(classID string) (Class, error) {
+	ref := firebaseClient.NewRef("classes/" + classID)
+
+	var class Class
+	if err := ref.Get(context.TODO(), &class); err != nil {
+		return Class{}, fmt.Errorf("error reading class: %v", err)
+	}
+
+	return class, nil
 }
 
 // Utility functions to check roles
@@ -109,48 +217,6 @@ func isParentChildInClass(currentUser User, students []Student, class Class) boo
 		}
 	}
 	return false
-}
-
-func getUserRole(email string) (User, string, error) {
-	ctx := context.Background()
-	var user User
-	var userRole string
-
-	// Check if firebaseClient is initialized
-	if firebaseClient == nil {
-		log.Println("Firebase client is not initialized")
-		return user, userRole, fmt.Errorf("firebase client is not initialized")
-	}
-
-	// Map categories to Firebase references
-	categoryRefs := map[string]string{
-		"Student":    "/students",
-		"Parent":     "/parents",
-		"Instructor": "/instructors",
-		"Admin":      "/admins",
-	}
-
-	// Iterate through each category and check if the email exists
-	for category, ref := range categoryRefs {
-		categoryRef := firebaseClient.NewRef(ref)
-		dataSnapshot, err := categoryRef.OrderByChild("email").EqualTo(email).GetOrdered(ctx)
-		if err != nil {
-			log.Printf("Error fetching data from %s: %v", category, err)
-			continue
-		}
-
-		// Check if dataSnapshot has any children
-		if len(dataSnapshot) > 0 {
-			userRole = category
-			// Assuming dataSnapshot[0] is the first match and it contains the user data
-			if err := dataSnapshot[0].Unmarshal(&user); err != nil {
-				log.Printf("Error unmarshalling data for %s: %v", category, err)
-				continue
-			}
-			break
-		}
-	}
-	return user, userRole, nil
 }
 
 // CRUD operations with role checks

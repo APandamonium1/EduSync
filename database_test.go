@@ -21,7 +21,6 @@ var students = []Student{
 		LessonCredits: 10.0,
 		ClassID:       "te-6-10",
 		ParentID:      "test-parent",
-		FolderID:      "1xN6TgYK_ldQL86fj89_vLS3A7L7BIZlj",
 	},
 }
 
@@ -60,6 +59,7 @@ var parent = Parent{
 		Email:         "janedoe_parent@nk.com",
 		Role:          "Parent",
 	},
+	FolderID: "1xN6TgYK_ldQL86fj89_vLS3A7L7BIZlj",
 }
 
 // Create a dummy class for testing

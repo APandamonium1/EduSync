@@ -8,6 +8,22 @@
 	<link rel="stylesheet" type="text/css" href="/assets/css/inner-page-style.css">
 	<link rel="stylesheet" type="text/css" href="/assets/css/style.css">
 	<link href="https://fonts.googleapis.com/css?family=Raleway:400,500,600,700" rel="stylesheet">
+	<script>
+        document.addEventListener("DOMContentLoaded", function() {
+            fetch('/student/get-folder-id')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.folder_id) {
+                        const googleDriveBaseUrl = "https://drive.google.com/drive/folders/";
+                        const folderUrl = googleDriveBaseUrl + data.folder_id;
+                        document.getElementById("materials-link").href = folderUrl;
+                    } else {
+                        console.error('Folder ID not found in response');
+                    }
+                })
+                .catch(error => console.error('Error fetching folder ID:', error));
+        });
+	</script>
 </head>
 <body>
 	<div id="page" class="site" itemscope itemtype="http://schema.org/LocalBusiness">
@@ -45,12 +61,7 @@
 						<nav class="nav-desktop">
 							<ul class="menu-list">
 								<li><a href="#">Home</a></li>
-								<li class="menu-parent">Materials
-                                    <ul class="sub-menu">
-                                        <li><a href="#">Child</a></li>
-                                        <li><a href="#">Child</a></li>
-                                    </ul>
-                                </li>
+								<li><a id="materials-link" href="#" target="_blank">Materials</a></li>
                                 <li class="menu-parent">Feedback
                                     <ul class="sub-menu">
                                         <li><a href="#">Child</a></li>

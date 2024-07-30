@@ -24,11 +24,9 @@
         function hasChanges() {
             return (
                 document.getElementById('name').value !== initialStudent.name ||
+                document.getElementById('contactNumber').value !== initialStudent.contact_number ||
                 document.getElementById('email').value !== initialStudent.email ||
-                parseInt(document.getElementById('age').value, 10) !== initialStudent.age ||
-                document.getElementById('class').value !== initialStudent.class ||
-                document.getElementById('instructor').value !== initialStudent.instructor ||
-                document.getElementById('parentName').value !== initialStudent.parent_name ||
+                parseFloat(document.getElementById('basePay').value) !== initialStudent.base_pay ||
                 document.getElementById('role').value !== initialStudent.role
             );
         }
