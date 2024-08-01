@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>EduSync</title>
+    <meta name="viewport" content="width=device-width">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" type="text/css" href="/assets/css/owl.carousel.css">
+    <link rel="stylesheet" type="text/css" href="/assets/css/inner-page-style.css">
+    <link rel="stylesheet" type="text/css" href="/assets/css/style.css">
+    <link href="https://fonts.googleapis.com/css?family=Raleway:400,500,600,700" rel="stylesheet">
+    <script>
+        let initialStudent = {};
+
+        async function loadStudent() {
+            const announcementID = document.getElementById('announcementID').value;
+            const response = await fetch(`/admin/announcement/${announcementID}`);
+            const announcement = await response.json();
+            document.getElementById('subject').value = announcement.subject;
+            document.getElementById('content').value = announcement.content;
+            initialAnnouncment = { ...announcement };
+        }
+
+        function hasChanges() {
+            return (
+                document.getElementById('subject').value !== initialAnnouncement.subject ||
+                document.getElementById('content').value !== initialAnnouncement.content ||
+            );
+        }
+
+        async function updateAnnouncement() {
+            const googleID = document.getElementById('announcementID').value;
+            if (!hasChanges()) {
+                return;  // No changes, so do not proceed with update
+            }
+            const updates = {
+                subject: document.getElementById('subject').value,
+                content: document.getElementById('content').value,
+            };
+            await fetch(`/admin/announcement/${announcementID}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(updates)
+            });
+            alert('Announcement updated successfully');
+            window.location.href = '/admin/search_announcement';
+        }
+
+        function toggleEdit() {
+            const inputs = document.querySelectorAll('input');
+            inputs.forEach(input => {
+                input.disabled = !input.disabled;
+            });
+            document.getElementById('editButton').style.display = 'none';
+            document.getElementById('saveButton').style.display = 'block';
+        }
+
+        function goBack() {
+            window.history.back();
+        }
+    </script>
+</head>
+<body onload="loadStudent()">
+    <div id="page" class="site" itemscope itemtype="http://schema.org/LocalBusiness">
+        <header class="site-header">
+            <div class="main-header">
+                <div class="container">
+                    <div class="logo-wrap" itemprop="logo">
+                        <img src="/assets/images/site-logo.jpg" alt="Logo Image" style="width: 120px; height: auto;">
+                    </div>
+                    <div class="nav-wrap">
+                        <nav class="nav-desktop">
+                            <ul class="menu-list">
+                                <li><a href="/admin">Home</a></li>
+                                <li><a href="/admin/search_student">Students</a></li>
+                                <li><a href="/admin/search_parent">Parents</a></li>
+                                <li><a href="/admin/search_instructor">Instructors</a></li>
+                                <li><a href="/admin/search_announcement">Announcements</a></li>
+                            </ul>
+                        </nav>
+                        <div id="bar">
+                            <i class="fas fa-bars"></i>
+                        </div>
+                        <div id="close">
+                            <i class="fas fa-times"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </header>
+        <!-- Header Close -->
+
+        <div class="container content">
+            <h1>Edit Announcment Details</h1>
+            <input type="hidden" id="announcementID" value="{{.AnnouncementID}}">
+            <form onsubmit="event.preventDefault(); updateAnnouncement();">
+                <div><label>Name: </label><input type="text" id="subject" disabled></div>
+                <br>
+                <div><label>Email: </label><input type="text" id="content" disabled></div>
+                <br>
+                <div class="button-container">
+                    <button type="button" id="editButton" onclick="toggleEdit()">Edit</button>
+                    <button type="submit" id="saveButton" style="display:none;">Save</button>
+                    <button type="button" onclick="goBack()">Back</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    <script type="text/javascript" src="/assets/js/jquery-3.3.1.min.js"></script>
+    <script type="text/javascript" src="/assets/js/all.js"></script>
+    <script type="text/javascript" src="/assets/js/isotope.pkgd.min.js"></script>
+    <script type="text/javascript" src="/assets/js/owl.carousel.js"></script>
+    <script type="text/javascript" src="/assets/js/jquery.flexslider.js"></script>
+    <script type="text/javascript" src="/assets/js/jquery.rateyo.js"></script>
+    <script type="text/javascript" src="/assets/js/custom.js"></script>
+</body>
+</html>
