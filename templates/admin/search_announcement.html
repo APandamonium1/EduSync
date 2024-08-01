@@ -9,6 +9,12 @@
     <link rel="stylesheet" type="text/css" href="/assets/css/style.css">
     <link href="https://fonts.googleapis.com/css?family=Raleway:400,500,600,700" rel="stylesheet">
     <script>
+        /**
+         * Fetches announcements from the provided URL and displays them in the results div.
+         * 
+         * @param {string} url - The URL from which to fetch announcements.
+         * @throws Will throw an error if the fetch request fails.
+         */
         async function fetchAnnouncements(url) {
             const response = await fetch(url);
 
@@ -33,6 +39,9 @@
             }
         }
 
+        /**
+         * Searches for announcements based on the name filter and displays the results.
+         */
         async function searchAnnouncements() {
             const nameFilter = document.getElementById('nameFilter').value;
             const response = await fetch(`/admin/api/search_announcement?name=${nameFilter}`);
@@ -58,6 +67,9 @@
             }
         }
 
+        /**
+         * Fetches announcements when the page loads.
+         */
         window.onload = async function() {
             await fetchAnnouncements(`/admin/api/search_announcement`);
         }
@@ -101,6 +113,8 @@
                 <label for="nameFilter">Name:</label>
                 <input type="text" id="nameFilter">
                 <button onclick="searchAnnouncements()">Search</button>
+                <button onclick="window.location.href='/admin/create_announcement'">Create</button>
+                
             </div>
             <br>
             <div id="results"></div>
