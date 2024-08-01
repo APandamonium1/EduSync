@@ -50,6 +50,8 @@ jobs:
       - name: Go Test
         run: |
           go test
+          godoc
+          ls
 
       - if: ${{success()}}
         name: Success Message (Discord)
