@@ -1,0 +1,75 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Send Announcement</title>
+    <meta name="viewport" content="width=device-width">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" type="text/css" href="/assets/css/owl.carousel.css">
+    <link rel="stylesheet" type="text/css" href="/assets/css/inner-page-style.css">
+    <link rel="stylesheet" type="text/css" href="/assets/css/style.css">
+    <link href="https://fonts.googleapis.com/css?family=Raleway:400,500,600,700" rel="stylesheet">
+    <script>
+        // input subject and content of announcement include send or cancel button. announcement.announcementID is assigned by increment of one per announcement
+        let announcement = {
+            announcementID: 1,
+            subject: '',
+            content: ''
+        };
+        
+        function sendAnnouncement() {
+            announcement.subject = document.getElementById('subject').value;
+            announcement.content = document.getElementById('content').value;
+            
+            // send announcement to server
+            fetch('/send_announcement', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(announcement)
+            }).then(response => response.json())
+             .then(data => {
+                 console.log('Success:', data);
+                 alert('Announcement sent successfully!');
+                 window.location.href = '/admin/search_announcement';
+             })
+             .catch(error => {
+                 console.error('Error:', error);
+                 alert('Failed to send announcement. Please try again.');
+             });
+        }
+        
+        function cancelAnnouncement() {
+            window.location.href = '/';
+        }
+        
+        // load announcement details if it exists
+        if (localStorage.getItem('announcement')) {
+            announcement = JSON.parse(localStorage.getItem('announcement'));
+            document.getElementById('subject').value = announcement.subject;
+            document.getElementById('content').value = announcement.content;
+        } else {
+            localStorage.removeItem('announcement');
+        }
+        
+        // clear form fields when cancel button is clicked
+        document.getElementById('cancelButton').addEventListener('click', function() {
+            document.getElementById('subject').value = '';
+            document.getElementById('content').value = '';
+            localStorage.removeItem('announcement');
+        });
+    </script>
+</head>
+<body>
+    <h1>Send Announcement</h1>
+    <form action="/send_announcement" method="POST">
+        <label for="subject">Subject:</label>
+        <input type="text" id="subject" name="Subject" required><br><br>
+        
+        <label for="content">Content:</label>
+        <textarea id="content" name="Content" required></textarea><br><br>
+        
+        <input type="submit" value="Send Announcement">
+    </form>
+</body>
+</html>
