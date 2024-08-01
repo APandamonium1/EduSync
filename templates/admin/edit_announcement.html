@@ -9,9 +9,9 @@
     <link rel="stylesheet" type="text/css" href="/assets/css/style.css">
     <link href="https://fonts.googleapis.com/css?family=Raleway:400,500,600,700" rel="stylesheet">
     <script>
-        let initialStudent = {};
+        let initialAnnouncement = {};
 
-        async function loadStudent() {
+        async function loadAnnouncement() {
             const announcementID = document.getElementById('announcementID').value;
             const response = await fetch(`/admin/announcement/${announcementID}`);
             const announcement = await response.json();
@@ -28,7 +28,7 @@
         }
 
         async function updateAnnouncement() {
-            const googleID = document.getElementById('announcementID').value;
+            const AnnouncementID = document.getElementById('announcementID').value;
             if (!hasChanges()) {
                 return;  // No changes, so do not proceed with update
             }
@@ -61,7 +61,7 @@
         }
     </script>
 </head>
-<body onload="loadStudent()">
+<body onload="loadAnnouncement()">
     <div id="page" class="site" itemscope itemtype="http://schema.org/LocalBusiness">
         <header class="site-header">
             <div class="main-header">
@@ -92,12 +92,12 @@
         <!-- Header Close -->
 
         <div class="container content">
-            <h1>Edit Announcment Details</h1>
+            <h1>Edit Announcement Details</h1>
             <input type="hidden" id="announcementID" value="{{.AnnouncementID}}">
             <form onsubmit="event.preventDefault(); updateAnnouncement();">
-                <div><label>Name: </label><input type="text" id="subject" disabled></div>
+                <div><label>Subject: </label><input type="text" id="subject" disabled></div>
                 <br>
-                <div><label>Email: </label><input type="text" id="content" disabled></div>
+                <div><label>Content: </label><input type="text" id="content" disabled></div>
                 <br>
                 <div class="button-container">
                     <button type="button" id="editButton" onclick="toggleEdit()">Edit</button>
