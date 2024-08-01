@@ -513,7 +513,7 @@ func TestUpdateAnnouncement(t *testing.T) {
 		"content": "This is an updated announcement.",
 	}
 
-	err := updateAnnouncement(announcement, updates, mockRequest())
+	err := updateAnnouncement(announcement.AnnouncementID, updates, mockRequest())
 	if err != nil {
 		t.Fatalf("Error updating announcement: %v", err)
 	}
@@ -532,7 +532,7 @@ func TestUpdateAnnouncement(t *testing.T) {
 
 func TestDeleteAnnouncement(t *testing.T) {
 	// Delete the announcement
-	err := deleteAnnouncement(announcement, mockRequest())
+	err := deleteAnnouncement(announcement.AnnouncementID, mockRequest())
 	if err != nil {
 		t.Fatalf("Error deleting announcement: %v", err)
 	}

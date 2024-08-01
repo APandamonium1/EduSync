@@ -750,7 +750,7 @@ func searchAnnouncements(subject string) ([]Announcement, error) {
 	return filteredAnnouncements, nil
 }
 
-func updateAnnouncement(announcement Announcement, updates map[string]interface{}, req *http.Request) error {
+func updateAnnouncement(announcementID string, updates map[string]interface{}, req *http.Request) error {
 	currentUser, err := GetCurrentUser(req)
 	if err != nil {
 		return fmt.Errorf("error getting current user: %v", err)
@@ -759,14 +759,14 @@ func updateAnnouncement(announcement Announcement, updates map[string]interface{
 	if !isAdmin(currentUser) {
 		return fmt.Errorf("unauthorized access: only admins can update this announcement")
 	}
-	ref := firebaseClient.NewRef("announcements/" + announcement.AnnouncementID)
+	ref := firebaseClient.NewRef("announcements/" + announcementID)
 	if err := ref.Update(context.TODO(), updates); err != nil {
 		return fmt.Errorf("error updating announcement: %v", err)
 	}
 	return ref.Update(context.TODO(), updates)
 }
 
-func deleteAnnouncement(announcement Announcement, req *http.Request) error {
+func deleteAnnouncement(announcementID string, req *http.Request) error {
 	currentUser, err := GetCurrentUser(req)
 	if err != nil {
 		return fmt.Errorf("error getting current user: %v", err)
@@ -775,7 +775,7 @@ func deleteAnnouncement(announcement Announcement, req *http.Request) error {
 	if !isAdmin(currentUser) {
 		return fmt.Errorf("unauthorized access: only admins can delete announcements")
 	}
-	ref := firebaseClient.NewRef("announcements/" + announcement.AnnouncementID)
+	ref := firebaseClient.NewRef("announcements/" + announcementID)
 	if err := ref.Delete(context.TODO()); err != nil {
 		return fmt.Errorf("error deleting announcement: %v", err)
 	}
