@@ -31,15 +31,9 @@ jobs:
           #go mod init calc # for go mod. If we use go build, it will do the same for the 3 lines.
           go mod tidy
           go get github.com/franela/goblin
+          go get golang.org/x/tools/cmd/godoc
           ls
-      
-      # - name: Setup Firebase JSON file
-      #   run: echo "{${{ secrets.FIREBASE_JSON }}}" > edusync-7bd5e-firebase-adminsdk-x49uh-af084a6314.json
-
-      # - name: Build and run JSON validator
-      #   run: |
-      #     go run json_validator.go edusync-7bd5e-firebase-adminsdk-x49uh-af084a6314.json
-
+    
       - name: Decrypt Firebase JSON
         run: |
           chmod +x decrypt_secret.sh
