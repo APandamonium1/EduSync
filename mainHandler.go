@@ -1,11 +1,7 @@
-/*
-Gofmt formats Go programs.
-It uses tabs for indentation and blanks for alignment.
-Alignment assumes that an editor is using a fixed-width font.
-package main
-*/
+// This file contains the main handler for the web application.
 package main
 
+//The import section declares packages that this source file depends on.
 import (
 	"html/template"
 	"net/http"
@@ -13,14 +9,8 @@ import (
 	"github.com/gorilla/mux"
 )
 
+// MainHandler handles the main page of the web application.
 func MainHandler(router *mux.Router) {
-	/*
-		Gofmt formats Go programs.
-		It uses tabs for indentation and blanks for alignment.
-		Alignment assumes that an editor is using a fixed-width font.
-		package main
-		MAIN
-	*/
 	router.HandleFunc("/", func(res http.ResponseWriter, req *http.Request) {
 		t, err := template.ParseFiles("templates/index.html")
 		if err != nil {

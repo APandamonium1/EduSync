@@ -32,8 +32,6 @@ func main() {
 	// Set up authentication routes
 	AuthHandler(router, config)
 	MainHandler(router)
-	InstructorHandler(router)
-	StudentHandler(router)
 	DriveHandler(router)
 
 	log.Println("listening on localhost:8080")
