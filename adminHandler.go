@@ -2,9 +2,12 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
 	"html/template"
 	"net/http"
+	"time"
 
+	"github.com/google/uuid"
 	"github.com/gorilla/mux"
 )
 
@@ -240,8 +243,19 @@ func AdminHandler(router *mux.Router) {
 		}
 	}).Methods("GET", "PUT")
 
+	//Serve the search announcement page
 	router.HandleFunc("/admin/search_announcement", func(res http.ResponseWriter, req *http.Request) {
 		t, err := template.ParseFiles("templates/admin/search_announcement.html")
+		if err != nil {
+			http.Error(res, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		t.Execute(res, nil)
+	}).Methods("GET")
+
+	// Serve the create announcement page
+	router.HandleFunc("/admin/create_announcement", func(res http.ResponseWriter, req *http.Request) {
+		t, err := template.ParseFiles("templates/admin/create_announcement.html")
 		if err != nil {
 			http.Error(res, err.Error(), http.StatusInternalServerError)
 			return
@@ -252,8 +266,8 @@ func AdminHandler(router *mux.Router) {
 	// Search for an announcement
 	router.HandleFunc("/admin/api/search_announcement", func(res http.ResponseWriter, req *http.Request) {
 		subject := req.URL.Query().Get("subject")
-		content := req.URL.Query().Get("content")
-		announcements, err := searchStudents(subject, content)
+		// content := req.URL.Query().Get("content")
+		announcements, err := searchAnnouncements(subject)
 		if err != nil {
 			http.Error(res, err.Error(), http.StatusInternalServerError)
 			return
@@ -299,12 +313,7 @@ func AdminHandler(router *mux.Router) {
 				http.Error(res, err.Error(), http.StatusBadRequest)
 				return
 			}
-			announcement, err := readAnnouncement(announcementID, req)
-			if err != nil {
-				http.Error(res, err.Error(), http.StatusInternalServerError)
-				return
-			}
-			if err := updateAnnouncement(announcement, updates, req); err != nil {
+			if err := updateAnnouncement(announcementID, updates, req); err != nil {
 				http.Error(res, err.Error(), http.StatusInternalServerError)
 				return
 			}
@@ -313,19 +322,25 @@ func AdminHandler(router *mux.Router) {
 	}).Methods("GET", "PUT")
 
 	// Create a new announcement
-	router.HandleFunc("/admin/announcement", func(res http.ResponseWriter, req *http.Request) {
+	router.HandleFunc("/admin/announcement/", func(res http.ResponseWriter, req *http.Request) {
 		switch req.Method {
 		case http.MethodPost:
 			var announcement Announcement
 			if err := json.NewDecoder(req.Body).Decode(&announcement); err != nil {
-				http.Error(res, err.Error(), http.StatusBadRequest)
+				http.Error(res, fmt.Sprintf(`{"error": "Invalid request payload: %v"}`, err), http.StatusBadRequest)
 				return
 			}
+			announcement.AnnouncementID = uuid.New().String()
+			announcement.CreatedAt = time.Now()
+			announcement.UpdatedAt = time.Now()
 			if err := createAnnouncement(announcement, req); err != nil {
-				http.Error(res, err.Error(), http.StatusInternalServerError)
+				http.Error(res, fmt.Sprintf(`{"error": "Failed to create announcement: %v"}`, err), http.StatusInternalServerError)
 				return
 			}
 			res.WriteHeader(http.StatusCreated)
+			json.NewEncoder(res).Encode(announcement)
+		default:
+			http.Error(res, `{"error": "Invalid request method"}`, http.StatusMethodNotAllowed)
 		}
 	}).Methods("POST")
 

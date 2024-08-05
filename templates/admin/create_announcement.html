@@ -11,65 +11,68 @@
     <script>
         // input subject and content of announcement include send or cancel button. announcement.announcementID is assigned by increment of one per announcement
         let announcement = {
-            announcementID: 1,
             subject: '',
             content: ''
         };
         
-        function sendAnnouncement() {
+        function sendAnnouncement(event) {
+            event.preventDefault();
             announcement.subject = document.getElementById('subject').value;
             announcement.content = document.getElementById('content').value;
             
             // send announcement to server
-            fetch('/send_announcement', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(announcement)
-            }).then(response => response.json())
-             .then(data => {
-                 console.log('Success:', data);
-                 alert('Announcement sent successfully!');
-                 window.location.href = '/admin/search_announcement';
-             })
-             .catch(error => {
-                 console.error('Error:', error);
-                 alert('Failed to send announcement. Please try again.');
-             });
+            try {
+                const response = fetch('/admin/announcement/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(announcement)
+                });
+
+                if (!response.ok) {
+                    const errorText = response.json();
+                    throw new Error(errorText);
+                }
+
+                const data = response.json();
+                console.log('Success:', data);
+                alert('Announcement sent successfully!');
+                window.location.href = '/admin/search_announcement';
+            } catch (error) {
+                console.error('Error:', error);
+                alert(`Failed to send announcement. Error: ${error.message}`);
+            }
         }
         
         function cancelAnnouncement() {
-            window.location.href = '/';
+            if (confirm('Confirm cancel?')) {
+                window.location.href = '/admin/search_announcement';
+            }
         }
         
-        // load announcement details if it exists
-        if (localStorage.getItem('announcement')) {
-            announcement = JSON.parse(localStorage.getItem('announcement'));
-            document.getElementById('subject').value = announcement.subject;
-            document.getElementById('content').value = announcement.content;
-        } else {
-            localStorage.removeItem('announcement');
-        }
-        
-        // clear form fields when cancel button is clicked
-        document.getElementById('cancelButton').addEventListener('click', function() {
-            document.getElementById('subject').value = '';
-            document.getElementById('content').value = '';
-            localStorage.removeItem('announcement');
-        });
+        window.onload = function() {
+            if (localStorage.getItem('announcement')) {
+                announcement = JSON.parse(localStorage.getItem('announcement'));
+                document.getElementById('subject').value = announcement.subject;
+                document.getElementById('content').value = announcement.content;
+            } else {
+                localStorage.removeItem('announcement');
+            }
+        };
     </script>
 </head>
 <body>
     <h1>Send Announcement</h1>
-    <form action="/send_announcement" method="POST">
+    <form id="announcementForm" onsubmit="sendAnnouncement(event)">
         <label for="subject">Subject:</label>
-        <input type="text" id="subject" name="Subject" required><br><br>
+        <input type="text" id="subject" name="subject" required><br><br>
         
         <label for="content">Content:</label>
-        <textarea id="content" name="Content" required></textarea><br><br>
+        <textarea id="content" name="content" required></textarea><br><br>
         
         <input type="submit" value="Send Announcement">
+        <input type="button" id="cancelButton" value="Cancel" onclick="cancelAnnouncement()">
     </form>
 </body>
 </html>

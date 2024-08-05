@@ -30,8 +30,8 @@
             if (announcements && announcements.length > 0) {
                 announcements.forEach(announcement => {
                     const announcementDiv = document.createElement('div');
-                    announcementDiv.className = 'parent';
-                    announcementDiv.innerHTML = `<a href="/admin/announcement/${announcement.announcementID}/edit"><strong>${announcement.subject}</strong></a>  -  ${announcement.content}`;
+                    announcementDiv.className = 'announcement';
+                    announcementDiv.innerHTML = `<a href="/admin/announcement/${announcement.announcement_id}/edit"><strong>${announcement.subject}</strong></a>  -  ${announcement.content}`;
                     resultsDiv.appendChild(announcementDiv);
                 });
             } else {
@@ -58,8 +58,8 @@
             if (announcements && announcements.length > 0) {
                 announcements.forEach(announcement => {
                     const announcementDiv = document.createElement('div');
-                    announcementDiv.className = 'parent';
-                    announcementDiv.innerHTML = `<a href="/admin/announcement/${announcement.announcementID}/edit"><strong>${announcement.subject}</strong></a>  -  ${announcement.content}`;
+                    announcementDiv.className = 'announcement';
+                    announcementDiv.innerHTML = `<a href="/admin/announcement/${announcement.announcementID}"><strong>${announcement.subject}</strong></a>  -  ${announcement.content}`;
                     resultsDiv.appendChild(announcementDiv);
                 });
             } else {
@@ -113,7 +113,6 @@
                 <input type="text" id="nameFilter">
                 <button onclick="searchAnnouncements()">Search</button>
                 <button onclick="window.location.href='/admin/create_announcement'">Create</button>
-                
             </div>
             <br>
             <div id="results"></div>

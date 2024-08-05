@@ -8,7 +8,6 @@ import (
 )
 
 func init() {
-	// database()
 	initializeFirebase()
 	err := initializeFirebase()
 	if err != nil {
