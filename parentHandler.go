@@ -16,4 +16,20 @@ func ParentHandler(router *mux.Router) {
 		}
 		t.Execute(res, nil)
 	}).Methods("GET")
+
+	router.HandleFunc("/parent/profile", func(res http.ResponseWriter, req *http.Request) {
+		parent, err := GetCurrentParent(req)
+		if err != nil {
+			http.Error(res, err.Error(), http.StatusInternalServerError)
+			return
+		}
+
+		// Render the profile page
+		t, err := template.ParseFiles("templates/parent/profile.html")
+		if err != nil {
+			http.Error(res, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		t.Execute(res, parent)
+	}).Methods("GET")
 }

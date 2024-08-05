@@ -31,4 +31,19 @@ func StudentHandler(router *mux.Router) {
 			http.Error(res, err.Error(), http.StatusInternalServerError)
 		}
 	}).Methods("GET")
+
+	router.HandleFunc("/student/profile", func(res http.ResponseWriter, req *http.Request) {
+		student, err := GetCurrentStudent(req)
+		if err != nil {
+			http.Error(res, err.Error(), http.StatusInternalServerError)
+			return
+		}
+
+		t, err := template.ParseFiles("templates/student/profile.html")
+		if err != nil {
+			http.Error(res, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		t.Execute(res, student)
+	}).Methods("GET")
 }

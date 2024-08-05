@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Admin Profile</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" type="text/css" href="/assets/css/style.css">
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            document.getElementById("update-profile-form").addEventListener("submit", function(event) {
+                event.preventDefault();
+                const formData = new FormData(this);
+
+                fetch('/admin/profile/update', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    alert('Profile updated successfully.');
+                })
+                .catch(error => console.error('Error updating profile:', error));
+            });
+        });
+    </script>
+</head>
+<body>
+    <header>
+        <h1>Admin Profile</h1>
+    </header>
+    <main>
+        <h2>Admin Details</h2>
+        <form id="update-profile-form">
+            <label for="name">Name:</label>
+            <input type="text" id="name" name="name" value="{{.Name}}" required><br>
+            <label for="email">Email:</label>
+            <input type="email" id="email" name="email" value="{{.Email}}" required><br>
+            <label for="contact_number">Contact Number:</label>
+            <input type="text" id="contact_number" name="contact_number" value="{{.ContactNumber}}" required><br>
+            <button type="submit">Update Profile</button>
+        </form>
+        <ul>
+            <li><strong>Role:</strong> {{.Role}}</li>
+            <li><strong>Base Pay:</strong> {{.BasePay}}</li>
+            <li><strong>Incentive:</strong> {{.Incentive}}</li>
+            <li><strong>Created At:</strong> {{.CreatedAt}}</li>
+            <li><strong>Updated At:</strong> {{.UpdatedAt}}</li>
+        </ul>
+    </main>
+</body>
+</html>

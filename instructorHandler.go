@@ -38,4 +38,20 @@ func InstructorHandler(router *mux.Router) {
 		}
 		t.Execute(res, nil)
 	}).Methods("GET")
+
+	router.HandleFunc("/instructor/profile", func(res http.ResponseWriter, req *http.Request) {
+		instructor, err := GetCurrentInstructor(req)
+		if err != nil {
+			http.Error(res, err.Error(), http.StatusInternalServerError)
+			return
+		}
+
+		// Render the profile page
+		t, err := template.ParseFiles("templates/instructor/profile.html")
+		if err != nil {
+			http.Error(res, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		t.Execute(res, instructor)
+	}).Methods("GET")
 }

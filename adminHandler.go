@@ -1,9 +1,12 @@
 package main
 
 import (
+	"context"
 	"encoding/json"
+	"fmt"
 	"html/template"
 	"net/http"
+	"time"
 
 	"github.com/gorilla/mux"
 )
@@ -249,4 +252,49 @@ func AdminHandler(router *mux.Router) {
 			res.WriteHeader(http.StatusNoContent)
 		}
 	}).Methods("GET", "PUT")
+
+	router.HandleFunc("/admin/profile", func(res http.ResponseWriter, req *http.Request) {
+		admin, err := GetCurrentAdmin(req)
+		if err != nil {
+			http.Error(res, err.Error(), http.StatusInternalServerError)
+			return
+		}
+
+		// Render the profile page
+		t, err := template.ParseFiles("templates/admin/profile.html")
+		if err != nil {
+			http.Error(res, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		t.Execute(res, admin)
+	}).Methods("GET")
+
+	router.HandleFunc("/admin/profile/update", func(res http.ResponseWriter, req *http.Request) {
+		if req.Method != http.MethodPost {
+			http.Error(res, "Invalid request method", http.StatusMethodNotAllowed)
+			return
+		}
+
+		admin, err := GetCurrentAdmin(req)
+		if err != nil {
+			http.Error(res, err.Error(), http.StatusInternalServerError)
+			return
+		}
+
+		// Update the admin's information
+		admin.Name = req.FormValue("name")
+		admin.Email = req.FormValue("email")
+		admin.ContactNumber = req.FormValue("contact_number")
+		admin.UpdatedAt = time.Now()
+
+		// Save the updated admin information to Firebase
+		ref := firebaseClient.NewRef("admins/" + admin.GoogleID)
+		if err := ref.Set(context.TODO(), admin); err != nil {
+			http.Error(res, fmt.Errorf("error updating admin: %v", err).Error(), http.StatusInternalServerError)
+			return
+		}
+
+		res.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(res).Encode(admin)
+	}).Methods("POST")
 }
