@@ -2,6 +2,7 @@ package main
 
 import (
 	"context"
+	"encoding/json"
 	"fmt"
 	"html/template"
 	"io"
@@ -29,13 +30,43 @@ func DriveHandler(router *mux.Router) {
 		t.Execute(res, nil)
 	}).Methods("GET")
 
-	router.HandleFunc("/instructor/drive/upload", func(res http.ResponseWriter, req *http.Request) {
+	router.HandleFunc("/api/files", func(res http.ResponseWriter, req *http.Request) {
+		folderID := req.URL.Query().Get("folder_id")
+		srv, err := createDriveService()
+		if err != nil {
+			http.Error(res, "Unable to create Drive service", http.StatusInternalServerError)
+			return
+		}
+
+		files, err := listFiles(srv, folderID)
+		if err != nil {
+			http.Error(res, "Unable to retrieve files", http.StatusInternalServerError)
+			return
+		}
+
+		res.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(res).Encode(files)
+	}).Methods("GET")
+
+	router.HandleFunc("/api/upload", func(res http.ResponseWriter, req *http.Request) {
 		if req.Method != http.MethodPost {
 			http.Error(res, "Invalid request method", http.StatusMethodNotAllowed)
 			return
 		}
 
-		file, header, err := req.FormFile("file")
+		folderID := req.FormValue("folderId")
+		if folderID == "" {
+			http.Error(res, "folderId is required", http.StatusBadRequest)
+			return
+		}
+
+		fileName := req.FormValue("fileName")
+		if fileName == "" {
+			http.Error(res, "fileName is required", http.StatusBadRequest)
+			return
+		}
+
+		file, _, err := req.FormFile("file")
 		if err != nil {
 			http.Error(res, err.Error(), http.StatusBadRequest)
 			return
@@ -48,13 +79,14 @@ func DriveHandler(router *mux.Router) {
 			return
 		}
 
-		uploadedFile, err := uploadFileToDrive(srv, FolderID, file, header.Filename)
+		uploadedFile, err := uploadFileToDrive(srv, folderID, file, fileName)
 		if err != nil {
 			http.Error(res, err.Error(), http.StatusInternalServerError)
 			return
 		}
 
-		fmt.Fprintf(res, "File '%s' uploaded successfully. File ID: %s\n", uploadedFile.Name, uploadedFile.Id)
+		res.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(res).Encode(uploadedFile)
 	}).Methods("POST")
 }
 
@@ -79,6 +111,15 @@ func createDriveService() (*drive.Service, error) {
 	}
 
 	return srv, nil
+}
+
+func listFiles(service *drive.Service, folderID string) ([]*drive.File, error) {
+	query := fmt.Sprintf("'%s' in parents", folderID)
+	fileList, err := service.Files.List().Q(query).PageSize(10).Fields("nextPageToken, files(id, name, mimeType)").Do()
+	if err != nil {
+		return nil, err
+	}
+	return fileList.Files, nil
 }
 
 func uploadFileToDrive(srv *drive.Service, folderID string, file io.Reader, fileName string) (*drive.File, error) {

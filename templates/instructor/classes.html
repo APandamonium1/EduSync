@@ -12,15 +12,15 @@
                 .then(classes => {
                     const classList = document.getElementById("class-list");
                     classes.forEach(classItem => {
-                        const googleDriveBaseUrl = "https://drive.google.com/drive/folders/";
-                        const folderUrl = googleDriveBaseUrl + classItem.folder_id;
-
                         const listItem = document.createElement("li");
-                        const link = document.createElement("a");
-                        link.href = folderUrl;
-                        link.target = "_blank";
-                        link.textContent = classItem.class_id;
-                        listItem.appendChild(link);
+
+                        // Link to upload.html
+                        const uploadLink = document.createElement("a");
+                        uploadLink.href = `/instructor/upload?folder_id=${classItem[1]}`;
+                        uploadLink.target = "_blank";
+                        uploadLink.textContent = classItem[0];
+
+                        listItem.appendChild(uploadLink);
                         classList.appendChild(listItem);
                     });
                 })

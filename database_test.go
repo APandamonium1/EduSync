@@ -20,7 +20,6 @@ var students = []Student{
 		Age:           12,
 		LessonCredits: 10.0,
 		ClassID:       "te-6-10",
-		ParentID:      "test-parent",
 	},
 }
 
@@ -65,8 +64,8 @@ var parent = Parent{
 // Create a dummy class for testing
 var classes = []Class{
 	{
-		ClassID:    "te-6-11",
-		Name:       "Test Class",
+		ClassID:    "dn-6-11",
+		Name:       "DN",
 		Instructor: "jeyvianang112462@gmail.com",
 		FolderID:   "1zrj8iUefB9D0u1RXT8Pi0-At8aQf9n2m",
 	},

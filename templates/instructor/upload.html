@@ -1,0 +1,69 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Upload Files</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" type="text/css" href="/assets/css/style.css">
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const folderID = urlParams.get('folder_id');
+            console.log(folderID);
+            const googleDriveBaseUrl = "https://drive.google.com/drive/folders/";
+
+            document.getElementById("folder-link").href = googleDriveBaseUrl + folderID;
+            document.getElementById("folder-link").target = "_blank";
+
+            fetch(`/api/files?folder_id=${folderID}`)
+                .then(response => response.json())
+                .then(files => {
+                    const fileList = document.getElementById("file-list");
+                    files.forEach(file => {
+                        const listItem = document.createElement("li");
+                        const link = document.createElement("a");
+                        link.href = `https://drive.google.com/file/d/${file.id}`;
+                        link.target = "_blank";
+                        link.textContent = file.name;
+                        listItem.appendChild(link);
+                        fileList.appendChild(listItem);
+                    });
+                })
+                .catch(error => console.error('Error fetching files:', error));
+
+                document.getElementById("upload-form").addEventListener("submit", function(event) {
+                event.preventDefault();
+                const formData = new FormData(this);
+                formData.append("folderId", folderID);
+
+                fetch('/api/upload', {
+                    method: 'POST',
+                    body: formData
+                })
+                .then(response => response.json())
+                .then(data => {
+                    alert(`File uploaded successfully. File ID: ${data.id}`);
+                    location.reload();
+                })
+                .catch(error => console.error('Error uploading file:', error));
+            });
+        });
+    </script>
+</head>
+<body>
+    <header>
+        <h1>Upload to Google Drive</h1>
+    </header>
+    <main>
+        <form id="upload-form" enctype="multipart/form-data">
+            <label for="fileName">File Name:</label>
+            <input type="text" id="fileName" name="fileName" required><br>
+            <label for="file">Select File:</label>
+            <input type="file" id="file" name="file" required><br>
+            <button type="submit">Upload</button>
+        </form>
+        <h2>Files in Folder</h2>
+        <ul id="file-list"></ul>
+        <a id="folder-link" target="_blank">Open in Drive</a>
+    </main>
+</body>
+</html>

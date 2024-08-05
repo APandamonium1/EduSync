@@ -139,11 +139,30 @@ func GetInstructorClasses(res http.ResponseWriter, req *http.Request) {
 		return
 	}
 
+	var cp, dn, ie, py, sc, te bool
+	cp, dn, ie, py, sc, te = false, false, false, false, false, false
+
 	// Filter classes by instructor's email
-	var instructorClasses []Class
+	var instructorClasses [][]string
 	for _, class := range classesMap {
-		if class.Instructor == instructor.Email {
-			instructorClasses = append(instructorClasses, class)
+		if class.Instructor == instructor.Email && class.Name == "CP" && !cp {
+			instructorClasses = append(instructorClasses, []string{"Coding Pioneers", class.FolderID})
+			cp = true
+		} else if class.Instructor == instructor.Email && class.Name == "DN" && !dn {
+			instructorClasses = append(instructorClasses, []string{"Digital Navigators", class.FolderID})
+			dn = true
+		} else if class.Instructor == instructor.Email && class.Name == "IE" && !ie {
+			instructorClasses = append(instructorClasses, []string{"Innovation Engineers", class.FolderID})
+			ie = true
+		} else if class.Instructor == instructor.Email && class.Name == "PY" && !py {
+			instructorClasses = append(instructorClasses, []string{"Python", class.FolderID})
+			py = true
+		} else if class.Instructor == instructor.Email && class.Name == "SC" && !sc {
+			instructorClasses = append(instructorClasses, []string{"Scratch", class.FolderID})
+			sc = true
+		} else if class.Instructor == instructor.Email && class.Name == "TE" && !te {
+			instructorClasses = append(instructorClasses, []string{"Tech Explorers", class.FolderID})
+			te = true
 		}
 	}
 
@@ -218,6 +237,74 @@ func GetClassByID(classID string) (Class, error) {
 	}
 
 	return class, nil
+}
+
+// Utility function to get current parent
+func GetCurrentParent(req *http.Request) (Parent, error) {
+	user, err := GetCurrentUser(req)
+	if err != nil {
+		return Parent{}, err
+	}
+
+	if user.Role != "Parent" {
+		return Parent{}, fmt.Errorf("current user is not a parent")
+	}
+
+	// Query Firebase to find the parent object with the same email as the user
+	ref := firebaseClient.NewRef("parents")
+	var parentsMap map[string]Parent
+	if err := ref.Get(context.TODO(), &parentsMap); err != nil {
+		return Parent{}, fmt.Errorf("error reading parents: %v", err)
+	}
+
+	// Find the parent with the same email as the user
+	var parent Parent
+	found := false
+	for _, p := range parentsMap {
+		if p.Email == user.Email {
+			parent = p
+			found = true
+			break
+		}
+	}
+	if !found {
+		return Parent{}, fmt.Errorf("parent not found for the current user")
+	}
+	return parent, nil
+}
+
+// Utility function to get current admin
+func GetCurrentAdmin(req *http.Request) (Admin, error) {
+	user, err := GetCurrentUser(req)
+	if err != nil {
+		return Admin{}, err
+	}
+
+	if user.Role != "Admin" {
+		return Admin{}, fmt.Errorf("current user is not an admin")
+	}
+
+	// Query Firebase to find the admin object with the same email as the user
+	ref := firebaseClient.NewRef("admins")
+	var adminsMap map[string]Admin
+	if err := ref.Get(context.TODO(), &adminsMap); err != nil {
+		return Admin{}, fmt.Errorf("error reading admins: %v", err)
+	}
+
+	// Find the admin with the same email as the user
+	var admin Admin
+	found := false
+	for _, a := range adminsMap {
+		if a.Email == user.Email {
+			admin = a
+			found = true
+			break
+		}
+	}
+	if !found {
+		return Admin{}, fmt.Errorf("admin not found for the current user")
+	}
+	return admin, nil
 }
 
 // Utility functions to check roles
