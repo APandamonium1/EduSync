@@ -15,8 +15,8 @@ import (
 )
 
 func AuthHandler(router *mux.Router, config *Config) {
-	maxAge := 86400 * 30 // 30 days
-	isProd := true       // Set to true when serving over https
+	maxAge := 3600 // 1 hour
+	isProd := true // Set to true when serving over https
 
 	store = sessions.NewCookieStore(
 		[]byte(config.AuthKey),
@@ -26,15 +26,22 @@ func AuthHandler(router *mux.Router, config *Config) {
 	store.Options.Path = "/"
 	store.Options.HttpOnly = true // HttpOnly should always be enabled
 	store.Options.Secure = isProd
-	store.Options = &sessions.Options{
-		Path:     "/",
-		MaxAge:   3600, // 1 hour
-		HttpOnly: true,
-		Secure:   true, // This should be true if your application is served over HTTPS
-	}
 
 	gothic.Store = store
 	goth.UseProviders(google.New(config.GoogleClientID, config.GoogleClientSecret, "https://localhost:8080/auth/google/callback", "email", "profile", "https://www.googleapis.com/auth/drive.file"))
+
+	router.HandleFunc("/login", func(res http.ResponseWriter, req *http.Request) {
+		t, err := template.ParseFiles("templates/login.html")
+		if err != nil {
+			http.Error(res, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		t.Execute(res, false)
+	}).Methods("GET")
+
+	router.HandleFunc("/auth/{provider}", func(res http.ResponseWriter, req *http.Request) {
+		gothic.BeginAuthHandler(res, req)
+	}).Methods("GET")
 
 	router.HandleFunc("/auth/{provider}/callback", func(res http.ResponseWriter, req *http.Request) {
 		user, err := gothic.CompleteUserAuth(res, req)
@@ -72,19 +79,6 @@ func AuthHandler(router *mux.Router, config *Config) {
 		} else {
 			http.Redirect(res, req, "/unregistered", http.StatusFound)
 		}
-	}).Methods("GET")
-
-	router.HandleFunc("/auth/{provider}", func(res http.ResponseWriter, req *http.Request) {
-		gothic.BeginAuthHandler(res, req)
-	}).Methods("GET")
-
-	router.HandleFunc("/login", func(res http.ResponseWriter, req *http.Request) {
-		t, err := template.ParseFiles("templates/login.html")
-		if err != nil {
-			http.Error(res, err.Error(), http.StatusInternalServerError)
-			return
-		}
-		t.Execute(res, false)
 	}).Methods("GET")
 }
 
