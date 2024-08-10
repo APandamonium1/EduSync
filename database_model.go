@@ -64,7 +64,6 @@ type Announcement struct {
 }
 
 // NewStudent creates a new Student instance
-// func NewStudent(googleID, name, email, contactNumber, class, instructor, parentName, role string, age int, lessonCredits float32) Student {
 func NewStudent(googleID, name, email, contactNumber, classID, parentID, role string, age int, lessonCredits float32) Student {
 	return Student{
 		User: User{
