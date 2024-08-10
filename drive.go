@@ -78,6 +78,54 @@ func DriveHandler(router *mux.Router) {
 		res.Header().Set("Content-Type", "application/json")
 		json.NewEncoder(res).Encode(uploadedFile)
 	}).Methods("POST")
+
+	router.HandleFunc("/api/media-upload", func(res http.ResponseWriter, req *http.Request) {
+		// Initialize Google Drive client
+		srv, err := createDriveService()
+		if err != nil {
+			http.Error(res, "Failed to initialize Drive client", http.StatusInternalServerError)
+			return
+		}
+
+		err = req.ParseMultipartForm(10 << 20) // 10 MB limit
+		if err != nil {
+			http.Error(res, "Failed to parse form", http.StatusBadRequest)
+			return
+		}
+
+		files := req.MultipartForm.File["files"]
+		folderIds := req.MultipartForm.Value["folderIds"]
+		studentNames := req.MultipartForm.Value["studentNames"]
+
+		if len(files) != len(folderIds) || len(folderIds) != len(studentNames) {
+			http.Error(res, "Mismatch between files, folder IDs, and student names", http.StatusBadRequest)
+			return
+		}
+
+		var results []string
+
+		for i, fileHeader := range files {
+			file, err := fileHeader.Open()
+			if err != nil {
+				http.Error(res, fmt.Sprintf("Failed to open file: %v", err), http.StatusInternalServerError)
+				return
+			}
+			defer file.Close()
+
+			folderID := folderIds[i]
+			studentName := studentNames[i]
+
+			_, err = uploadFileToDrive(srv, folderID, file, fileHeader.Filename)
+			if err != nil {
+				results = append(results, fmt.Sprintf("Failed to upload %s for %s: %v", fileHeader.Filename, studentName, err))
+			} else {
+				results = append(results, fmt.Sprintf("Successfully uploaded %s for %s", fileHeader.Filename, studentName))
+			}
+		}
+
+		res.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(res).Encode(results)
+	}).Methods("POST")
 }
 
 func createDriveService() (*drive.Service, error) {

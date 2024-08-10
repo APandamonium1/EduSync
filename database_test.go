@@ -52,13 +52,13 @@ var admin = Admin{
 // Create a new parent
 var parent = Parent{
 	User: User{
-		GoogleID:      "test-parent-2",
-		Name:          "JIEEN",
+		GoogleID:      "test-parent-1",
+		Name:          "OHNO",
 		ContactNumber: "99999999",
-		Email:         "jeyvianangjieen@gmail.com",
+		Email:         "jeyvianangjie@gmail.com",
 		Role:          "Parent",
 	},
-	FolderID: "1xN6TgYK_ldQL86fj89_vLS3A7L7BIZlj",
+	FolderID: "1F38DgyV0V5q2CWzoO3xkHTC4FY6cNrig",
 }
 
 // Create a dummy class for testing

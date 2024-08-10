@@ -173,6 +173,77 @@ func GetInstructorClasses(res http.ResponseWriter, req *http.Request) {
 	}
 }
 
+// Handler to get classes for the current instructor
+func GetInstructorClassIds(res http.ResponseWriter, req *http.Request) {
+	instructor, err := GetCurrentInstructor(req)
+	if err != nil {
+		http.Error(res, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	// Query Firebase to get classes for the instructor
+	ref := firebaseClient.NewRef("classes")
+	var classesMap map[string]Class
+	if err := ref.Get(context.TODO(), &classesMap); err != nil {
+		http.Error(res, fmt.Sprintf("error reading classes: %v", err), http.StatusInternalServerError)
+		return
+	}
+	// Filter classes by instructor's email
+	var instructorClasses []string
+	for _, class := range classesMap {
+		if class.Instructor == instructor.Email {
+			instructorClasses = append(instructorClasses, class.ClassID)
+		}
+	}
+
+	// Return the instructor's classes as JSON
+	res.Header().Set("Content-Type", "application/json")
+	if err := json.NewEncoder(res).Encode(instructorClasses); err != nil {
+		http.Error(res, fmt.Sprintf("error encoding response: %v", err), http.StatusInternalServerError)
+	}
+}
+
+// Function to get students by ClassID and their corresponding Parent FolderIDs
+func GetStudentsAndFoldersByClassID(classID string, res http.ResponseWriter, req *http.Request) {
+	// Query Firebase to get students
+	ref := firebaseClient.NewRef("students")
+	var studentsMap map[string]Student
+	if err := ref.Get(context.TODO(), &studentsMap); err != nil {
+		http.Error(res, fmt.Sprintf("error reading students: %v", err), http.StatusInternalServerError)
+		return
+	}
+
+	// Query Firebase to get parents
+	refParents := firebaseClient.NewRef("parents")
+	var parentsMap map[string]Parent
+	if err := refParents.Get(context.TODO(), &parentsMap); err != nil {
+		http.Error(res, fmt.Sprintf("error reading parents: %v", err), http.StatusInternalServerError)
+		return
+	}
+
+	// Prepare the result
+	var result []map[string]string
+	for _, student := range studentsMap {
+		if student.ClassID == classID {
+			parent, ok := parentsMap[student.ParentID]
+			if !ok {
+				http.Error(res, fmt.Sprintf("parent not found for student %s", student.Name), http.StatusNotFound)
+				return
+			}
+			result = append(result, map[string]string{
+				"name":     student.Name,
+				"folderID": parent.FolderID,
+			})
+		}
+	}
+
+	// Return the result as JSON
+	res.Header().Set("Content-Type", "application/json")
+	if err := json.NewEncoder(res).Encode(result); err != nil {
+		http.Error(res, fmt.Sprintf("error encoding response: %v", err), http.StatusInternalServerError)
+	}
+}
+
 // Utility function to get current student
 func GetCurrentStudent(req *http.Request) (Student, error) {
 	user, err := GetCurrentUser(req)
