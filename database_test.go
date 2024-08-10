@@ -11,15 +11,15 @@ var currentUser = User{GoogleID: "admin-user", Role: "Admin"}
 var students = []Student{
 	{
 		User: User{
-			GoogleID:      "test-student",
+			GoogleID:      "test-student-2",
 			Name:          "John Doe",
-			Email:         "jeyvianang112462@gmail.com",
+			Email:         "jeyvian@gmail.com",
 			ContactNumber: "91234567",
 			Role:          "Student",
 		},
 		Age:           12,
 		LessonCredits: 10.0,
-		ClassID:       "te-6-10",
+		ClassID:       "dn-6-10",
 	},
 }
 
@@ -42,7 +42,7 @@ var admin = Admin{
 		GoogleID:      "test-admin",
 		Name:          "Awesomeness",
 		ContactNumber: "99999999",
-		Email:         "jeyvianangjieen@gmail.com",
+		Email:         "jeyvianang112462@gmail.com",
 		Role:          "Admin",
 	},
 	BasePay:   15,
@@ -52,10 +52,10 @@ var admin = Admin{
 // Create a new parent
 var parent = Parent{
 	User: User{
-		GoogleID:      "test-parent",
-		Name:          "Awesomeness",
+		GoogleID:      "test-parent-2",
+		Name:          "JIEEN",
 		ContactNumber: "99999999",
-		Email:         "janedoe_parent@nk.com",
+		Email:         "jeyvianangjieen@gmail.com",
 		Role:          "Parent",
 	},
 	FolderID: "1xN6TgYK_ldQL86fj89_vLS3A7L7BIZlj",

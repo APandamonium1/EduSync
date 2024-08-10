@@ -22,7 +22,6 @@
             document.getElementById('lessonCredits').value = student.lesson_credits;
             document.getElementById('classID').value = student.class_id;
             document.getElementById('parentID').value = student.parent_id;
-            document.getElementById('role').value = student.role;
 
             initialStudent = { ...student };
         }
@@ -35,31 +34,35 @@
                 parseInt(document.getElementById('age').value, 10) !== initialStudent.age ||
                 parseFloat(document.getElementById('lessonCredits').value) !== initialStudent.lesson_credits ||
                 document.getElementById('classID').value !== initialStudent.class_id ||
-                document.getElementById('parentID').value !== initialStudent.parent_id ||
-                document.getElementById('role').value !== initialStudent.role
+                document.getElementById('parentID').value !== initialStudent.parent_id
             );
         }
 
         async function updateStudent() {
             const googleID = document.getElementById('googleID').value;
             const age = document.getElementById('age').value;
+            const contactNumber = document.getElementById('contactNumber').value;
+            
+            // Validate age
             if (age < 4 || age > 100) {
                 alert('Age must be between 4 and 100.');
                 return;
             }
+
             if (!hasChanges()) {
                 return;  // No changes, so do not proceed with update
             }
+
             const updates = {
                 name: document.getElementById('name').value,
                 email: document.getElementById('email').value,
-                contact_number: document.getElementById('contactNumber').value,
+                contact_number: contactNumber,
                 age: parseInt(age, 10),
                 lesson_credits: parseFloat(document.getElementById('lessonCredits').value),
                 class_id: document.getElementById('classID').value,
-                parent_id: document.getElementById('parentID').value,
-                role: document.getElementById('role').value
+                parent_id: document.getElementById('parentID').value
             };
+
             await fetch(`/admin/student/${googleID}`, {
                 method: 'PUT',
                 headers: {
@@ -67,6 +70,7 @@
                 },
                 body: JSON.stringify(updates)
             });
+
             alert('Student updated successfully');
             window.location.href = '/admin/search_student';
         }
@@ -80,10 +84,59 @@
             document.getElementById('saveButton').style.display = 'block';
         }
 
+        
+        function validatePhoneNumber() {
+            const phoneNumber = document.getElementById('contactNumber').value;
+            const phoneNumberPattern = /^[689]\d{7}$/;
+            const errorElement = document.getElementById('phoneNumberError');
+
+            if (phoneNumberPattern.test(phoneNumber)) {
+                errorElement.textContent = ''; // Clear error message
+                document.getElementById('saveButton').disabled = false; // Enable save button
+            } else {
+                errorElement.textContent = 'Phone number must start with 6, 8, or 9 and have 8 digits.';
+                document.getElementById('saveButton').disabled = true; // Disable save button
+            }
+        }
+
+
+        function validateEmail() {
+            const email = document.getElementById('email').value;
+            const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            const errorElement = document.getElementById('emailError');
+
+            if (emailPattern.test(email)) {
+                errorElement.textContent = ''; // Clear error message
+                document.getElementById('saveButton').disabled = false; // Enable save button
+            } else {
+                errorElement.textContent = 'Please enter a valid email address.';
+                document.getElementById('saveButton').disabled = true; // Disable save button
+            }
+        }
+
+
         function goBack() {
             window.history.back();
         }
     </script>
+    <style>
+        /* Style the horizontal line */
+        hr {
+            border: none; /* Remove default border */
+            border-top: 1px solid #aaa; /* Thin light grey line */
+            margin: 0; /* Remove default margin */
+            padding: 0; /* Remove default padding */
+        }
+
+        a:hover {
+            text-decoration: underline; /* Add underline on hover (optional) */
+        }
+
+        
+        .error-message {
+            color: red;
+        }
+    </style>
 </head>
 <body onload="loadStudent()">
     <div id="page" class="site" itemscope itemtype="http://schema.org/LocalBusiness">
@@ -91,7 +144,9 @@
             <div class="main-header">
                 <div class="container">
                     <div class="logo-wrap" itemprop="logo">
-                        <img src="/assets/images/site-logo.jpg" alt="Logo Image" style="width: 120px; height: auto;">
+                        <a href="/admin">
+                            <img src="/assets/images/site-logo.jpg" alt="Logo Image" style="width: 120px; height: auto;">
+                        </a>   
                     </div>
                     <div class="nav-wrap">
                         <nav class="nav-desktop">
@@ -100,6 +155,8 @@
                                 <li><a href="/admin/search_student">Students</a></li>
                                 <li><a href="/admin/search_parent">Parents</a></li>
                                 <li><a href="/admin/search_instructor">Instructors</a></li>
+                                <li><a href="/admin/profile">Profile</a></li>
+                                <li><a href="/logout">Logout</a></li>
                             </ul>
                         </nav>
                         <div id="bar">
@@ -112,27 +169,38 @@
                 </div>
             </div>
         </header>
+        <hr>
         <!-- Header Close -->
 
+        <br>
+        <br>
         <div class="container content">
             <h1>Edit Student Details</h1>
+            <br>
             <input type="hidden" id="googleID" value="{{.GoogleID}}">
             <form onsubmit="event.preventDefault(); updateStudent();">
-                <div><label>Name: </label><input type="text" id="name" disabled></div>
+                <div><label><strong>Name: </strong></label>&nbsp;<input type="text" id="name" disabled></div>
                 <br>
-                <div><label>Email: </label><input type="text" id="email" disabled></div>
+                <div>
+                    <label><strong>Email: </strong></label>&nbsp;
+                    <input type="text" id="email" disabled oninput="validateEmail()">&nbsp;&nbsp;
+                    <span id="emailError" class="error-message"></span>
+                </div>                
                 <br>
-                <div><label>Contact Number: </label><input type="text" id="contactNumber" disabled></div>
+                <div>
+                    <label><strong>Contact Number: </strong></label>&nbsp;
+                    <input type="text" id="contactNumber" disabled oninput="validatePhoneNumber()">&nbsp;&nbsp;
+                    <span id="phoneNumberError" class="error-message"></span>
+                </div>                
                 <br>
-                <div><label>Age: </label><input type="number" id="age" min="4" max="100" disabled></div>
+                <div><label><strong>Age: </strong></label>&nbsp;<input type="number" id="age" min="4" max="100" disabled></div>
                 <br>
-                <div><label>Lesson Credits: </label><input type="number" id="lessonCredits" step="0.1" disabled></div>
+                <div><label><strong>Lesson Credits: </strong></label>&nbsp;<input type="number" id="lessonCredits" step="0.1" disabled></div>
                 <br>
-                <div><label>Class ID: </label><input type="text" id="classID" disabled></div>
+                <div><label><strong>Class ID: </strong></label>&nbsp;<input type="text" id="classID" disabled></div>
                 <br>
-                <div><label>Parent ID: </label><input type="text" id="parentID" disabled></div>
+                <div><label><strong>Parent ID: </strong></label>&nbsp;<input type="text" id="parentID" disabled></div>
                 <br>
-                <div><label>Role: </label><input type="text" id="role" disabled></div>
                 <br>
                 <div class="button-container">
                     <button type="button" id="editButton" onclick="toggleEdit()">Edit</button>

@@ -54,14 +54,32 @@
                     resultsDiv.appendChild(parentDiv);
                 });
             } else {
-                resultsDiv.innerHTML = 'No parents found.';
+                resultsDiv.innerHTML = '<strong>No parents found.</strong>';
             }
+        }
+
+        async function resetFilters() {
+            document.getElementById('nameFilter').value = '';
+            await fetchParents(`/admin/api/search_parent`);
         }
 
         window.onload = async function() {
             await fetchParents(`/admin/api/search_parent`);
         }
     </script>
+    <style>
+        /* Style the horizontal line */
+        hr {
+            border: none; /* Remove default border */
+            border-top: 1px solid #aaa; /* Thin light grey line */
+            margin: 0; /* Remove default margin */
+            padding: 0; /* Remove default padding */
+        }
+
+        a:hover {
+            text-decoration: underline; /* Add underline on hover (optional) */
+        }
+    </style>
 </head>
 <body>
     <div id="page" class="site" itemscope itemtype="http://schema.org/LocalBusiness">
@@ -69,7 +87,9 @@
             <div class="main-header">
                 <div class="container">
                     <div class="logo-wrap" itemprop="logo">
-                        <img src="/assets/images/site-logo.jpg" alt="Logo Image" style="width: 120px; height: auto;">
+                        <a href="/admin">
+                            <img src="/assets/images/site-logo.jpg" alt="Logo Image" style="width: 120px; height: auto;">
+                        </a>   
                         <!-- <h1>Education</h1> -->
                     </div>
                     <div class="nav-wrap">
@@ -79,7 +99,8 @@
                                 <li><a href="/admin/search_student">Students</a></li>
                                 <li><a href="/admin/search_parent">Parents</a></li>
                                 <li><a href="/admin/search_instructor">Instructors</a></li>
-                                <li><a href="">Users</a></li>
+                                <li><a href="/admin/profile">Profile</a></li>
+                                <li><a href="/logout">Logout</a></li>
                             </ul>
                         </nav>
                         <div id="bar">
@@ -94,12 +115,18 @@
         </header>
         <hr>
         <!-- Header Close -->
+        <br>
+		<br>
         <div class="container content">
             <h1>Search Parents</h1>
+            <br>
             <div>
                 <label for="nameFilter">Name:</label>
                 <input type="text" id="nameFilter">
+                &nbsp;&nbsp;&nbsp;
                 <button onclick="searchParents()">Search</button>
+                &nbsp;
+                <button onclick="resetFilters()">Reset</button>
             </div>
             <br>
             <div id="results"></div>

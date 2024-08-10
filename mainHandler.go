@@ -29,7 +29,7 @@ func MainHandler(router *mux.Router) {
 		t.Execute(res, false)
 	}).Methods("GET")
 
-	router.HandleFunc("/student", func(res http.ResponseWriter, req *http.Request) {
+	router.HandleFunc("/student-role", func(res http.ResponseWriter, req *http.Request) {
 		t, err := template.ParseFiles("templates/student.html")
 		if err != nil {
 			http.Error(res, err.Error(), http.StatusInternalServerError)
@@ -38,7 +38,7 @@ func MainHandler(router *mux.Router) {
 		t.Execute(res, false)
 	}).Methods("GET")
 
-	router.HandleFunc("/admin", func(res http.ResponseWriter, req *http.Request) {
+	router.HandleFunc("/admin-role", func(res http.ResponseWriter, req *http.Request) {
 		t, err := template.ParseFiles("templates/admin.html")
 		if err != nil {
 			http.Error(res, err.Error(), http.StatusInternalServerError)
@@ -47,7 +47,7 @@ func MainHandler(router *mux.Router) {
 		t.Execute(res, false)
 	}).Methods("GET")
 
-	router.HandleFunc("/parent", func(res http.ResponseWriter, req *http.Request) {
+	router.HandleFunc("/parent-role", func(res http.ResponseWriter, req *http.Request) {
 		t, err := template.ParseFiles("templates/parent.html")
 		if err != nil {
 			http.Error(res, err.Error(), http.StatusInternalServerError)
@@ -56,7 +56,7 @@ func MainHandler(router *mux.Router) {
 		t.Execute(res, false)
 	}).Methods("GET")
 
-	router.HandleFunc("/instructor", func(res http.ResponseWriter, req *http.Request) {
+	router.HandleFunc("/instructor-role", func(res http.ResponseWriter, req *http.Request) {
 		t, err := template.ParseFiles("templates/instructor.html")
 		if err != nil {
 			http.Error(res, err.Error(), http.StatusInternalServerError)

@@ -80,6 +80,24 @@ func AuthHandler(router *mux.Router, config *Config) {
 			http.Redirect(res, req, "/unregistered", http.StatusFound)
 		}
 	}).Methods("GET")
+
+	router.HandleFunc("/logout", func(res http.ResponseWriter, req *http.Request) {
+		// Clear the session or cookie
+		http.SetCookie(res, &http.Cookie{
+			Name:   "session_token",
+			Value:  "",
+			Path:   "/",
+			MaxAge: -1, // This will delete the cookie
+		})
+
+		// Set headers to prevent caching
+		res.Header().Set("Cache-Control", "no-store, no-cache, must-revalidate, max-age=0")
+		res.Header().Set("Cache-Control", "post-check=0, pre-check=0")
+		res.Header().Set("Pragma", "no-cache")
+
+		// Redirect to the login page or home page
+		http.Redirect(res, req, "/", http.StatusFound) // 302 Found
+	}).Methods("GET")
 }
 
 func SetCurrentUser(res http.ResponseWriter, req *http.Request, user User) error {

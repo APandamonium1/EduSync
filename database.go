@@ -433,7 +433,9 @@ func searchStudents(name, class string) ([]Student, error) {
 	}
 	var filteredStudents []Student
 	for _, student := range students {
-		if name == "" || strings.Contains(strings.ToLower(student.Name), strings.ToLower(name)) {
+		// Check both name and class
+		if (name == "" || strings.Contains(strings.ToLower(student.Name), strings.ToLower(name))) &&
+			(class == "" || strings.Contains(strings.ToLower(student.ClassID), strings.ToLower(class))) {
 			filteredStudents = append(filteredStudents, student)
 		}
 	}

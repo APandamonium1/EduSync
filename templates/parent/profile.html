@@ -2,20 +2,77 @@
 <html>
 <head>
     <title>Parent Profile</title>
+    <meta name="viewport" content="width=device-width">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" type="text/css" href="/assets/css/owl.carousel.css">
+    <link rel="stylesheet" type="text/css" href="/assets/css/inner-page-style.css">
     <link rel="stylesheet" type="text/css" href="/assets/css/style.css">
+    <link href="https://fonts.googleapis.com/css?family=Raleway:400,500,600,700" rel="stylesheet">
+    <style>
+        /* Style the horizontal line */
+        hr {
+            border: none; /* Remove default border */
+            border-top: 1px solid #aaa; /* Thin light grey line */
+            margin: 0; /* Remove default margin */
+            padding: 0; /* Remove default padding */
+        }
+
+        a:hover {
+            text-decoration: underline; /* Add underline on hover (optional) */
+        }
+    </style>
 </head>
 <body>
-    <header>
-        <h1>Parent Profile</h1>
-    </header>
-    <main>
-        <h2>Parent Details</h2>
-        <ul>
-            <li><strong>Name:</strong> {{.Name}}</li>
-            <li><strong>Email:</strong> {{.Email}}</li>
-            <li><strong>Contact Number:</strong> {{.ContactNumber}}</li>
-        </ul>
-    </main>
+    <div id="page" class="site" itemscope itemtype="http://schema.org/LocalBusiness">
+        <header class="site-header">
+            <div class="main-header">
+                <div class="container">
+                    <div class="logo-wrap" itemprop="logo">
+                        <a href="/parent">
+                            <img src="/assets/images/site-logo.jpg" alt="Logo Image" style="width: 120px; height: auto;">
+                        </a>
+                    </div>
+                    <div class="nav-wrap">
+                        <nav class="nav-desktop">
+                            <ul class="menu-list">
+                                <li><a href="/parent">Home</a></li>
+                                <li><a href="/parent/media">Child Media</a></li>
+                                <li><a href="/parent/announcements">Announcements</a></li>
+                                <li><a href="/parent/profile">Profile</a></li>
+                                <li><a href="/logout">Logout</a></li>
+                            </ul>
+                        </nav>
+                        <div id="bar">
+                            <i class="fas fa-bars"></i>
+                        </div>
+                        <div id="close">
+                            <i class="fas fa-times"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </header>
+        <hr>
+        <!-- Header Close -->
+
+        <br>
+        <br>
+        <div class="container content">
+            <h1>Parent Profile</h1>
+            <br>
+            <ul>
+                <li><strong>Name:</strong> {{.Name}}</li>
+                <li><strong>Email:</strong> {{.Email}}</li>
+                <li><strong>Contact Number:</strong> {{.ContactNumber}}</li>
+            </ul>
+        </div>
+    </div>
+    <script type="text/javascript" src="/assets/js/jquery-3.3.1.min.js"></script>
+    <script type="text/javascript" src="/assets/js/all.js"></script>
+    <script type="text/javascript" src="/assets/js/isotope.pkgd.min.js"></script>
+    <script type="text/javascript" src="/assets/js/owl.carousel.js"></script>
+    <script type="text/javascript" src="/assets/js/jquery.flexslider.js"></script>
+    <script type="text/javascript" src="/assets/js/jquery.rateyo.js"></script>
+    <script type="text/javascript" src="/assets/js/custom.js"></script>
 </body>
 </html>

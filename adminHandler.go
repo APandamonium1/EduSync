@@ -1,12 +1,9 @@
 package main
 
 import (
-	"context"
 	"encoding/json"
-	"fmt"
 	"html/template"
 	"net/http"
-	"time"
 
 	"github.com/gorilla/mux"
 )
@@ -14,6 +11,15 @@ import (
 func AdminHandler(router *mux.Router) {
 	router.HandleFunc("/admin", func(res http.ResponseWriter, req *http.Request) {
 		t, err := template.ParseFiles("templates/admin/index.html")
+		if err != nil {
+			http.Error(res, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		t.Execute(res, nil)
+	}).Methods("GET")
+
+	router.HandleFunc("/admin/profile", func(res http.ResponseWriter, req *http.Request) {
+		t, err := template.ParseFiles("templates/admin/profile.html")
 		if err != nil {
 			http.Error(res, err.Error(), http.StatusInternalServerError)
 			return
@@ -253,48 +259,32 @@ func AdminHandler(router *mux.Router) {
 		}
 	}).Methods("GET", "PUT")
 
-	router.HandleFunc("/admin/profile", func(res http.ResponseWriter, req *http.Request) {
-		admin, err := GetCurrentAdmin(req)
+	router.HandleFunc("/admin/api/profile", func(res http.ResponseWriter, req *http.Request) {
+		currentUser, err := GetCurrentUser(req)
 		if err != nil {
-			http.Error(res, err.Error(), http.StatusInternalServerError)
+			http.Error(res, "Unauthorized", http.StatusUnauthorized)
 			return
 		}
-
-		// Render the profile page
-		t, err := template.ParseFiles("templates/admin/profile.html")
-		if err != nil {
-			http.Error(res, err.Error(), http.StatusInternalServerError)
-			return
+		switch req.Method {
+		case http.MethodGet:
+			admin, err := readAdmin(currentUser, currentUser.GoogleID)
+			if err != nil {
+				http.Error(res, err.Error(), http.StatusInternalServerError)
+				return
+			}
+			res.Header().Set("Content-Type", "application/json")
+			json.NewEncoder(res).Encode(admin)
+		case http.MethodPut:
+			var updates map[string]interface{}
+			if err := json.NewDecoder(req.Body).Decode(&updates); err != nil {
+				http.Error(res, err.Error(), http.StatusBadRequest)
+				return
+			}
+			if err := updateAdmin(currentUser, currentUser.GoogleID, updates); err != nil {
+				http.Error(res, err.Error(), http.StatusInternalServerError)
+				return
+			}
+			res.WriteHeader(http.StatusNoContent)
 		}
-		t.Execute(res, admin)
-	}).Methods("GET")
-
-	router.HandleFunc("/admin/profile/update", func(res http.ResponseWriter, req *http.Request) {
-		if req.Method != http.MethodPost {
-			http.Error(res, "Invalid request method", http.StatusMethodNotAllowed)
-			return
-		}
-
-		admin, err := GetCurrentAdmin(req)
-		if err != nil {
-			http.Error(res, err.Error(), http.StatusInternalServerError)
-			return
-		}
-
-		// Update the admin's information
-		admin.Name = req.FormValue("name")
-		admin.Email = req.FormValue("email")
-		admin.ContactNumber = req.FormValue("contact_number")
-		admin.UpdatedAt = time.Now()
-
-		// Save the updated admin information to Firebase
-		ref := firebaseClient.NewRef("admins/" + admin.GoogleID)
-		if err := ref.Set(context.TODO(), admin); err != nil {
-			http.Error(res, fmt.Errorf("error updating admin: %v", err).Error(), http.StatusInternalServerError)
-			return
-		}
-
-		res.Header().Set("Content-Type", "application/json")
-		json.NewEncoder(res).Encode(admin)
-	}).Methods("POST")
+	}).Methods("GET", "PUT")
 }
