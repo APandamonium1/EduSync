@@ -14,9 +14,7 @@ import (
 	"google.golang.org/api/option"
 )
 
-const (
-	ServiceAccountCredentials = "edusync-426009-343696fa49b1.json"
-)
+const ServiceAccountCredentials = "edusync-426009-343696fa49b1.json"
 
 func DriveHandler(router *mux.Router) {
 	router.HandleFunc("/api/files", func(res http.ResponseWriter, req *http.Request) {
