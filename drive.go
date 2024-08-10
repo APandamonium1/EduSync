@@ -16,7 +16,6 @@ import (
 
 const (
 	ServiceAccountCredentials = "edusync-426009-343696fa49b1.json"
-	FolderID                  = "1xN6TgYK_ldQL86fj89_vLS3A7L7BIZlj"
 )
 
 func DriveHandler(router *mux.Router) {
