@@ -4,7 +4,6 @@ import (
 	"context"
 	"encoding/json"
 	"fmt"
-	"html/template"
 	"io"
 	"net/http"
 	"os"
@@ -21,15 +20,6 @@ const (
 )
 
 func DriveHandler(router *mux.Router) {
-	router.HandleFunc("/instructor/drive", func(res http.ResponseWriter, req *http.Request) {
-		t, err := template.ParseFiles("templates/instructor/drive.html")
-		if err != nil {
-			http.Error(res, err.Error(), http.StatusInternalServerError)
-			return
-		}
-		t.Execute(res, nil)
-	}).Methods("GET")
-
 	router.HandleFunc("/api/files", func(res http.ResponseWriter, req *http.Request) {
 		folderID := req.URL.Query().Get("folder_id")
 		srv, err := createDriveService()

@@ -36,8 +36,8 @@
                         <nav class="nav-desktop">
                             <ul class="menu-list">
                                 <li><a href="/instructor">Home</a></li>
-                                <li><a href="/instructor/classes">Lesson Materials</a></li>
-                                <li><a href="/instructor/media">Student Media</a></li>
+								<li><a href="/instructor/learning-materials/classes">Lesson Materials</a></li>
+								<li><a href="/instructor/media/classes">Student Media</a></li>
                                 <li><a href="/instructor/profile">Profile</a></li>
                                 <li><a href="/logout">Logout</a></li>
                             </ul>
@@ -60,13 +60,19 @@
         <div class="container content">
             <h1>Instructor Profile</h1>
             <br>
-            <ul>
-                <li><strong>Name:</strong> {{.Name}}</li>
-                <li><strong>Email:</strong> {{.Email}}</li>
-                <li><strong>Contact Number:</strong> {{.ContactNumber}}</li>
-                <li><strong>Base Pay:</strong> {{.BasePay}}</li>
-                <li><strong>Number of Students:</strong> {{.NumberOfStudents}}</li>
-            </ul>
+            <div><label><strong>Name: </strong></label>&nbsp;{{.Name}}</div>
+            <br>
+            <div><label><strong>Email: </strong></label>&nbsp;{{.Email}}</div>
+            <br>
+            <div><label><strong>Contact Number: </strong></label>&nbsp;{{.ContactNumber}}</div>
+            <br>
+            <div><label><strong>Base Pay: </strong></label>&nbsp;{{.BasePay}}</div>
+            <br>
+            <div><label><strong>Number of Students: </strong></label>&nbsp;{{.NumberOfStudents}}</div>
+            <br>
+            <div class="button-container">
+                <button type="button" onclick="window.history.back()">Back</button>
+            </div>
         </div>
     </div>
     <script type="text/javascript" src="/assets/js/jquery-3.3.1.min.js"></script>

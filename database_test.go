@@ -11,15 +11,15 @@ var currentUser = User{GoogleID: "admin-user", Role: "Admin"}
 var students = []Student{
 	{
 		User: User{
-			GoogleID:      "test-student-2",
-			Name:          "John Doe",
+			GoogleID:      "test-student-3",
+			Name:          "Joann",
 			Email:         "jeyvian@gmail.com",
 			ContactNumber: "91234567",
 			Role:          "Student",
 		},
 		Age:           12,
 		LessonCredits: 10.0,
-		ClassID:       "dn-6-10",
+		ClassID:       "dn-6-11",
 	},
 }
 
