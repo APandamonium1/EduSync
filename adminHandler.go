@@ -148,8 +148,19 @@ func AdminHandler(router *mux.Router) {
 		}
 	}).Methods("POST")
 
+	// Serve the search parent page
 	router.HandleFunc("/admin/search_parent", func(res http.ResponseWriter, req *http.Request) {
 		t, err := template.ParseFiles("templates/admin/search_parent.html")
+		if err != nil {
+			http.Error(res, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		t.Execute(res, nil)
+	}).Methods("GET")
+
+	// Serve the create parent page
+	router.HandleFunc("/admin/create_parent", func(res http.ResponseWriter, req *http.Request) {
+		t, err := template.ParseFiles("templates/admin/create_parent.html")
 		if err != nil {
 			http.Error(res, err.Error(), http.StatusInternalServerError)
 			return
@@ -212,6 +223,30 @@ func AdminHandler(router *mux.Router) {
 			res.WriteHeader(http.StatusNoContent)
 		}
 	}).Methods("GET", "PUT")
+
+	// Create a new parent
+	router.HandleFunc("/admin/parent/", func(res http.ResponseWriter, req *http.Request) {
+		switch req.Method {
+		case http.MethodPost:
+			var parent Parent
+			if err := json.NewDecoder(req.Body).Decode(&parent); err != nil {
+				http.Error(res, fmt.Sprintf(`{"error": "Invalid request payload: %v"}`, err), http.StatusBadRequest)
+				return
+			}
+			parent.GoogleID = uuid.New().String()
+			parent.Role = "Parent"
+			parent.CreatedAt = time.Now()
+			parent.UpdatedAt = time.Now()
+			if err := createParent(parent, req); err != nil {
+				http.Error(res, fmt.Sprintf(`{"error": "Failed to create parent: %v"}`, err), http.StatusInternalServerError)
+				return
+			}
+			res.WriteHeader(http.StatusCreated)
+			json.NewEncoder(res).Encode(parent)
+		default:
+			http.Error(res, `{"error": "Invalid request method"}`, http.StatusMethodNotAllowed)
+		}
+	}).Methods("POST")
 
 	// Serve the search instructor page
 	router.HandleFunc("/admin/search_instructor", func(res http.ResponseWriter, req *http.Request) {
