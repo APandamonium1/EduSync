@@ -93,17 +93,6 @@ var (
 	}
 )
 
-// func mockRequest() *http.Request {
-// 	req, _ := http.NewRequest("GET", "/test", nil)
-// 	session, _ := store.Get(req, "session-name")
-// 	session.Values["user"] = currentUser
-// 	err := session.Save(req, httptest.NewRecorder())
-// 	if err != nil {
-// 		log.Println(err)
-// 	}
-// 	return req
-// }
-
 func mockRequest() *http.Request {
 	req, _ := http.NewRequest("GET", "/test", nil)
 	recorder := httptest.NewRecorder()
@@ -124,7 +113,6 @@ func mockRequest() *http.Request {
 }
 
 func TestInitializeFirebase(t *testing.T) {
-	// Test case 1: FirebaseClient is set correctly
 	err := initializeFirebase()
 	if err != nil {
 		t.Fatalf("Error initializing Firebase: %v", err)
@@ -132,9 +120,6 @@ func TestInitializeFirebase(t *testing.T) {
 	if firebaseClient == nil {
 		t.Fatal("FirebaseClient is not set")
 	}
-
-	// Run tests
-	// os.Exit(t.Run())
 }
 
 // Testing for student CRUD operations
@@ -200,12 +185,6 @@ func TestDeleteStudent(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Error deleting student: %v", err)
 	}
-
-	// Try to read the deleted student
-	// _, err = readStudent(googleID)
-	// if err == nil {
-	// 	t.Error("Deleted student still exists")
-	// }
 }
 
 // Testing for instructor CRUD operations
@@ -268,12 +247,6 @@ func TestDeleteInstructor(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Error deleting instructor: %v", err)
 	}
-
-	// Try to read the deleted instructor
-	// _, err = readInstructor(googleID)
-	// if err == nil {
-	// 	t.Error("Deleted instructor still exists")
-	// }
 }
 
 // Testing for admin CRUD operations
@@ -335,12 +308,6 @@ func TestDeleteAdmin(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Error deleting admin: %v", err)
 	}
-
-	// Try to read the deleted admin
-	// _, err = readAdmin(googleID)
-	// if err == nil {
-	// 	t.Error("Deleted admin still exists")
-	// }
 }
 
 // Testing for parent CRUD operations
@@ -402,16 +369,9 @@ func TestDeleteParent(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Error deleting parent: %v", err)
 	}
-
-	// Try to read the deleted parent
-	// _, err = readParent(googleID)
-	// if err == nil {
-	// 	t.Error("Deleted parent still exists")
-	// }
 }
 
 // Testing for class CRUD operations
-
 func TestCreateClass(t *testing.T) {
 	err := createClass(classes[0], mockRequest())
 	if err != nil {
@@ -470,12 +430,6 @@ func TestDeleteClass(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Error deleting class: %v", err)
 	}
-
-	// Try to read the deleted class
-	// _, err = readClass(currentUser, students, classes[0])
-	// if err == nil {
-	// 	t.Error("Deleted class still exists")
-	// }
 }
 
 func TestCreateAnnouncement(t *testing.T) {
@@ -536,10 +490,4 @@ func TestDeleteAnnouncement(t *testing.T) {
 	if err != nil {
 		t.Fatalf("Error deleting announcement: %v", err)
 	}
-
-	// Try to read the deleted announcement
-	// _, err = readAnnouncement(currentUser, announcement)
-	// if err == nil {
-	// 	t.Error("Deleted announcement still exists")
-	// }
 }
