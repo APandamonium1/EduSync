@@ -29,8 +29,10 @@
             window.location.href = '/admin/search_parent';
         }
 
-        function goBack() {
-            window.history.back();
+        function cancelParent() {
+            if (confirm('Confirm cancel?')) {
+                window.location.href = '/admin/search_parent';
+            }
         }
     </script>
 </head>
@@ -68,7 +70,7 @@
                 <br>
                 <div class="button-container">
                     <button type="submit">Create Parent</button>
-                    <button type="button" onclick="goBack()">Back</button>
+                    <button type="button" onclick="cancelParent()">Cancel</button>
                 </div>
             </form>
         </div>
