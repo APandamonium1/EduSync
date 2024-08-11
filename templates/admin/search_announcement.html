@@ -73,67 +73,6 @@
         window.onload = async function() {
             await fetchAnnouncements(`/admin/api/search_announcement`);
         }
-        
-        /**async function fetchAnnouncements(url) {
-            try {
-                const response = await fetch(url);
-        
-                if (!response.ok) {
-                    const errorMessage = `Error: ${response.status} - ${response.statusText}`;
-                    throw new Error(errorMessage);
-                }
-                    
-                const announcements = await response.json();
-                const resultsDiv = document.getElementById('results');
-                resultsDiv.innerHTML = '';
-        
-                if (announcements && announcements.length > 0) {
-                    announcements.forEach(announcement => {
-                        const announcementDiv = document.createElement('div');
-                        announcementDiv.className = 'announcement';
-                        announcementDiv.innerHTML = `<a href="/admin/announcement/${announcement.announcement_id}/edit"><strong>${announcement.subject}</strong></a>  -  ${announcement.content}`;
-                        resultsDiv.appendChild(announcementDiv);
-                    });
-                } else {
-                    resultsDiv.innerHTML = 'No announcements found.';
-                }
-            } catch (error) {
-                console.error('Failed to fetch announcements:', error);
-            }
-        }
-        
-        async function searchAnnouncements() {
-            try {
-                const subjectFilter = document.getElementById('subjectFilter').value;
-                const response = await fetch(`/admin/api/search_announcement?subject=${subjectFilter}`);
-                
-                if (!response.ok) {
-                    const errorMessage = `Error: ${response.status} - ${response.statusText}`;
-                    throw new Error(errorMessage);
-                }
-                
-                const announcements = await response.json();
-                const resultsDiv = document.getElementById('results');
-                resultsDiv.innerHTML = '';
-        
-                if (announcements && announcements.length > 0) {
-                    announcements.forEach(announcement => {
-                        const announcementDiv = document.createElement('div');
-                        announcementDiv.className = 'announcement';
-                        announcementDiv.innerHTML = `<a href="/admin/announcement/${announcement.announcementID}"><strong>${announcement.subject}</strong></a>  -  ${announcement.content}`;
-                        resultsDiv.appendChild(announcementDiv);
-                    });
-                } else {
-                    resultsDiv.innerHTML = 'No announcements found.';
-                }
-            } catch (error) {
-                console.error('Failed to search announcements:', error);
-            }
-        }
-        
-        window.onload = async function() {
-            await fetchAnnouncements(`/admin/api/search_announcement`);
-        }**/
     </script>
 </head>
 <body>
