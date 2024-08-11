@@ -31,8 +31,19 @@ func AdminHandler(router *mux.Router) {
 		t.Execute(res, nil)
 	}).Methods("GET")
 
+	//searve the search student page
 	router.HandleFunc("/admin/search_student", func(res http.ResponseWriter, req *http.Request) {
 		t, err := template.ParseFiles("templates/admin/search_student.html")
+		if err != nil {
+			http.Error(res, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		t.Execute(res, nil)
+	}).Methods("GET")
+
+	// Serve the create student page
+	router.HandleFunc("/admin/create_student", func(res http.ResponseWriter, req *http.Request) {
+		t, err := template.ParseFiles("templates/admin/create_student.html")
 		if err != nil {
 			http.Error(res, err.Error(), http.StatusInternalServerError)
 			return
@@ -112,6 +123,30 @@ func AdminHandler(router *mux.Router) {
 	//   PUT /admin/student/1234567890
 	//   Request Body: JSON object with updated student information
 	//   Response: HTTP Status No Content (204)
+
+	// Create a new student
+	router.HandleFunc("/admin/student/", func(res http.ResponseWriter, req *http.Request) {
+		switch req.Method {
+		case http.MethodPost:
+			var student Student // Replace 'Student' with your actual student struct type
+			if err := json.NewDecoder(req.Body).Decode(&student); err != nil {
+				http.Error(res, fmt.Sprintf(`{"error": "Invalid request payload: %v"}`, err), http.StatusBadRequest)
+				return
+			}
+			student.GoogleID = uuid.New().String()
+			student.Role = "Student"
+			student.CreatedAt = time.Now()
+			student.UpdatedAt = time.Now()
+			if err := createStudent(student, req); err != nil { // Implement createStudent to handle the logic
+				http.Error(res, fmt.Sprintf(`{"error": "Failed to create student: %v"}`, err), http.StatusInternalServerError)
+				return
+			}
+			res.WriteHeader(http.StatusCreated)
+			json.NewEncoder(res).Encode(student)
+		default:
+			http.Error(res, `{"error": "Invalid request method"}`, http.StatusMethodNotAllowed)
+		}
+	}).Methods("POST")
 
 	router.HandleFunc("/admin/search_parent", func(res http.ResponseWriter, req *http.Request) {
 		t, err := template.ParseFiles("templates/admin/search_parent.html")
