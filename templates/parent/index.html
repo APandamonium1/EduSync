@@ -12,6 +12,22 @@
             text-decoration: underline; /* Add underline on hover (optional) */
         }
 	</style>
+	<script>
+		document.addEventListener("DOMContentLoaded", function() {
+            fetch('/parent/get-folder-id')
+                .then(response => response.json())
+                .then(data => {
+                    if (data.folder_id) {
+                        const googleDriveBaseUrl = "https://drive.google.com/drive/folders/";
+                        const folderUrl = googleDriveBaseUrl + data.folder_id;
+                        document.getElementById("materials-link").href = folderUrl;
+                    } else {
+                        console.error('Folder ID not found in response');
+                    }
+                })
+                .catch(error => console.error('Error fetching folder ID:', error));
+        });
+	</script>
 </head>
 <body>
 	<div id="page" class="site" itemscope itemtype="http://schema.org/LocalBusiness">
@@ -26,7 +42,7 @@
 						<nav class="nav-desktop">
 							<ul class="menu-list">
 								<li><a href="/parent">Home</a></li>
-								<li><a href="/parent/media">Child Media</a></li>
+								<li><a id="materials-link" href="#" target="_blank">Child Media</a></li>
 								<li><a href="/parent/announcements">Announcements</a></li>
 								<li><a href="/parent/profile">Profile</a></li>
 								<li><a href="/logout">Logout</a></li>

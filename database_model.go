@@ -24,8 +24,6 @@ type Student struct {
 	LessonCredits float32 `json:"lesson_credits"`
 	ClassID       string  `json:"class_id"`
 	ParentID      string  `json:"parent_id"`
-	// Instructor    string  `json:"instructor"`
-	// ParentName string `json:"parent_name"`
 }
 
 // Instructor struct for storing instructor information
