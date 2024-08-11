@@ -20,7 +20,7 @@
                     if (data.folder_id) {
                         const googleDriveBaseUrl = "https://drive.google.com/drive/folders/";
                         const folderUrl = googleDriveBaseUrl + data.folder_id;
-                        document.getElementById("materials-link").href = folderUrl;
+                        document.getElementById("media-link").href = folderUrl;
                     } else {
                         console.error('Folder ID not found in response');
                     }
@@ -42,7 +42,7 @@
 						<nav class="nav-desktop">
 							<ul class="menu-list">
 								<li><a href="/parent">Home</a></li>
-								<li><a id="materials-link" href="#" target="_blank">Child Media</a></li>
+								<li><a id="media-link" href="#" target="_blank">Child Media</a></li>
 								<li><a href="/parent/announcements">Announcements</a></li>
 								<li><a href="/parent/profile">Profile</a></li>
 								<li><a href="/logout">Logout</a></li>
