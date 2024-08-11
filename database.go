@@ -768,7 +768,8 @@ func updateAnnouncement(announcementID string, updates map[string]interface{}, r
 	if err := ref.Update(context.TODO(), updates); err != nil {
 		return fmt.Errorf("error updating announcement: %v", err)
 	}
-	return ref.Update(context.TODO(), updates)
+	// return ref.Update(context.TODO(), updates)
+	return nil
 }
 
 func deleteAnnouncement(announcementID string, req *http.Request) error {
