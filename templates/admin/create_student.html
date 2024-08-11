@@ -40,8 +40,10 @@
             window.location.href = '/admin/search_student';
         }
 
-        function goBack() {
-            window.history.back();
+        function cancelStudent() {
+            if (confirm('Confirm cancel?')) {
+                window.location.href = '/admin/search_student';
+            }
         }
     </script>
 </head>
@@ -94,7 +96,7 @@
                 <br>
                 <div class="button-container">
                     <button type="submit">Create Student</button>
-                    <button type="button" onclick="goBack()">Back</button>
+                    <button type="button" onclick="cancelStudent()">Cancel</button>
                 </div>
             </form>
         </div>
