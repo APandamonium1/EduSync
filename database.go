@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"os"
 	"strings"
 
 	firebase "firebase.google.com/go"
@@ -17,15 +16,15 @@ import (
 var firebaseClient *db.Client
 
 func SessionCookie() (string, error) {
-	// sessionCookieStore := goDotEnvVariable("SESSION_COOKIE_STORE")
-	// if sessionCookieStore == "" {
-	// 	return sessionCookieStore, fmt.Errorf("SESSION_COOKIE_STORE is not set in the environment variables")
-	// }
-
-	sessionCookieStore, found := os.LookupEnv("COOKIESTORE")
-	if !found {
-		log.Fatalf("COOKIESTORE is not set in the environment variables")
+	sessionCookieStore := goDotEnvVariable("SESSION_COOKIE_STORE")
+	if sessionCookieStore == "" {
+		return sessionCookieStore, fmt.Errorf("SESSION_COOKIE_STORE is not set in the environment variables")
 	}
+
+	// sessionCookieStore, found := os.LookupEnv("COOKIESTORE")
+	// if !found {
+	// 	log.Fatalf("COOKIESTORE is not set in the environment variables")
+	// }
 
 	return sessionCookieStore, nil
 }
@@ -735,16 +734,20 @@ func readAnnouncements() ([]Announcement, error) {
 }
 
 func searchAnnouncements(subject string) ([]Announcement, error) {
-	if subject == "" {
-		return readAnnouncements()
-	}
+	// Read all announcements from the data source
 	announcements, err := readAnnouncements()
 	if err != nil {
 		return nil, err
 	}
+	// If the search subject is empty, return all announcements
+	if subject == "" {
+		return announcements, nil
+	}
+	// Filter announcements based on whether the subject contains the search term
 	var filteredAnnouncements []Announcement
+	lowerSubject := strings.ToLower(subject)
 	for _, announcement := range announcements {
-		if subject == "" || strings.Contains(strings.ToLower(announcement.Subject), strings.ToLower(subject)) {
+		if strings.Contains(strings.ToLower(announcement.Subject), lowerSubject) {
 			filteredAnnouncements = append(filteredAnnouncements, announcement)
 		}
 	}
