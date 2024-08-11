@@ -5,7 +5,7 @@ import (
 	"fmt"
 	"os"
 )
- 
+
 // Config struct to hold the configuration
 type Config struct {
 	GoogleClientID     string `json:"google_client_id"`

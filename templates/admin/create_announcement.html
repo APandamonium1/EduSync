@@ -1,0 +1,117 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Send Announcement</title>
+    <meta name="viewport" content="width=device-width">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" type="text/css" href="/assets/css/owl.carousel.css">
+    <link rel="stylesheet" type="text/css" href="/assets/css/inner-page-style.css">
+    <link rel="stylesheet" type="text/css" href="/assets/css/style.css">
+    <link href="https://fonts.googleapis.com/css?family=Raleway:400,500,600,700" rel="stylesheet">
+    <script>
+        // input subject and content of announcement include send or cancel button. announcement.announcementID is assigned by increment of one per announcement
+        let announcement = {
+            subject: '',
+            content: ''
+        };
+        
+        function sendAnnouncement(event) {
+            event.preventDefault();
+            announcement.subject = document.getElementById('subject').value;
+            announcement.content = document.getElementById('content').value;
+            
+            // send announcement to server
+            try {
+                const response = fetch('/admin/announcement/', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(announcement)
+                });
+
+                //if (!response.ok) {
+                    //const errorText = response.json;
+                    //throw new Error(errorText);
+                //}
+
+                //const data = response.json();
+                //console.log('Success:', data);
+                alert('Announcement sent successfully!');
+                window.location.href = '/admin/search_announcement';
+            } catch (error) {
+                console.error('Error:', error);
+                alert(`Failed to send announcement. Error: ${error.message}`);
+            }
+        }
+        
+        function cancelAnnouncement() {
+            if (confirm('Confirm cancel?')) {
+                window.location.href = '/admin/search_announcement';
+            }
+        }
+        
+        window.onload = function() {
+            if (localStorage.getItem('announcement')) {
+                announcement = JSON.parse(localStorage.getItem('announcement'));
+                document.getElementById('subject').value = announcement.subject;
+                document.getElementById('content').value = announcement.content;
+            } else {
+                localStorage.removeItem('announcement');
+            }
+        };
+    </script>
+</head>
+<body onload="loadAnnouncement()">
+    <div id="page" class="site" itemscope itemtype="http://schema.org/LocalBusiness">
+        <header class="site-header">
+            <div class="main-header">
+                <div class="container">
+                    <div class="logo-wrap" itemprop="logo">
+                        <img src="/assets/images/site-logo.jpg" alt="Logo Image" style="width: 120px; height: auto;">
+                    </div>
+                    <div class="nav-wrap">
+                        <nav class="nav-desktop">
+                            <ul class="menu-list">
+                                <li><a href="/admin">Home</a></li>
+                                <li><a href="/admin/search_student">Students</a></li>
+                                <li><a href="/admin/search_parent">Parents</a></li>
+                                <li><a href="/admin/search_instructor">Instructors</a></li>
+                                <li><a href="/admin/search_announcement">Announcements</a></li>
+                            </ul>
+                        </nav>
+                        <div id="bar">
+                            <i class="fas fa-bars"></i>
+                        </div>
+                        <div id="close">
+                            <i class="fas fa-times"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </header>
+        <!-- Header Close -->
+
+        <div class="container content">
+            <h1>Send Announcement</h1>
+            <form onsubmit="sendAnnouncement(event)">
+                <div><label>Subject: </label><input type="text" id="subject" required></div>
+                <br>
+                <div><label>Content: </label><input type="text" id="content" required></div>
+                <br>
+                <div class="button-container">
+                    <button type="submit">Send Announcement</button>
+                    <button type="button" onclick="cancelAnnouncement()">Cancel</button>
+                </div>
+            </form>
+        </div>
+    </div> 
+    <script type="text/javascript" src="/assets/js/jquery-3.3.1.min.js"></script>
+    <script type="text/javascript" src="/assets/js/all.js"></script>
+    <script type="text/javascript" src="/assets/js/isotope.pkgd.min.js"></script>
+    <script type="text/javascript" src="/assets/js/owl.carousel.js"></script>
+    <script type="text/javascript" src="/assets/js/jquery.flexslider.js"></script>
+    <script type="text/javascript" src="/assets/js/jquery.rateyo.js"></script>
+    <script type="text/javascript" src="/assets/js/custom.js"></script>
+</body>
+</html>
