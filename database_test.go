@@ -1,83 +1,121 @@
 package main
 
 import (
+	"log"
+	"net/http"
+	"net/http/httptest"
 	"reflect"
 	"testing"
+
+	"encoding/gob"
+	"encoding/json"
 )
 
-var currentUser = User{GoogleID: "admin-user", Role: "Admin"}
+func init() {
+	// Register the User type with gob
+	gob.Register(User{})
+	gob.Register(Announcement{})
+}
 
-// Create a new student
-var students = []Student{
-	{
+var (
+	// testStore = sessions.NewCookieStore([]byte("a-very-secret-key"))
+
+	currentUser = User{
+		GoogleID:      "admin-user",
+		Name:          "Admin User",
+		Email:         "jiaweicodetest@gmail.com",
+		ContactNumber: "12345678",
+		Role:          "Admin",
+	}
+
+	// Sample data for testing
+	students = []Student{
+		{
+			User: User{
+				GoogleID:      "test-student",
+				Name:          "John Doe",
+				Email:         "jeyvianangjieen@gmail.com",
+				ContactNumber: "91234567",
+				Role:          "Student",
+			},
+			Age:           12,
+			LessonCredits: 10.0,
+			ClassID:       "TE-6-10",
+			ParentID:      "test-parent",
+		},
+	}
+
+	instructor = Instructor{
 		User: User{
-			GoogleID:      "test-student-3",
-			Name:          "Joann",
-			Email:         "jeyvian@gmail.com",
+			GoogleID:      "test-instructor",
+			Name:          "John Doe",
+			Email:         "jeyvianang112462@gmail.com",
 			ContactNumber: "91234567",
 			Role:          "Student",
 		},
-		Age:           12,
-		LessonCredits: 10.0,
-		ClassID:       "dn-6-11",
-	},
-}
+		BasePay:          15,
+		NumberOfStudents: 24,
+	}
 
-// Create a new instructor
-var instructor = Instructor{
-	User: User{
-		GoogleID:      "test-instructor",
-		Name:          "Awesomeness",
-		Email:         "jeyvianang112462@gmail.com",
-		ContactNumber: "99999999",
-		Role:          "Instructor",
-	},
-	BasePay:          15,
-	NumberOfStudents: 24,
-}
+	admin = Admin{
+		User: User{
+			GoogleID:      "test-admin",
+			Name:          "Awesomeness",
+			ContactNumber: "99999999",
+			Email:         "awesome_admin@nk.com",
+			Role:          "Admin",
+		},
+		BasePay:   15,
+		Incentive: 24,
+	}
 
-// Create a new admin
-var admin = Admin{
-	User: User{
-		GoogleID:      "test-admin",
-		Name:          "Awesomeness",
-		ContactNumber: "99999999",
-		Email:         "jeyvianang112462@gmail.com",
-		Role:          "Admin",
-	},
-	BasePay:   15,
-	Incentive: 24,
-}
+	parent = Parent{
+		User: User{
+			GoogleID:      "test-parent",
+			Name:          "Awesomeness",
+			ContactNumber: "99999999",
+			Email:         "janedoe_parent@nk.com",
+			Role:          "Parent",
+		},
+		FolderID: "1F38DgyV0V5q2CWzoO3xkHTC4FY6cNrig",
+	}
 
-// Create a new parent
-var parent = Parent{
-	User: User{
-		GoogleID:      "test-parent-1",
-		Name:          "OHNO",
-		ContactNumber: "99999999",
-		Email:         "jeyvianangjie@gmail.com",
-		Role:          "Parent",
-	},
-	FolderID: "1F38DgyV0V5q2CWzoO3xkHTC4FY6cNrig",
-}
+	classes = []Class{
+		{
+			ClassID:    "te-6-10",
+			Name:       "Test Class",
+			Instructor: "jeyvianang112462@gmail.com",
+			FolderID:   "1zrj8iUefB9D0u1RXT8Pi0-At8aQf9n2m",
+		},
+	}
 
-// Create a dummy class for testing
-var classes = []Class{
-	{
-		ClassID:    "dn-6-11",
-		Name:       "DN",
-		Instructor: "jeyvianang112462@gmail.com",
-		FolderID:   "1zrj8iUefB9D0u1RXT8Pi0-At8aQf9n2m",
-	},
-}
+	announcement = Announcement{
+		AnnouncementID: "test-announcement",
+		Subject:        "Test Announcement",
+		Content:        "This is a test announcement.",
+	}
+)
 
-var announcement = Announcement{
-	Subject: "Test Announcement",
-	Content: "This is a test announcement.",
+func mockRequest() *http.Request {
+	req, _ := http.NewRequest("GET", "/test", nil)
+	recorder := httptest.NewRecorder()
+	session, _ := store.Get(req, "auth-session")
+
+	userData, err := json.Marshal(currentUser)
+	if err != nil {
+		log.Println(err)
+	}
+
+	session.Values["user"] = userData
+	err = session.Save(req, recorder)
+	if err != nil {
+		log.Println(err)
+	}
+	req.Header.Set("Cookie", recorder.Header().Get("Set-Cookie"))
+	return req
 }
 
 func TestInitializeFirebase(t *testing.T) {
-	// Test case 1: FirebaseClient is set correctly
 	err := initializeFirebase()
 	if err != nil {
 		t.Fatalf("Error initializing Firebase: %v", err)
@@ -85,20 +123,21 @@ func TestInitializeFirebase(t *testing.T) {
 	if firebaseClient == nil {
 		t.Fatal("FirebaseClient is not set")
 	}
-
-	// Run tests
-	// os.Exit(t.Run())
 }
 
 // Testing for student CRUD operations
 func TestCreateStudent(t *testing.T) {
-	err := createStudent(currentUser, students[0])
+	err := initializeFirebase()
+	if err != nil {
+		t.Fatalf("Error initializing Firebase: %v", err)
+	}
 
+	err = createStudent(students[0], mockRequest())
 	if err != nil {
 		t.Fatalf("Error creating student: %v", err)
 	}
 
-	readStudent, err := readStudent(currentUser, students[0].GoogleID)
+	readStudent, err := readStudent(students[0].GoogleID, mockRequest())
 	if err != nil {
 		t.Fatalf("Error reading student: %v", err)
 	}
@@ -109,7 +148,7 @@ func TestCreateStudent(t *testing.T) {
 }
 
 func TestReadStudent(t *testing.T) {
-	readStudent, err := readStudent(currentUser, students[0].GoogleID)
+	readStudent, err := readStudent(students[0].GoogleID, mockRequest())
 	if err != nil {
 		t.Fatalf("Error reading student: %v", err)
 	}
@@ -122,49 +161,44 @@ func TestReadStudent(t *testing.T) {
 func TestUpdateStudent(t *testing.T) {
 	// Update the student's email
 	updates := map[string]interface{}{
-		"name": "Updated Student",
+		"name":           "John Doe",
+		"contact_number": "99999999",
 	}
 
-	err := updateStudent(currentUser, students[0].GoogleID, updates)
+	err := updateStudent(students[0].GoogleID, updates, mockRequest())
 	if err != nil {
 		t.Fatalf("Error updating student: %v", err)
 	}
 
 	// Read the updated student
-	readStudent, err := readStudent(currentUser, students[0].GoogleID)
+	readStudent, err := readStudent(students[0].GoogleID, mockRequest())
 	if err != nil {
 		t.Fatalf("Error reading student after updating: %v", err)
 	}
 
 	// Assert that the updated student's email is correct
-	if readStudent.Name != updates["name"] {
+	if students[0].Name != updates["name"] {
 		t.Errorf("Updated student's name is incorrect. Expected: %v, Got: %v", updates["name"], readStudent.Name)
 	}
 }
 
 func TestDeleteStudent(t *testing.T) {
 	// Delete the student
-	err := deleteStudent(currentUser, students[0])
+	err := deleteStudent(students[0], mockRequest())
 	if err != nil {
 		t.Fatalf("Error deleting student: %v", err)
 	}
-
-	// Try to read the deleted student
-	// _, err = readStudent(googleID)
-	// if err == nil {
-	// 	t.Error("Deleted student still exists")
-	// }
 }
 
 // Testing for instructor CRUD operations
 func TestCreateInstructor(t *testing.T) {
-	err := createInstructor(currentUser, instructor)
+	err := createInstructor(instructor, mockRequest())
 	if err != nil {
 		t.Fatalf("Error creating instructor: %v", err)
 	}
 
 	// Read the created instructor
-	readInstructor, err := readInstructor(currentUser, instructor.GoogleID)
+	readInstructor, err := readInstructor(instructor.GoogleID, mockRequest())
 	if err != nil {
 		t.Fatalf("Error reading instructor: %v", err)
 	}
@@ -177,7 +211,7 @@ func TestCreateInstructor(t *testing.T) {
 
 func TestReadInstructor(t *testing.T) {
 
-	instructor, err := readInstructor(currentUser, instructor.GoogleID)
+	instructor, err := readInstructor(instructor.GoogleID, mockRequest())
 	if err != nil {
 		t.Fatalf("Failed to read instructor: %v", err)
 	}
@@ -193,13 +227,13 @@ func TestUpdateInstructor(t *testing.T) {
 		"email": "amazing_instructor@nk.com",
 	}
 
-	err := updateInstructor(currentUser, instructor.GoogleID, updates)
+	err := updateInstructor(instructor.GoogleID, updates, mockRequest())
 	if err != nil {
 		t.Fatalf("Error updating instructor: %v", err)
 	}
 
 	// Read the updated instructor
-	readInstructor, err := readInstructor(currentUser, instructor.GoogleID)
+	readInstructor, err := readInstructor(instructor.GoogleID, mockRequest())
 	if err != nil {
 		t.Fatalf("Error reading instructor: %v", err)
 	}
@@ -212,27 +246,21 @@ func TestUpdateInstructor(t *testing.T) {
 
 func TestDeleteInstructor(t *testing.T) {
 	// Delete the instructor
-	err := deleteInstructor(currentUser, instructor)
+	err := deleteInstructor(instructor, mockRequest())
 	if err != nil {
 		t.Fatalf("Error deleting instructor: %v", err)
 	}
-
-	// Try to read the deleted instructor
-	// _, err = readInstructor(googleID)
-	// if err == nil {
-	// 	t.Error("Deleted instructor still exists")
-	// }
 }
 
 // Testing for admin CRUD operations
 func TestCreateAdmin(t *testing.T) {
-	err := createAdmin(currentUser, admin)
+	err := createAdmin(admin, mockRequest())
 	if err != nil {
 		t.Fatalf("Error creating admin: %v", err)
 	}
 
 	// Read the created admin
-	readAdmin, err := readAdmin(currentUser, admin.GoogleID)
+	readAdmin, err := readAdmin(admin.GoogleID, mockRequest())
 	if err != nil {
 		t.Fatalf("Error reading admin: %v", err)
 	}
@@ -244,7 +272,7 @@ func TestCreateAdmin(t *testing.T) {
 }
 
 func TestReadAdmin(t *testing.T) {
-	admin, err := readAdmin(currentUser, admin.GoogleID)
+	admin, err := readAdmin(admin.GoogleID, mockRequest())
 	if err != nil {
 		t.Fatalf("Failed to read instructor: %v", err)
 	}
@@ -260,13 +288,13 @@ func TestUpdateAdmin(t *testing.T) {
 		"email": "amazing_admin@nk.com",
 	}
 
-	err := updateAdmin(currentUser, admin.GoogleID, updates)
+	err := updateAdmin(admin.GoogleID, updates, mockRequest())
 	if err != nil {
 		t.Fatalf("Error updating admin: %v", err)
 	}
 
 	// Read the updated admin
-	readAdmin, err := readAdmin(currentUser, admin.GoogleID)
+	readAdmin, err := readAdmin(admin.GoogleID, mockRequest())
 	if err != nil {
 		t.Fatalf("Error reading admin: %v", err)
 	}
@@ -279,27 +307,21 @@ func TestUpdateAdmin(t *testing.T) {
 
 func TestDeleteAdmin(t *testing.T) {
 	// Delete the admin
-	err := deleteAdmin(currentUser, admin)
+	err := deleteAdmin(admin, mockRequest())
 	if err != nil {
 		t.Fatalf("Error deleting admin: %v", err)
 	}
-
-	// Try to read the deleted admin
-	// _, err = readAdmin(googleID)
-	// if err == nil {
-	// 	t.Error("Deleted admin still exists")
-	// }
 }
 
 // Testing for parent CRUD operations
 func TestCreateParent(t *testing.T) {
-	err := createParent(currentUser, parent)
+	err := createParent(parent, mockRequest())
 	if err != nil {
 		t.Fatalf("Error creating parent: %v", err)
 	}
 
 	// Read the created parent
-	readParent, err := readParent(currentUser, parent.GoogleID)
+	readParent, err := readParent(parent.GoogleID, mockRequest())
 	if err != nil {
 		t.Fatalf("Error reading parent: %v", err)
 	}
@@ -311,7 +333,7 @@ func TestCreateParent(t *testing.T) {
 }
 
 func TestReadParent(t *testing.T) {
-	parent, err := readParent(currentUser, parent.GoogleID)
+	parent, err := readParent(parent.GoogleID, mockRequest())
 	if err != nil {
 		t.Fatalf("Failed to read parent: %v", err)
 	}
@@ -327,13 +349,13 @@ func TestUpdateParent(t *testing.T) {
 		"email": "jane_doe_parent@nk.com",
 	}
 
-	err := updateParent(currentUser, parent.GoogleID, updates)
+	err := updateParent(parent.GoogleID, updates, mockRequest())
 	if err != nil {
 		t.Fatalf("Error updating parent: %v", err)
 	}
 
 	// Read the updated parent
-	readParent, err := readParent(currentUser, parent.GoogleID)
+	readParent, err := readParent(parent.GoogleID, mockRequest())
 	if err != nil {
 		t.Fatalf("Error reading parent: %v", err)
 	}
@@ -346,28 +368,21 @@ func TestUpdateParent(t *testing.T) {
 
 func TestDeleteParent(t *testing.T) {
 	// Delete the parent
-	err := deleteParent(currentUser, parent)
+	err := deleteParent(parent, mockRequest())
 	if err != nil {
 		t.Fatalf("Error deleting parent: %v", err)
 	}
-
-	// Try to read the deleted parent
-	// _, err = readParent(googleID)
-	// if err == nil {
-	// 	t.Error("Deleted parent still exists")
-	// }
 }
 
 // Testing for class CRUD operations
-
 func TestCreateClass(t *testing.T) {
-	err := createClass(currentUser, classes[0])
+	err := createClass(classes[0], mockRequest())
 	if err != nil {
 		t.Fatalf("Error creating class: %v", err)
 	}
 
 	// Read the created class
-	readClass, err := readClass(currentUser, students, classes[0].ClassID)
+	readClass, err := readClass(students, classes[0].ClassID, mockRequest())
 	if err != nil {
 		t.Fatalf("Error reading class: %v", err)
 	}
@@ -379,7 +394,7 @@ func TestCreateClass(t *testing.T) {
 }
 
 func TestReadClass(t *testing.T) {
-	class, err := readClass(currentUser, students, classes[0].ClassID)
+	class, err := readClass(students, classes[0].ClassID, mockRequest())
 	if err != nil {
 		t.Fatalf("Failed to read class: %v", err)
 	}
@@ -395,13 +410,13 @@ func TestUpdateClass(t *testing.T) {
 		"class_name": "DN",
 	}
 
-	err := updateClass(currentUser, classes[0], updates)
+	err := updateClass(classes[0], updates, mockRequest())
 	if err != nil {
 		t.Fatalf("Error updating class: %v", err)
 	}
 
 	// Read the updated class
-	readClass, err := readClass(currentUser, students, classes[0].ClassID)
+	readClass, err := readClass(students, classes[0].ClassID, mockRequest())
 	if err != nil {
 		t.Fatalf("Error reading class: %v", err)
 	}
@@ -414,38 +429,32 @@ func TestUpdateClass(t *testing.T) {
 
 func TestDeleteClass(t *testing.T) {
 	// Delete the class
-	err := deleteClass(currentUser, classes[0])
+	err := deleteClass(classes[0], mockRequest())
 	if err != nil {
 		t.Fatalf("Error deleting class: %v", err)
 	}
-
-	// Try to read the deleted class
-	// _, err = readClass(currentUser, students, classes[0])
-	// if err == nil {
-	// 	t.Error("Deleted class still exists")
-	// }
 }
 
 func TestCreateAnnouncement(t *testing.T) {
-	err := createAnnouncement(currentUser, announcement)
+	err := createAnnouncement(announcement, mockRequest())
 	if err != nil {
 		t.Fatalf("Error creating announcement: %v", err)
 	}
 
 	// Read the announcement
-	readAnnouncement, err := readAnnouncement(currentUser, announcement)
+	readAnnouncement, err := readAnnouncement(announcement.AnnouncementID, mockRequest())
 	if err != nil {
 		t.Fatalf("Error reading announcement: %v", err)
 	}
 
 	// Assert that the created and read announcement are equal
 	if !reflect.DeepEqual(announcement, readAnnouncement) {
-		t.Error("Created and read announcements are not equal")
+		t.Errorf("Created and read announcements are not equal. Expected: %+v, Got: %+v", announcement, readAnnouncement)
 	}
 }
 
 func TestReadAnnouncement(t *testing.T) {
-	announcement, err := readAnnouncement(currentUser, announcement)
+	announcement, err := readAnnouncement(announcement.AnnouncementID, mockRequest())
 	if err != nil {
 		t.Fatalf("Failed to read announcement: %v", err)
 	}
@@ -461,13 +470,13 @@ func TestUpdateAnnouncement(t *testing.T) {
 		"content": "This is an updated announcement.",
 	}
 
-	err := updateAnnouncement(currentUser, announcement, updates)
+	err := updateAnnouncement(announcement.AnnouncementID, updates, mockRequest())
 	if err != nil {
 		t.Fatalf("Error updating announcement: %v", err)
 	}
 
 	// Read the updated announcement
-	readAnnouncement, err := readAnnouncement(currentUser, announcement)
+	readAnnouncement, err := readAnnouncement(announcement.AnnouncementID, mockRequest())
 	if err != nil {
 		t.Fatalf("Error reading announcement: %v", err)
 	}
@@ -480,14 +489,8 @@ func TestUpdateAnnouncement(t *testing.T) {
 
 func TestDeleteAnnouncement(t *testing.T) {
 	// Delete the announcement
-	err := deleteAnnouncement(currentUser, announcement)
+	err := deleteAnnouncement(announcement.AnnouncementID, mockRequest())
 	if err != nil {
 		t.Fatalf("Error deleting announcement: %v", err)
 	}
-
-	// Try to read the deleted announcement
-	// _, err = readAnnouncement(currentUser, announcement)
-	// if err == nil {
-	// 	t.Error("Deleted announcement still exists")
-	// }
 }

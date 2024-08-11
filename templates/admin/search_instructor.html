@@ -99,6 +99,7 @@
                                 <li><a href="/admin/search_student">Students</a></li>
                                 <li><a href="/admin/search_parent">Parents</a></li>
                                 <li><a href="/admin/search_instructor">Instructors</a></li>
+                                <li><a href="/admin/search_announcement">Announcements</a></li>
                                 <li><a href="/admin/profile">Profile</a></li>
                                 <li><a href="/logout">Logout</a></li>
                             </ul>
@@ -127,6 +128,8 @@
                 <button onclick="searchInstructors()">Search</button>
                 &nbsp;
                 <button onclick="resetFilters()">Reset</button>
+                &nbsp;
+                <button onclick="window.location.href='/admin/create_instructor'">Create</button>
             </div>
             <br>
             <div id="results"></div>

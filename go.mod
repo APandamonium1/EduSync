@@ -4,9 +4,9 @@ go 1.22.3
 
 require (
 	firebase.google.com/go v3.13.0+incompatible
+	github.com/google/uuid v1.6.0
 	github.com/gorilla/mux v1.8.1
 	github.com/gorilla/sessions v1.3.0
-	github.com/joho/godotenv v1.5.1
 	github.com/markbates/goth v1.80.0
 	golang.org/x/oauth2 v0.21.0
 	google.golang.org/api v0.189.0
@@ -27,7 +27,6 @@ require (
 	github.com/golang/groupcache v0.0.0-20210331224755-41bb18bfe9da // indirect
 	github.com/golang/protobuf v1.5.4 // indirect
 	github.com/google/s2a-go v0.1.7 // indirect
-	github.com/google/uuid v1.6.0 // indirect
 	github.com/googleapis/enterprise-certificate-proxy v0.3.2 // indirect
 	github.com/googleapis/gax-go/v2 v2.13.0 // indirect
 	github.com/gorilla/securecookie v1.1.2 // indirect
