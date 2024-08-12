@@ -1,12 +1,12 @@
 <!DOCTYPE html>
 <html>
 <head>
-	<title>Edit Instructor Details</title>
-	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<link rel="stylesheet" type="text/css" href="/assets/css/style.css">
-	<link href="https://fonts.googleapis.com/css?family=Raleway:400,500,600,700" rel="stylesheet">
+    <title>Edit Instructor Details</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" type="text/css" href="/assets/css/style.css">
+    <link href="https://fonts.googleapis.com/css?family=Raleway:400,500,600,700" rel="stylesheet">
     <script>
-        let initialStudent = {};
+        let initialInstructor = {};
 
         async function loadInstructor() {
             const googleID = document.getElementById('googleID').value;
@@ -16,25 +16,22 @@
             document.getElementById('contactNumber').value = instructor.contact_number;
             document.getElementById('email').value = instructor.email;
             document.getElementById('basePay').value = instructor.base_pay;
-            document.getElementById('role').value = instructor.role;
         
-            initialStudent = {...student}
+            initialInstructor = {...instructor};
         }
 
         function hasChanges() {
             return (
-                document.getElementById('name').value !== initialStudent.name ||
-                document.getElementById('email').value !== initialStudent.email ||
-                parseInt(document.getElementById('age').value, 10) !== initialStudent.age ||
-                document.getElementById('class').value !== initialStudent.class ||
-                document.getElementById('instructor').value !== initialStudent.instructor ||
-                document.getElementById('parentName').value !== initialStudent.parent_name ||
-                document.getElementById('role').value !== initialStudent.role
+                document.getElementById('name').value !== initialInstructor.name ||
+                document.getElementById('contactNumber').value !== initialInstructor.contact_number ||
+                document.getElementById('email').value !== initialInstructor.email ||
+                parseFloat(document.getElementById('basePay').value) !== initialInstructor.base_pay
             );
         }
 
         async function updateInstructor() {
             const googleID = document.getElementById('googleID').value;
+
             if (!hasChanges()) {
                 return;  // No changes, so do not proceed with update
             }
@@ -42,8 +39,7 @@
                 name: document.getElementById('name').value,
                 contact_number: document.getElementById('contactNumber').value,
                 email: document.getElementById('email').value,
-                base_pay: parseFloat(document.getElementById('basePay').value),
-                role: document.getElementById('role').value
+                base_pay: parseFloat(document.getElementById('basePay').value)
             };
             await fetch(`/admin/instructor/${googleID}`, {
                 method: 'PUT',
@@ -79,27 +75,62 @@
             }
         }
 
+        function validateEmail() {
+            const email = document.getElementById('email').value;
+            const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            const errorElement = document.getElementById('emailError');
+
+            if (emailPattern.test(email)) {
+                errorElement.textContent = ''; // Clear error message
+                document.getElementById('saveButton').disabled = false; // Enable save button
+            } else {
+                errorElement.textContent = 'Please enter a valid email address.';
+                document.getElementById('saveButton').disabled = true; // Disable save button
+            }
+        }
+
         function goBack() {
             window.history.back();
         }
     </script>
+    <style>
+        /* Style the horizontal line */
+        hr {
+            border: none; /* Remove default border */
+            border-top: 1px solid #aaa; /* Thin light grey line */
+            margin: 0; /* Remove default margin */
+            padding: 0; /* Remove default padding */
+        }
+
+        a:hover {
+            text-decoration: underline; /* Add underline on hover (optional) */
+        }
+
+        .error-message {
+            color: red;
+        }
+    </style>
 </head>
 <body onload="loadInstructor()">
-	<div id="page" class="site" itemscope itemtype="http://schema.org/LocalBusiness">
-		<header class="site-header">
-			<div class="main-header">
-				<div class="container">
-					<div class="logo-wrap" itemprop="logo">
-						<img src="/assets/images/site-logo.jpg" alt="Logo Image" style="width: 120px; height: auto;">
-					</div>
-					<div class="nav-wrap">
-						<nav class="nav-desktop">
-							<ul class="menu-list">
-								<li><a href="/admin">Home</a></li>
+    <div id="page" class="site" itemscope itemtype="http://schema.org/LocalBusiness">
+        <header class="site-header">
+            <div class="main-header">
+                <div class="container">
+                    <div class="logo-wrap" itemprop="logo">
+                        <a href="/admin">
+                            <img src="/assets/images/site-logo.jpg" alt="Logo Image" style="width: 120px; height: auto;">
+                        </a>   
+                    </div>
+                    <div class="nav-wrap">
+                        <nav class="nav-desktop">
+                            <ul class="menu-list">
+                                <li><a href="/admin">Home</a></li>
                                 <li><a href="/admin/search_student">Students</a></li>
                                 <li><a href="/admin/search_parent">Parents</a></li>
                                 <li><a href="/admin/search_instructor">Instructors</a></li>
                                 <li><a href="/admin/search_announcement">Announcements</a></li>
+                                <li><a href="/admin/profile">Profile</a></li>
+                                <li><a href="/logout">Logout</a></li>
 							</ul>
 						</nav>
 						<div id="bar">
@@ -112,25 +143,30 @@
 				</div>
 			</div>
 		</header>
+        <hr>
+        <br>
+        <br>
 		<!-- Header Close -->
 		
         <div class="container content">
             <h1>Edit Instructor Details</h1>
+            <br>
             <input type="hidden" id="googleID" value="{{.GoogleID}}">
             <form onsubmit="event.preventDefault(); updateInstructor();">
-                <div><label>Name: </label><input type="text" id="name" disabled></div>
+                <div><label><strong>Name: </strong></label>&nbsp;<input type="text" id="name" disabled></div>
                 <br>
                 <div>
-                    <label>Contact Number: </label>
-                    <input type="text" id="contactNumber" disabled oninput="validatePhoneNumber()">
+                    <label><strong>Contact Number: </strong></label>&nbsp;
+                    <input type="text" id="contactNumber" disabled oninput="validatePhoneNumber()">&nbsp;&nbsp;
                     <span id="phoneNumberError" class="error-message"></span>
                 </div>
                 <br>
-                <div><label>Email: </label><input type="text" id="email" disabled></div>
-                <br>
-                <div><label>Base Pay: </label><input type="number" step="0.01" id="basePay" disabled></div>
-                <br>
-                <div><label>Role: </label><input type="text" id="role" disabled></div>
+                <div>
+                    <label><strong>Email: </strong></label>&nbsp;
+                    <input type="text" id="email" disabled oninput="validateEmail()">&nbsp;&nbsp;
+                    <span id="emailError" class="error-message"></span>
+                </div>                <br>
+                <div><label><strong>Base Pay: </strong></label>&nbsp;<input type="number" step="0.01" id="basePay" disabled></div>
                 <br>
                 <div class="button-container">
                     <button type="button" id="editButton" onclick="toggleEdit()">Edit</button>
@@ -139,8 +175,8 @@
                 </div>              
             </form>
         </div>
-	</div>
-	<script type="text/javascript" src="/assets/js/jquery-3.3.1.min.js"></script>
-	<script type="text/javascript" src="/assets/js/custom.js"></script>
+    </div>
+    <script type="text/javascript" src="/assets/js/jquery-3.3.1.min.js"></script>
+    <script type="text/javascript" src="/assets/js/custom.js"></script>
 </body>
 </html>

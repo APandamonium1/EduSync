@@ -1,0 +1,86 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Instructor Profile</title>
+    <meta name="viewport" content="width=device-width">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" type="text/css" href="/assets/css/owl.carousel.css">
+    <link rel="stylesheet" type="text/css" href="/assets/css/inner-page-style.css">
+    <link rel="stylesheet" type="text/css" href="/assets/css/style.css">
+    <link href="https://fonts.googleapis.com/css?family=Raleway:400,500,600,700" rel="stylesheet">
+    <style>
+        /* Style the horizontal line */
+        hr {
+            border: none; /* Remove default border */
+            border-top: 1px solid #aaa; /* Thin light grey line */
+            margin: 0; /* Remove default margin */
+            padding: 0; /* Remove default padding */
+        }
+
+        a:hover {
+            text-decoration: underline; /* Add underline on hover (optional) */
+        }
+    </style>
+</head>
+<body>
+    <div id="page" class="site" itemscope itemtype="http://schema.org/LocalBusiness">
+        <header class="site-header">
+            <div class="main-header">
+                <div class="container">
+                    <div class="logo-wrap" itemprop="logo">
+                        <a href="/instructor">
+                            <img src="/assets/images/site-logo.jpg" alt="Logo Image" style="width: 120px; height: auto;">
+                        </a>
+                    </div>
+                    <div class="nav-wrap">
+                        <nav class="nav-desktop">
+                            <ul class="menu-list">
+                                <li><a href="/instructor">Home</a></li>
+								<li><a href="/instructor/learning-materials/classes">Lesson Materials</a></li>
+								<li><a href="/instructor/media/classes">Student Media</a></li>
+                                <li><a href="/instructor/profile">Profile</a></li>
+                                <li><a href="/logout">Logout</a></li>
+                            </ul>
+                        </nav>
+                        <div id="bar">
+                            <i class="fas fa-bars"></i>
+                        </div>
+                        <div id="close">
+                            <i class="fas fa-times"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </header>
+        <hr>
+        <!-- Header Close -->
+
+        <br>
+        <br>
+        <div class="container content">
+            <h1>Instructor Profile</h1>
+            <br>
+            <div><label><strong>Name: </strong></label>&nbsp;{{.Name}}</div>
+            <br>
+            <div><label><strong>Email: </strong></label>&nbsp;{{.Email}}</div>
+            <br>
+            <div><label><strong>Contact Number: </strong></label>&nbsp;{{.ContactNumber}}</div>
+            <br>
+            <div><label><strong>Base Pay: </strong></label>&nbsp;{{.BasePay}}</div>
+            <br>
+            <div><label><strong>Number of Students: </strong></label>&nbsp;{{.NumberOfStudents}}</div>
+            <br>
+            <div class="button-container">
+                <button type="button" onclick="window.history.back()">Back</button>
+            </div>
+        </div>
+    </div>
+    <script type="text/javascript" src="/assets/js/jquery-3.3.1.min.js"></script>
+    <script type="text/javascript" src="/assets/js/all.js"></script>
+    <script type="text/javascript" src="/assets/js/isotope.pkgd.min.js"></script>
+    <script type="text/javascript" src="/assets/js/owl.carousel.js"></script>
+    <script type="text/javascript" src="/assets/js/jquery.flexslider.js"></script>
+    <script type="text/javascript" src="/assets/js/jquery.rateyo.js"></script>
+    <script type="text/javascript" src="/assets/js/custom.js"></script>
+</body>
+</html>

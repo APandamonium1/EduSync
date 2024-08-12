@@ -30,7 +30,7 @@ func SessionCookie() (string, error) {
 	return sessionCookieStore, nil
 }
 
-var sessionCookieStore, err = SessionCookie()
+var sessionCookieStore, _ = SessionCookie()
 var store = sessions.NewCookieStore([]byte(sessionCookieStore))
 
 func initDB(app *firebase.App) error {
@@ -41,6 +41,48 @@ func initDB(app *firebase.App) error {
 	}
 	firebaseClient = client
 	return nil
+}
+
+func getUserRole(email string) (User, string, error) {
+	ctx := context.Background()
+	var user User
+	var userRole string
+
+	// Check if firebaseClient is initialized
+	if firebaseClient == nil {
+		log.Println("Firebase client is not initialized")
+		return user, userRole, fmt.Errorf("firebase client is not initialized")
+	}
+
+	// Map categories to Firebase references
+	categoryRefs := map[string]string{
+		"Student":    "/students",
+		"Parent":     "/parents",
+		"Instructor": "/instructors",
+		"Admin":      "/admins",
+	}
+
+	// Iterate through each category and check if the email exists
+	for category, ref := range categoryRefs {
+		categoryRef := firebaseClient.NewRef(ref)
+		dataSnapshot, err := categoryRef.OrderByChild("email").EqualTo(email).GetOrdered(ctx)
+		if err != nil {
+			log.Printf("Error fetching data from %s: %v", category, err)
+			continue
+		}
+
+		// Check if dataSnapshot has any children
+		if len(dataSnapshot) > 0 {
+			userRole = category
+			// Assuming dataSnapshot[0] is the first match and it contains the user data
+			if err := dataSnapshot[0].Unmarshal(&user); err != nil {
+				log.Printf("Error unmarshalling data for %s: %v", category, err)
+				continue
+			}
+			break
+		}
+	}
+	return user, userRole, nil
 }
 
 // Utility function to get current user
@@ -62,6 +104,295 @@ func GetCurrentUser(req *http.Request) (User, error) {
 	}
 
 	return user, nil
+}
+
+// Utility function to get current instructor
+func GetCurrentInstructor(req *http.Request) (Instructor, error) {
+	user, err := GetCurrentUser(req)
+	if err != nil {
+		return Instructor{}, err
+	}
+
+	if user.Role != "Instructor" {
+		return Instructor{}, fmt.Errorf("current user is not an instructor")
+	}
+
+	// Query Firebase to find the instructor object with the same email as the user
+	ref := firebaseClient.NewRef("instructors")
+	var instructorsMap map[string]Instructor
+	if err := ref.Get(context.TODO(), &instructorsMap); err != nil {
+		return Instructor{}, fmt.Errorf("error reading instructors: %v", err)
+	}
+
+	// Find the instructor with the same email as the user
+	var instructor Instructor
+	found := false
+	for _, i := range instructorsMap {
+		if i.Email == user.Email {
+			instructor = i
+			found = true
+			break
+		}
+	}
+	if !found {
+		return Instructor{}, fmt.Errorf("instructor not found for the current user")
+	}
+	return instructor, nil
+}
+
+// Handler to get classes for the current instructor
+func GetInstructorClasses(res http.ResponseWriter, req *http.Request) {
+	instructor, err := GetCurrentInstructor(req)
+	if err != nil {
+		http.Error(res, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	// Query Firebase to get classes for the instructor
+	ref := firebaseClient.NewRef("classes")
+	var classesMap map[string]Class
+	if err := ref.Get(context.TODO(), &classesMap); err != nil {
+		http.Error(res, fmt.Sprintf("error reading classes: %v", err), http.StatusInternalServerError)
+		return
+	}
+
+	var cp, dn, ie, py, sc, te bool
+	cp, dn, ie, py, sc, te = false, false, false, false, false, false
+
+	// Filter classes by instructor's email
+	var instructorClasses [][]string
+	for _, class := range classesMap {
+		if class.Instructor == instructor.Email && class.Name == "CP" && !cp {
+			instructorClasses = append(instructorClasses, []string{"Coding Pioneers", class.FolderID})
+			cp = true
+		} else if class.Instructor == instructor.Email && class.Name == "DN" && !dn {
+			instructorClasses = append(instructorClasses, []string{"Digital Navigators", class.FolderID})
+			dn = true
+		} else if class.Instructor == instructor.Email && class.Name == "IE" && !ie {
+			instructorClasses = append(instructorClasses, []string{"Innovation Engineers", class.FolderID})
+			ie = true
+		} else if class.Instructor == instructor.Email && class.Name == "PY" && !py {
+			instructorClasses = append(instructorClasses, []string{"Python", class.FolderID})
+			py = true
+		} else if class.Instructor == instructor.Email && class.Name == "SC" && !sc {
+			instructorClasses = append(instructorClasses, []string{"Scratch", class.FolderID})
+			sc = true
+		} else if class.Instructor == instructor.Email && class.Name == "TE" && !te {
+			instructorClasses = append(instructorClasses, []string{"Tech Explorers", class.FolderID})
+			te = true
+		}
+	}
+
+	// Return the instructor's classes as JSON
+	res.Header().Set("Content-Type", "application/json")
+	if err := json.NewEncoder(res).Encode(instructorClasses); err != nil {
+		http.Error(res, fmt.Sprintf("error encoding response: %v", err), http.StatusInternalServerError)
+	}
+}
+
+// Handler to get classes for the current instructor
+func GetInstructorClassIds(res http.ResponseWriter, req *http.Request) {
+	instructor, err := GetCurrentInstructor(req)
+	if err != nil {
+		http.Error(res, err.Error(), http.StatusInternalServerError)
+		return
+	}
+
+	// Query Firebase to get classes for the instructor
+	ref := firebaseClient.NewRef("classes")
+	var classesMap map[string]Class
+	if err := ref.Get(context.TODO(), &classesMap); err != nil {
+		http.Error(res, fmt.Sprintf("error reading classes: %v", err), http.StatusInternalServerError)
+		return
+	}
+	// Filter classes by instructor's email
+	var instructorClasses []string
+	for _, class := range classesMap {
+		if class.Instructor == instructor.Email {
+			instructorClasses = append(instructorClasses, class.ClassID)
+		}
+	}
+
+	// Return the instructor's classes as JSON
+	res.Header().Set("Content-Type", "application/json")
+	if err := json.NewEncoder(res).Encode(instructorClasses); err != nil {
+		http.Error(res, fmt.Sprintf("error encoding response: %v", err), http.StatusInternalServerError)
+	}
+}
+
+// Function to get students by ClassID and their corresponding Parent FolderIDs
+func GetStudentsAndFoldersByClassID(classID string, res http.ResponseWriter, req *http.Request) {
+	// Query Firebase to get students
+	ref := firebaseClient.NewRef("students")
+	var studentsMap map[string]Student
+	if err := ref.Get(context.TODO(), &studentsMap); err != nil {
+		http.Error(res, fmt.Sprintf("error reading students: %v", err), http.StatusInternalServerError)
+		return
+	}
+
+	// Query Firebase to get parents
+	refParents := firebaseClient.NewRef("parents")
+	var parentsMap map[string]Parent
+	if err := refParents.Get(context.TODO(), &parentsMap); err != nil {
+		http.Error(res, fmt.Sprintf("error reading parents: %v", err), http.StatusInternalServerError)
+		return
+	}
+
+	// Prepare the result
+	var result []map[string]string
+	for _, student := range studentsMap {
+		if student.ClassID == classID {
+			parent, ok := parentsMap[student.ParentID]
+			if !ok {
+				http.Error(res, fmt.Sprintf("parent not found for student %s", student.Name), http.StatusNotFound)
+				return
+			}
+			result = append(result, map[string]string{
+				"name":     student.Name,
+				"folderID": parent.FolderID,
+			})
+		}
+	}
+
+	// Return the result as JSON
+	res.Header().Set("Content-Type", "application/json")
+	if err := json.NewEncoder(res).Encode(result); err != nil {
+		http.Error(res, fmt.Sprintf("error encoding response: %v", err), http.StatusInternalServerError)
+	}
+}
+
+// Utility function to get current student
+func GetCurrentStudent(req *http.Request) (Student, error) {
+	user, err := GetCurrentUser(req)
+	if err != nil {
+		return Student{}, err
+	}
+
+	if user.Role != "Student" {
+		return Student{}, fmt.Errorf("current user is not a student")
+	}
+
+	// Query Firebase to find the student object with the same email as the user
+	ref := firebaseClient.NewRef("students")
+	var studentsMap map[string]Student
+	if err := ref.Get(context.TODO(), &studentsMap); err != nil {
+		return Student{}, fmt.Errorf("error reading students: %v", err)
+	}
+
+	// Find the student with the same email as the user
+	var student Student
+	found := false
+	for _, s := range studentsMap {
+		if s.Email == user.Email {
+			student = s
+			found = true
+			break
+		}
+	}
+	if !found {
+		return Student{}, fmt.Errorf("student not found for the current user")
+	}
+	return student, nil
+}
+
+// Function to get the folder ID of a student's class
+func GetStudentFolder(req *http.Request) (string, error) {
+	student, err := GetCurrentStudent(req)
+	if err != nil {
+		return "", err
+	}
+
+	classID := student.ClassID
+	if classID == "" {
+		return "", fmt.Errorf("student is not enrolled in any class")
+	}
+
+	// Fetch class information based on ClassID
+	class, err := GetClassByID(classID)
+	if err != nil {
+		return "", err
+	}
+	return class.FolderID, nil
+}
+
+// Function to fetch a class by its ID from Firebase
+func GetClassByID(classID string) (Class, error) {
+	ref := firebaseClient.NewRef("classes/" + classID)
+
+	var class Class
+	if err := ref.Get(context.TODO(), &class); err != nil {
+		return Class{}, fmt.Errorf("error reading class: %v", err)
+	}
+
+	return class, nil
+}
+
+// Utility function to get current parent
+func GetCurrentParent(req *http.Request) (Parent, error) {
+	user, err := GetCurrentUser(req)
+	if err != nil {
+		return Parent{}, err
+	}
+
+	if user.Role != "Parent" {
+		return Parent{}, fmt.Errorf("current user is not a parent")
+	}
+
+	// Query Firebase to find the parent object with the same email as the user
+	ref := firebaseClient.NewRef("parents")
+	var parentsMap map[string]Parent
+	if err := ref.Get(context.TODO(), &parentsMap); err != nil {
+		return Parent{}, fmt.Errorf("error reading parents: %v", err)
+	}
+
+	// Find the parent with the same email as the user
+	var parent Parent
+	found := false
+	for _, p := range parentsMap {
+		if p.Email == user.Email {
+			parent = p
+			found = true
+			break
+		}
+	}
+	if !found {
+		return Parent{}, fmt.Errorf("parent not found for the current user")
+	}
+	return parent, nil
+}
+
+// Utility function to get current admin
+func GetCurrentAdmin(req *http.Request) (Admin, error) {
+	user, err := GetCurrentUser(req)
+	if err != nil {
+		return Admin{}, err
+	}
+
+	if user.Role != "Admin" {
+		return Admin{}, fmt.Errorf("current user is not an admin")
+	}
+
+	// Query Firebase to find the admin object with the same email as the user
+	ref := firebaseClient.NewRef("admins")
+	var adminsMap map[string]Admin
+	if err := ref.Get(context.TODO(), &adminsMap); err != nil {
+		return Admin{}, fmt.Errorf("error reading admins: %v", err)
+	}
+
+	// Find the admin with the same email as the user
+	var admin Admin
+	found := false
+	for _, a := range adminsMap {
+		if a.Email == user.Email {
+			admin = a
+			found = true
+			break
+		}
+	}
+	if !found {
+		return Admin{}, fmt.Errorf("admin not found for the current user")
+	}
+	return admin, nil
 }
 
 // Utility functions to check roles
@@ -126,48 +457,6 @@ func isParentChildInClass(user User, students []Student, class Class) bool {
 		}
 	}
 	return false
-}
-
-func getUserRole(email string) (User, string, error) {
-	ctx := context.Background()
-	var user User
-	var userRole string
-
-	// Check if firebaseClient is initialized
-	if firebaseClient == nil {
-		log.Println("Firebase client is not initialized")
-		return user, userRole, fmt.Errorf("firebase client is not initialized")
-	}
-
-	// Map categories to Firebase references
-	categoryRefs := map[string]string{
-		"Student":    "/students",
-		"Parent":     "/parents",
-		"Instructor": "/instructors",
-		"Admin":      "/admins",
-	}
-
-	// Iterate through each category and check if the email exists
-	for category, ref := range categoryRefs {
-		categoryRef := firebaseClient.NewRef(ref)
-		dataSnapshot, err := categoryRef.OrderByChild("email").EqualTo(email).GetOrdered(ctx)
-		if err != nil {
-			log.Printf("Error fetching data from %s: %v", category, err)
-			continue
-		}
-
-		// Check if dataSnapshot has any children
-		if len(dataSnapshot) > 0 {
-			userRole = category
-			// Assuming dataSnapshot[0] is the first match and it contains the user data
-			if err := dataSnapshot[0].Unmarshal(&user); err != nil {
-				log.Printf("Error unmarshalling data for %s: %v", category, err)
-				continue
-			}
-			break
-		}
-	}
-	return user, userRole, nil
 }
 
 // CRUD operations with role checks
@@ -241,7 +530,9 @@ func searchStudents(name, class string) ([]Student, error) {
 	}
 	var filteredStudents []Student
 	for _, student := range students {
-		if name == "" || strings.Contains(strings.ToLower(student.Name), strings.ToLower(name)) {
+		// Check both name and class
+		if (name == "" || strings.Contains(strings.ToLower(student.Name), strings.ToLower(name))) &&
+			(class == "" || strings.Contains(strings.ToLower(student.ClassID), strings.ToLower(class))) {
 			filteredStudents = append(filteredStudents, student)
 		}
 	}

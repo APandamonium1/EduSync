@@ -2,21 +2,26 @@
 <html>
 <head>
     <title>Google Sign In</title>
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css"> <!-- load bulma css -->
-    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css"> <!-- load fontawesome -->
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.4.1/css/bootstrap.min.css">
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css">
     <style>
-        body        { padding-top:70px; }
+        body        { padding-top: 70px; }
+        .text-blue  { color: #246EB9; }
+        .btn-orange { background-color: #FFBE0B; color: white; border-color: #FFBE0B; }
+        .btn-orange:hover, .btn-orange:focus, .btn-orange:active { background-color: #e0a700; border-color: #e0a700; }
     </style>
 </head>
 <body>
     <div id="page" class="site" itemscope itemtype="http://schema.org/LocalBusiness">
         <div class="container">
-            <div class="jumbotron text-center text-success">
+            <div class="jumbotron text-center text-blue">
                 <h1><span class="fa fa-lock"></span> Social Authentication</h1>
                 <p>Login or Register with:</p>
-                <a href="/auth/google" class="btn btn-danger"><span class="fa fa-google"></span> Sign In with Google</a>
+                <a href="/auth/google" class="btn btn-orange"><span class="fa fa-google"></span> Sign In with Google</a>
+                <br><br>
+                <a href="https://localhost:8080" class="btn btn-secondary"><span class="fa fa-arrow-left"></span> Back</a>
             </div>
         </div>
     </div>
 </body>
-</html> 
+</html>

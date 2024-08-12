@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html>
+<head>
+	<title>EduSync</title>
+	<meta name="viewport" content="width=device-width">
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<link rel="stylesheet" type="text/css" href="/assets/css/owl.carousel.css">
+	<link rel="stylesheet" type="text/css" href="/assets/css/inner-page-style.css">
+	<link rel="stylesheet" type="text/css" href="/assets/css/style.css">
+	<link href="https://fonts.googleapis.com/css?family=Raleway:400,500,600,700" rel="stylesheet">
+	<style>
+		a:hover {
+            text-decoration: underline; /* Add underline on hover (optional) */
+        }
+		/* Style the horizontal line */
+		hr {
+            border: none; /* Remove default border */
+            border-top: 1px solid #aaa; /* Thin light grey line */
+            margin: 0; /* Remove default margin */
+            padding: 0; /* Remove default padding */
+        }
+        table {
+            width: 75%;
+            border-collapse: collapse;
+        }
+        th, td {
+            padding: 10px;
+            border: 1px solid #ddd;
+        }
+        th {
+            background-color: #f4f4f4;
+            text-align: left;
+        }
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        .button-container {
+            margin-top: 20px;
+        }
+        .button-container button {
+            padding: 10px 20px;
+            font-size: 16px;
+            cursor: pointer;
+        }
+        .file-upload {
+            margin: 10px 0;
+        }
+        #upload-status {
+            margin-top: 20px;
+            font-size: 16px;
+            color: #333;
+        }
+        #upload-status.hidden {
+            display: none;
+        }
+        #page {
+            max-width: 1200px; /* Adjust this value as needed */
+            margin: 0 auto; /* Centers the container horizontally */
+            padding: 20px; /* Optional padding for better spacing */
+        }
+
+        h1 {
+            font-size: 3em; /* Adjust as needed */
+        }
+
+        p {
+            font-size: 1.2em; /* Adjust as needed */
+        }
+
+        table th, table td {
+            font-size: 1.5em; /* Adjust as needed */
+        }
+	</style>
+    <script>
+        document.addEventListener("DOMContentLoaded", function() {
+            const classID = new URLSearchParams(window.location.search).get('class_id');
+            document.getElementById('heading').textContent = "Upload Student Media for " + classID;
+
+            if (classID) {
+                fetch(`/instructor/api/media?class_id=${classID}`)
+                    .then(response => response.json())
+                    .then(data => {
+                        const tableBody = document.getElementById('student-table-body');
+                        data.forEach(item => {
+                            const row = document.createElement('tr');
+                            const nameCell = document.createElement('td');
+                            nameCell.textContent = item.name;
+
+                            const folderIDCell = document.createElement('td');
+                            folderIDCell.textContent = item.folderID;
+
+                            const fileInput = document.createElement('input');
+                            fileInput.type = 'file';
+                            fileInput.className = 'file-upload';
+                            fileInput.dataset.folderId = item.folderID;
+                            fileInput.dataset.studentName = item.name;
+
+                            const fileCell = document.createElement('td');
+                            fileCell.appendChild(fileInput);
+
+                            row.appendChild(nameCell);
+                            row.appendChild(fileCell);
+                            row.appendChild(folderIDCell);
+                            tableBody.appendChild(row);
+                        });
+                    })
+                    .catch(error => console.error('Error fetching student data:', error));
+            } else {
+                console.error('No class ID provided in the URL');
+            }
+        });
+
+        function uploadFiles() {
+            const fileInputs = document.querySelectorAll('.file-upload');
+            const formData = new FormData();
+
+            fileInputs.forEach(fileInput => {
+                if (fileInput.files.length > 0) {
+                    Array.from(fileInput.files).forEach(file => {
+                        formData.append('files', file);
+                        formData.append('folderIds', fileInput.dataset.folderId);
+                        formData.append('studentNames', fileInput.dataset.studentName);
+                    });
+                }
+            });
+
+            // Show the uploading message
+            const uploadStatus = document.getElementById('upload-status');
+            uploadStatus.textContent = 'Uploading files...';
+            uploadStatus.classList.remove('hidden');
+
+            fetch('/api/media-upload', {
+                method: 'POST',
+                body: formData
+            })
+            .then(response => response.json())
+            .then(data => {
+                console.log('Upload success:', data);
+                // Hide the uploading message and show success message
+                uploadStatus.textContent = 'Files uploaded successfully!';
+                setTimeout(() => {
+                    window.history.back();
+                }, 1000); // Delay for 1 second to let the user see the success message
+            })
+            .catch(error => {
+                console.error('Upload error:', error);
+                // Hide the uploading message and show error message
+                uploadStatus.textContent = 'Upload failed. Please try again.';
+            });
+        }
+    </script>
+</head>
+<body>
+	<div id="page" class="site" itemscope itemtype="http://schema.org/LocalBusiness">
+		<header class="site-header">
+			<div class="main-header">
+				<div class="container">
+					<div class="logo-wrap" itemprop="logo">
+                        <a href="/instructor">
+                            <img src="/assets/images/site-logo.jpg" alt="Logo Image" style="width: 120px; height: auto;">
+                        </a>   						<!-- <h1>Education</h1> -->
+					</div>
+					<div class="nav-wrap">
+						<nav class="nav-desktop">
+							<ul class="menu-list">
+								<li><a href="/instructor">Home</a></li>
+								<li><a href="/instructor/learning-materials/classes">Lesson Materials</a></li>
+								<li><a href="/instructor/media/classes">Student Media</a></li>
+                                <li><a href="/instructor/profile">Profile</a></li>
+								<li><a href="/logout">Logout</a></li>
+							</ul>
+						</nav>
+						<div id="bar">
+							<i class="fas fa-bars"></i>
+						</div>
+						<div id="close">
+							<i class="fas fa-times"></i>
+						</div>
+					</div>
+				</div>
+			</div>
+		</header>
+        <hr>
+		<!-- Header Close -->
+        <br>
+        <br>
+        <h1 id="heading"></h1>
+        <br>
+        <table>
+            <thead>
+                <tr>
+                    <th>Student Name</th>
+                    <th>Upload File</th>
+                    <th>Folder ID</th>
+                </tr>
+            </thead>
+            <tbody id="student-table-body">
+                <!-- Data will be inserted here by JavaScript -->
+            </tbody>
+        </table>
+        <div class="button-container">
+            <button type="button" onclick="uploadFiles()">Upload</button>
+            <button type="button" onclick="window.history.back()">Back</button>
+        </div>
+        <div id="upload-status" class="hidden"></div>
+	</div>
+	<script type="text/javascript" src="/assets/js/jquery-3.3.1.min.js"></script>
+	<script type="text/javascript" src="/assets/js/all.js"></script>
+	<script type="text/javascript" src="/assets/js/isotope.pkgd.min.js"></script>
+	<script type="text/javascript" src="/assets/js/owl.carousel.js"></script>
+	<script type="text/javascript" src="/assets/js/jquery.flexslider.js"></script>
+	<script type="text/javascript" src="/assets/js/jquery.rateyo.js"></script>
+	<script type="text/javascript" src="/assets/js/custom.js"></script>
+</body>
+</html>

@@ -74,6 +74,23 @@
             await fetchAnnouncements(`/admin/api/search_announcement`);
         }
     </script>
+    <style>
+        /* Style the horizontal line */
+        hr {
+            border: none; /* Remove default border */
+            border-top: 1px solid #aaa; /* Thin light grey line */
+            margin: 0; /* Remove default margin */
+            padding: 0; /* Remove default padding */
+        }
+
+        a:hover {
+            text-decoration: underline; /* Add underline on hover (optional) */
+        }
+
+        .error-message {
+            color: red;
+        }
+    </style>
 </head>
 <body>
     <div id="page" class="site" itemscope itemtype="http://schema.org/LocalBusiness">
@@ -106,8 +123,11 @@
         </header>
         <hr>
         <!-- Header Close -->
+        <br>
+        <br>
         <div class="container content">
             <h1>Search Announcements</h1>
+            <br>
             <div>
                 <label for="subjectFilter">subject:</label>
                 <input type="text" id="subjectFilter">

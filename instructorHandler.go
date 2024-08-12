@@ -16,4 +16,69 @@ func InstructorHandler(router *mux.Router) {
 		}
 		t.Execute(res, nil)
 	}).Methods("GET")
+
+	router.HandleFunc("/instructor/learning-materials/classes", func(res http.ResponseWriter, req *http.Request) {
+		t, err := template.ParseFiles("templates/instructor/lm-classes.html")
+		if err != nil {
+			http.Error(res, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		t.Execute(res, nil)
+	}).Methods("GET")
+
+	router.HandleFunc("/instructor/classes/get-classes", func(res http.ResponseWriter, req *http.Request) {
+		GetInstructorClasses(res, req)
+	}).Methods("GET")
+
+	router.HandleFunc("/instructor/learning-materials/upload", func(res http.ResponseWriter, req *http.Request) {
+		t, err := template.ParseFiles("templates/instructor/lm-upload.html")
+		if err != nil {
+			http.Error(res, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		t.Execute(res, nil)
+	}).Methods("GET")
+
+	router.HandleFunc("/instructor/media/classes", func(res http.ResponseWriter, req *http.Request) {
+		t, err := template.ParseFiles("templates/instructor/media-classes.html")
+		if err != nil {
+			http.Error(res, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		t.Execute(res, nil)
+	}).Methods("GET")
+
+	router.HandleFunc("/instructor/media/get-classes", func(res http.ResponseWriter, req *http.Request) {
+		GetInstructorClassIds(res, req)
+	}).Methods("GET")
+
+	router.HandleFunc("/instructor/api/media", func(res http.ResponseWriter, req *http.Request) {
+		classId := req.URL.Query().Get("class_id")
+		GetStudentsAndFoldersByClassID(classId, res, req)
+	}).Methods("GET")
+
+	router.HandleFunc("/instructor/media/upload", func(res http.ResponseWriter, req *http.Request) {
+		t, err := template.ParseFiles("templates/instructor/media-upload.html")
+		if err != nil {
+			http.Error(res, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		t.Execute(res, nil)
+	}).Methods("GET")
+
+	router.HandleFunc("/instructor/profile", func(res http.ResponseWriter, req *http.Request) {
+		instructor, err := GetCurrentInstructor(req)
+		if err != nil {
+			http.Error(res, err.Error(), http.StatusInternalServerError)
+			return
+		}
+
+		// Render the profile page
+		t, err := template.ParseFiles("templates/instructor/profile.html")
+		if err != nil {
+			http.Error(res, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		t.Execute(res, instructor)
+	}).Methods("GET")
 }

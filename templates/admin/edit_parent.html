@@ -1,12 +1,15 @@
 <!DOCTYPE html>
 <html>
 <head>
-	<title>Edit Parent Details</title>
-	<meta name="viewport" content="width=device-width, initial-scale=1.0">
-	<link rel="stylesheet" type="text/css" href="/assets/css/style.css">
-	<link href="https://fonts.googleapis.com/css?family=Raleway:400,500,600,700" rel="stylesheet">
+    <title>EduSync</title>
+    <meta name="viewport" content="width=device-width">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" type="text/css" href="/assets/css/owl.carousel.css">
+    <link rel="stylesheet" type="text/css" href="/assets/css/inner-page-style.css">
+    <link rel="stylesheet" type="text/css" href="/assets/css/style.css">
+    <link href="https://fonts.googleapis.com/css?family=Raleway:400,500,600,700" rel="stylesheet">
     <script>
-        let initialStudent = {};
+        let initialParent = {};
 
         async function loadParent() {
             const googleID = document.getElementById('googleID').value;
@@ -14,35 +17,36 @@
             const parent = await response.json();
             document.getElementById('name').value = parent.name;
             document.getElementById('email').value = parent.email;
-            document.getElementById('contactNumber').value = parent.contact_no;
-            document.getElementById('role').value = parent.role;
-        
-            initialStudent = {...student}
+            document.getElementById('contactNumber').value = parent.contact_number;
+            document.getElementById('folderID').value = parent.folder_id;
+
+            initialParent = { ...parent };
         }
 
         function hasChanges() {
             return (
-                document.getElementById('name').value !== initialStudent.name ||
-                document.getElementById('email').value !== initialStudent.email ||
-                parseInt(document.getElementById('age').value, 10) !== initialStudent.age ||
-                document.getElementById('class').value !== initialStudent.class ||
-                document.getElementById('instructor').value !== initialStudent.instructor ||
-                document.getElementById('parentName').value !== initialStudent.parent_name ||
-                document.getElementById('role').value !== initialStudent.role
+                document.getElementById('name').value !== initialParent.name ||
+                document.getElementById('email').value !== initialParent.email ||
+                document.getElementById('contactNumber').value !== initialParent.contact_number ||
+                document.getElementById('folderID').value !== initialParent.folder_id
             );
         }
 
         async function updateParent() {
             const googleID = document.getElementById('googleID').value;
+            const contactNumber = document.getElementById('contactNumber').value;
+
             if (!hasChanges()) {
                 return;  // No changes, so do not proceed with update
             }
+
             const updates = {
                 name: document.getElementById('name').value,
                 email: document.getElementById('email').value,
-                contact_no: document.getElementById('contactNumber').value,
-                role: document.getElementById('role').value
+                contact_number: contactNumber,
+                folder_id: document.getElementById('folderID').value
             };
+
             await fetch(`/admin/parent/${googleID}`, {
                 method: 'PUT',
                 headers: {
@@ -50,6 +54,7 @@
                 },
                 body: JSON.stringify(updates)
             });
+
             alert('Parent updated successfully');
             window.location.href = '/admin/search_parent';
         }
@@ -76,28 +81,63 @@
                 document.getElementById('saveButton').disabled = true; // Disable save button
             }
         }
+        
+        function validateEmail() {
+            const email = document.getElementById('email').value;
+            const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+            const errorElement = document.getElementById('emailError');
+
+            if (emailPattern.test(email)) {
+                errorElement.textContent = ''; // Clear error message
+                document.getElementById('saveButton').disabled = false; // Enable save button
+            } else {
+                errorElement.textContent = 'Please enter a valid email address.';
+                document.getElementById('saveButton').disabled = true; // Disable save button
+            }
+        }
 
         function goBack() {
             window.history.back();
         }
     </script>
+    <style>
+        /* Style the horizontal line */
+        hr {
+            border: none; /* Remove default border */
+            border-top: 1px solid #aaa; /* Thin light grey line */
+            margin: 0; /* Remove default margin */
+            padding: 0; /* Remove default padding */
+        }
+
+        a:hover {
+            text-decoration: underline; /* Add underline on hover (optional) */
+        }
+
+        .error-message {
+            color: red;
+        }
+    </style>
 </head>
 <body onload="loadParent()">
-	<div id="page" class="site" itemscope itemtype="http://schema.org/LocalBusiness">
-		<header class="site-header">
-			<div class="main-header">
-				<div class="container">
-					<div class="logo-wrap" itemprop="logo">
-						<img src="/assets/images/site-logo.jpg" alt="Logo Image" style="width: 120px; height: auto;">
-					</div>
-					<div class="nav-wrap">
-						<nav class="nav-desktop">
-							<ul class="menu-list">
-								<li><a href="/admin">Home</a></li>
+    <div id="page" class="site" itemscope itemtype="http://schema.org/LocalBusiness">
+        <header class="site-header">
+            <div class="main-header">
+                <div class="container">
+                    <div class="logo-wrap" itemprop="logo">
+                        <a href="/admin">
+                            <img src="/assets/images/site-logo.jpg" alt="Logo Image" style="width: 120px; height: auto;">
+                        </a>   
+                    </div>
+                    <div class="nav-wrap">
+                        <nav class="nav-desktop">
+                            <ul class="menu-list">
+                                <li><a href="/admin">Home</a></li>
                                 <li><a href="/admin/search_student">Students</a></li>
                                 <li><a href="/admin/search_parent">Parents</a></li>
                                 <li><a href="/admin/search_instructor">Instructors</a></li>
                                 <li><a href="/admin/search_announcement">Announcements</a></li>
+                                <li><a href="/admin/profile">Profile</a></li>
+                                <li><a href="/logout">Logout</a></li>
 							</ul>
 						</nav>
 						<div id="bar">
@@ -110,33 +150,46 @@
 				</div>
 			</div>
 		</header>
+        <hr>
 		<!-- Header Close -->
-		
+		<br>
+        <br>
         <div class="container content">
             <h1>Edit Parent Details</h1>
+            <br>
             <input type="hidden" id="googleID" value="{{.GoogleID}}">
             <form onsubmit="event.preventDefault(); updateParent();">
-                <div><label>Name: </label><input type="text" id="name" disabled></div>
-                <br>
-                <div><label>Email: </label><input type="text" id="email" disabled></div>
+                <div><label><strong>Name: </strong></label>&nbsp;<input type="text" id="name" disabled></div>
                 <br>
                 <div>
-                    <label>Contact Number: </label>
-                    <input type="text" id="contactNumber" disabled oninput="validatePhoneNumber()">
+                    <label><strong>Email: </strong></label>&nbsp;
+                    <input type="text" id="email" disabled oninput="validateEmail()">&nbsp;&nbsp;
+                    <span id="emailError" class="error-message"></span>
+                </div>                
+                <br>
+                <div>
+                    <label><strong>Contact Number: </strong></label>&nbsp;
+                    <input type="text" id="contactNumber" disabled oninput="validatePhoneNumber()">&nbsp;&nbsp;
                     <span id="phoneNumberError" class="error-message"></span>
                 </div>
                 <br>
-                <div><label>Role: </label><input type="text" id="role" disabled></div>
+                <div><label><strong>Folder ID: </strong></label>&nbsp;<input type="text" id="folderID" disabled></div>
+                <br>
                 <br>
                 <div class="button-container">
                     <button type="button" id="editButton" onclick="toggleEdit()">Edit</button>
                     <button type="submit" id="saveButton" style="display:none;">Save</button>
                     <button type="button" onclick="goBack()">Back</button>
-                </div>              
+                </div>
             </form>
         </div>
-	</div>
-	<script type="text/javascript" src="/assets/js/jquery-3.3.1.min.js"></script>
-	<script type="text/javascript" src="/assets/js/custom.js"></script>
+    </div>
+    <script type="text/javascript" src="/assets/js/jquery-3.3.1.min.js"></script>
+    <script type="text/javascript" src="/assets/js/all.js"></script>
+    <script type="text/javascript" src="/assets/js/isotope.pkgd.min.js"></script>
+    <script type="text/javascript" src="/assets/js/owl.carousel.js"></script>
+    <script type="text/javascript" src="/assets/js/jquery.flexslider.js"></script>
+    <script type="text/javascript" src="/assets/js/jquery.rateyo.js"></script>
+    <script type="text/javascript" src="/assets/js/custom.js"></script>
 </body>
 </html>

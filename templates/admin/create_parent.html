@@ -35,6 +35,23 @@
             }
         }
     </script>
+    <style>
+        /* Style the horizontal line */
+        hr {
+            border: none; /* Remove default border */
+            border-top: 1px solid #aaa; /* Thin light grey line */
+            margin: 0; /* Remove default margin */
+            padding: 0; /* Remove default padding */
+        }
+
+        a:hover {
+            text-decoration: underline; /* Add underline on hover (optional) */
+        }
+
+        .error-message {
+            color: red;
+        }
+    </style>
 </head>
 <body>
     <div id="page" class="site">
@@ -52,15 +69,20 @@
                                 <li><a href="/admin/search_student">Students</a></li>
                                 <li><a href="/admin/search_parent">Parents</a></li>
                                 <li><a href="/admin/search_announcement">Announcements</a></li>
+                                <li><a href="/admin/profile">Profile</a></li>
+                                <li><a href="/logout">Logout</a></li>
                             </ul>
                         </nav>
                     </div>
                 </div>
             </div>
         </header>
+        <hr>
+        <br>
+        <br>
 
         <div class="container content">
-            <h1>Create New Parent</h1>
+            <h1>Create New Parent</h1><br>
             <form onsubmit="event.preventDefault(); createParent();">
                 <div><label>Name: </label><input type="text" id="name" required></div>
                 <br>

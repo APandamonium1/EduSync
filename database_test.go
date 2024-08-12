@@ -77,12 +77,15 @@ var (
 			Email:         "janedoe_parent@nk.com",
 			Role:          "Parent",
 		},
+		FolderID: "1F38DgyV0V5q2CWzoO3xkHTC4FY6cNrig",
 	}
 
 	classes = []Class{
 		{
-			ClassID: "te-6-10",
-			Name:    "Test Class",
+			ClassID:    "te-6-10",
+			Name:       "Test Class",
+			Instructor: "jeyvianang112462@gmail.com",
+			FolderID:   "1zrj8iUefB9D0u1RXT8Pi0-At8aQf9n2m",
 		},
 	}
 
