@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"os"
 	"strings"
 
 	firebase "firebase.google.com/go"
@@ -17,15 +16,15 @@ import (
 var firebaseClient *db.Client
 
 func SessionCookie() (string, error) {
-	// sessionCookieStore := goDotEnvVariable("SESSION_COOKIE_STORE")
-	// if sessionCookieStore == "" {
-	// 	return sessionCookieStore, fmt.Errorf("SESSION_COOKIE_STORE is not set in the environment variables")
-	// }
-
-	sessionCookieStore, found := os.LookupEnv("COOKIESTORE")
-	if !found {
-		log.Fatalf("COOKIESTORE is not set in the environment variables")
+	sessionCookieStore := goDotEnvVariable("SESSION_COOKIE_STORE")
+	if sessionCookieStore == "" {
+		return sessionCookieStore, fmt.Errorf("SESSION_COOKIE_STORE is not set in the environment variables")
 	}
+
+	// sessionCookieStore, found := os.LookupEnv("COOKIESTORE")
+	// if !found {
+	// 	log.Fatalf("COOKIESTORE is not set in the environment variables")
+	// }
 
 	return sessionCookieStore, nil
 }
@@ -393,6 +392,24 @@ func GetCurrentAdmin(req *http.Request) (Admin, error) {
 		return Admin{}, fmt.Errorf("admin not found for the current user")
 	}
 	return admin, nil
+}
+
+// Utility function to get list of students given a classID
+func GetStudentsByClassID(classID string) ([]Student, error) {
+	ref := firebaseClient.NewRef("students")
+	var studentsMap map[string]Student
+	if err := ref.Get(context.TODO(), &studentsMap); err != nil {
+		return nil, fmt.Errorf("error reading students: %v", err)
+	}
+
+	var students []Student
+	for _, student := range studentsMap {
+		if student.ClassID == classID {
+			students = append(students, student)
+		}
+	}
+
+	return students, nil
 }
 
 // Utility functions to check roles
@@ -940,6 +957,41 @@ func readAllClasses(req *http.Request) ([]Class, error) {
 	return classes, nil
 }
 
+func readClasses() ([]Class, error) {
+	var classesMap map[string]Class
+	ref := firebaseClient.NewRef("classes")
+	if err := ref.Get(context.TODO(), &classesMap); err != nil {
+		return nil, fmt.Errorf("error reading classes: %v", err)
+	}
+	// Convert map to slice
+	classes := make([]Class, 0, len(classesMap))
+	for _, class := range classesMap {
+		classes = append(classes, class)
+	}
+	return classes, nil
+}
+
+func searchClasses(classID string) ([]Class, error) {
+	// Read all classes from the data source
+	classes, err := readClasses()
+	if err != nil {
+		return nil, err
+	}
+	// If the classID subject is empty, return all classes
+	if classID == "" {
+		return classes, nil
+	}
+	// Filter classes based on whether the classID contains the search term
+	var filteredClasses []Class
+	lowerSubject := strings.ToLower(classID)
+	for _, class := range classes {
+		if strings.Contains(strings.ToLower(class.Name), lowerSubject) {
+			filteredClasses = append(filteredClasses, class)
+		}
+	}
+	return filteredClasses, nil
+}
+
 func updateClass(class Class, updates map[string]interface{}, req *http.Request) error {
 	currentUser, err := GetCurrentUser(req)
 	if err != nil {
@@ -1019,8 +1071,8 @@ func readAnnouncements() ([]Announcement, error) {
 	}
 	// Convert map to slice
 	announcements := make([]Announcement, 0, len(announcementsMap))
-	for _, student := range announcementsMap {
-		announcements = append(announcements, student)
+	for _, announcement := range announcementsMap {
+		announcements = append(announcements, announcement)
 	}
 	return announcements, nil
 }

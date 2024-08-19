@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>EduSync</title>
+    <meta name="viewport" content="width=device-width">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" type="text/css" href="/assets/css/owl.carousel.css">
+    <link rel="stylesheet" type="text/css" href="/assets/css/inner-page-style.css">
+    <link rel="stylesheet" type="text/css" href="/assets/css/style.css">
+    <link href="https://fonts.googleapis.com/css?family=Raleway:400,500,600,700" rel="stylesheet">
+    <script>
+        let initialClassData = {};
+
+        async function loadClass() {
+            const classID = document.getElementById('classID').value;
+            const response = await fetch(`/admin/class/${classID}`);
+            const classData = await response.json();
+            document.getElementById('name').value = classData.class_name;
+            document.getElementById('instructor').value = classData.instructor;
+            document.getElementById('duration').value = classData.duration;
+            initialClassData = { ...classData };
+        }
+
+        function hasChanges() {
+            return (
+                document.getElementById('name').value !== initialClassData.class_name ||
+                document.getElementById('instructor').value !== initialClassData.instructor ||
+                document.getElementById('duration').value !== initialClassData.duration
+            );
+        }
+
+        async function updateClass() {
+            const classID = document.getElementById('classID').value;
+            if (!hasChanges()) {
+                return;  // No changes, so do not proceed with update
+            }
+            const updates = {
+                class_name: document.getElementById('name').value,
+                instructor: document.getElementById('instructor').value,
+                duration: parseFloat(document.getElementById('duration').value),
+            };
+            await fetch(`/admin/class/${classID}`, {
+                method: 'PUT',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify(updates)
+            });
+            alert('Class updated successfully');
+            window.location.href = '/admin/search_class';
+        }
+
+        function toggleEdit() {
+            const inputs = document.querySelectorAll('input');
+            inputs.forEach(input => {
+                input.disabled = !input.disabled;
+            });
+            document.getElementById('editButton').style.display = 'none';
+            document.getElementById('saveButton').style.display = 'block';
+        }
+
+        function goBack() {
+            window.history.back();
+        }
+    </script>
+    <style>
+        /* Style the horizontal line */
+        hr {
+            border: none; /* Remove default border */
+            border-top: 1px solid #aaa; /* Thin light grey line */
+            margin: 0; /* Remove default margin */
+            padding: 0; /* Remove default padding */
+        }
+
+        a:hover {
+            text-decoration: underline; /* Add underline on hover (optional) */
+        }
+
+        .error-message {
+            color: red;
+        }
+    </style>
+</head>
+<body onload="loadClass()">
+    <div id="page" class="site" itemscope itemtype="http://schema.org/LocalBusiness">
+        <header class="site-header">
+            <div class="main-header">
+                <div class="container">
+                    <div class="logo-wrap" itemprop="logo">
+                        <img src="/assets/images/site-logo.jpg" alt="Logo Image" style="width: 120px; height: auto;">
+                    </div>
+                    <div class="nav-wrap">
+                        <nav class="nav-desktop">
+                            <ul class="menu-list">
+                                <li><a href="/admin">Home</a></li>
+                                <li><a href="/admin/search_student">Students</a></li>
+                                <li><a href="/admin/search_parent">Parents</a></li>
+                                <li><a href="/admin/search_instructor">Instructors</a></li>
+                                <li><a href="/admin/search_announcement">Announcements</a></li>
+                                <li><a href="/admin/search_class">Classes</a></li>
+                                <li><a href="/admin/profile">Profile</a></li>
+                                <li><a href="/logout">Logout</a></li>
+                            </ul>
+                        </nav>
+                        <div id="bar">
+                            <i class="fas fa-bars"></i>
+                        </div>
+                        <div id="close">
+                            <i class="fas fa-times"></i>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </header>
+        <hr>
+        <!-- Header Close -->
+        <br>
+        <br>
+        <div class="container content">
+            <h1>Edit Class Details</h1>
+            <br>
+            <input type="hidden" id="classID" value="{{.ClassID}}">
+            <form onsubmit="event.preventDefault(); updateClass();">
+                <div><label>Name: </label><input type="text" id="name" disabled></div>
+                <br>
+                <div><label>Instructor: </label><input type="text" id="instructor" disabled></div>
+                <br>
+                <div><label>Duration (hours): </label><input type="number" id="duration" step="0.01" disabled></div>
+                <br>
+                <div class="button-container">
+                    <button type="button" id="editButton" onclick="toggleEdit()">Edit</button>
+                    <button type="submit" id="saveButton" style="display:none;">Save</button>
+                    <button type="button" onclick="goBack()">Back</button>
+                </div>
+            </form>
+        </div>
+    </div>
+    <script type="text/javascript" src="/assets/js/jquery-3.3.1.min.js"></script>
+    <script type="text/javascript" src="/assets/js/all.js"></script>
+    <script type="text/javascript" src="/assets/js/isotope.pkgd.min.js"></script>
+    <script type="text/javascript" src="/assets/js/owl.carousel.js"></script>
+    <script type="text/javascript" src="/assets/js/jquery.flexslider.js"></script>
+    <script type="text/javascript" src="/assets/js/jquery.rateyo.js"></script>
+    <script type="text/javascript" src="/assets/js/custom.js"></script>
+</body>
+</html>

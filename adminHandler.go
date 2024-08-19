@@ -473,6 +473,122 @@ func AdminHandler(router *mux.Router) {
 	//   Request Body: JSON object with announcement details
 	//   Response: HTTP Status Created (201)
 
+	// Serve the search class page
+	router.HandleFunc("/admin/search_class", func(res http.ResponseWriter, req *http.Request) {
+		t, err := template.ParseFiles("templates/admin/search_class.html")
+		if err != nil {
+			http.Error(res, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		t.Execute(res, nil)
+	}).Methods("GET")
+
+	// Serve the create class page
+	router.HandleFunc("/admin/create_class", func(res http.ResponseWriter, req *http.Request) {
+		t, err := template.ParseFiles("templates/admin/create_class.html")
+		if err != nil {
+			http.Error(res, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		t.Execute(res, nil)
+	}).Methods("GET")
+
+	// Search for classes by classID
+	router.HandleFunc("/admin/api/search_class", func(res http.ResponseWriter, req *http.Request) {
+		classID := req.URL.Query().Get("classID")
+		classes, err := searchClasses(classID)
+		if err != nil {
+			http.Error(res, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		res.Header().Set("Content-Type", "application/json")
+		json.NewEncoder(res).Encode(classes)
+	}).Methods("GET")
+
+	// Edit class information page
+	router.HandleFunc("/admin/class/{classID}/edit", func(res http.ResponseWriter, req *http.Request) {
+		vars := mux.Vars(req)
+		classID := vars["classID"]
+
+		// Retrieve students and class information
+		students, err := GetStudentsByClassID(classID)
+		if err != nil {
+			http.Error(res, fmt.Sprintf("error retrieving students: %v", err), http.StatusInternalServerError)
+			return
+		}
+
+		class, err := readClass(students, classID, req)
+		if err != nil {
+			http.Error(res, err.Error(), http.StatusInternalServerError)
+			return
+		}
+
+		t, err := template.ParseFiles("templates/admin/edit_class.html")
+		if err != nil {
+			http.Error(res, err.Error(), http.StatusInternalServerError)
+			return
+		}
+		t.Execute(res, class)
+	}).Methods("GET")
+
+	// Update class information
+	router.HandleFunc("/admin/class/{classID}", func(res http.ResponseWriter, req *http.Request) {
+		vars := mux.Vars(req)
+		classID := vars["classID"]
+
+		// Retrieve students
+		students, err := GetStudentsByClassID(classID)
+		if err != nil {
+			http.Error(res, fmt.Sprintf("error retrieving students: %v", err), http.StatusInternalServerError)
+			return
+		}
+
+		switch req.Method {
+		case http.MethodGet:
+			class, err := readClass(students, classID, req)
+			if err != nil {
+				http.Error(res, err.Error(), http.StatusInternalServerError)
+				return
+			}
+			res.Header().Set("Content-Type", "application/json")
+			json.NewEncoder(res).Encode(class)
+		case http.MethodPut:
+			var updates map[string]interface{}
+			if err := json.NewDecoder(req.Body).Decode(&updates); err != nil {
+				http.Error(res, err.Error(), http.StatusBadRequest)
+				return
+			}
+			class := Class{ClassID: classID}
+			if err := updateClass(class, updates, req); err != nil {
+				http.Error(res, err.Error(), http.StatusInternalServerError)
+				return
+			}
+			res.WriteHeader(http.StatusNoContent)
+		}
+	}).Methods("GET", "PUT")
+
+	// Create a new class
+	router.HandleFunc("/admin/class", func(res http.ResponseWriter, req *http.Request) {
+		if req.Method == http.MethodPost {
+			var class Class
+			if err := json.NewDecoder(req.Body).Decode(&class); err != nil {
+				http.Error(res, fmt.Sprintf(`{"error": "Invalid request payload: %v"}`, err), http.StatusBadRequest)
+				return
+			}
+			class.ClassID = uuid.New().String()
+			class.CreatedAt = time.Now()
+			class.UpdatedAt = time.Now()
+			if err := createClass(class, req); err != nil {
+				http.Error(res, fmt.Sprintf(`{"error": "Failed to create class: %v"}`, err), http.StatusInternalServerError)
+				return
+			}
+			res.WriteHeader(http.StatusCreated)
+			json.NewEncoder(res).Encode(class)
+		} else {
+			http.Error(res, `{"error": "Invalid request method"}`, http.StatusMethodNotAllowed)
+		}
+	}).Methods("POST")
+
 	router.HandleFunc("/admin/api/profile", func(res http.ResponseWriter, req *http.Request) {
 		currentUser, err := GetCurrentUser(req)
 		if err != nil {
