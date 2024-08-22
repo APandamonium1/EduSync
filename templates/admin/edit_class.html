@@ -80,7 +80,13 @@
         
             // Generate the new class ID using the new name, and the existing day and time
             return `${newName}-${day}-${time}`;
-        }        
+            //const newClassID = `${newName}-${day}-${time}`;
+
+            // Debugging: Log the generated new class ID
+            //console.log("Generated new class ID:", newClassID);
+
+            //return newClassID;
+        }
 
         async function updateClass() {
             if (!hasChanges()) {
@@ -96,9 +102,12 @@
                 class_name: document.getElementById('name').value,
                 instructor: document.getElementById('instructor').value,
                 duration: parseFloat(document.getElementById('duration').value),
-                classID: newClassID
+                class_id: newClassID
             };
-        
+
+            //console.log("Updates to be sent:", updates);
+
+            // Send the updates to the server using the fetch API 
             await fetch(`/admin/class/${initialClassData.class_id}`, {
                 method: 'PUT',
                 headers: {
