@@ -13,13 +13,50 @@
 
         async function loadClass() {
             const classID = document.getElementById('classID').value;
-            const response = await fetch(`/admin/class/${classID}`);
-            const classData = await response.json();
-            document.getElementById('name').value = classData.class_name;
-            document.getElementById('instructor').value = classData.instructor;
-            document.getElementById('duration').value = classData.duration;
-            initialClassData = { ...classData };
-        }
+        
+            try {
+                const response = await fetch(`/admin/class/${classID}`);
+                if (!response.ok) {
+                    throw new Error(`HTTP error! status: ${response.status}`);
+                }
+                const classData = await response.json();
+        
+                // Debugging: Log the received data
+                console.log("Fetched class data:", classData);
+        
+                // Debugging: Log the presence of class_id
+                if (classData.class_id) {
+                    console.log("class_id exists:", classData.class_id);
+                } else {
+                    console.log("class_id is missing or undefined");
+                }
+        
+                // Ensure that class_id and other fields are available
+                if (classData.class_id) {
+                    initialClassData = { ...classData };
+        
+                    // Debugging: Log initial class data
+                    console.log("Initial class data:", initialClassData);
+        
+                    document.getElementById('name').value = classData.class_name || '';
+                    document.getElementById('instructor').value = classData.instructor || '';
+                    document.getElementById('duration').value = classData.duration || '';
+        
+                    // Debugging: Log after setting values
+                    console.log("After setting form values:");
+                    console.log("Name:", document.getElementById('name').value);
+                    console.log("Instructor:", document.getElementById('instructor').value);
+                    console.log("Duration:", document.getElementById('duration').value);
+        
+                } else {
+                    console.error("Class data or class_id is missing.");
+                    alert("Failed to load class data. Please try again later.");
+                }
+            } catch (error) {
+                console.error("Failed to fetch class data:", error);
+                alert("Failed to load class data. Please try again later.");
+            }
+        }        
 
         function hasChanges() {
             return (
@@ -29,17 +66,40 @@
             );
         }
 
+        function generateClassID() {
+            if (!initialClassData.class_id) {
+                console.error("initialClassData.class_id is undefined.");
+                return null; // Handle this case appropriately
+            }
+        
+            // Keep the original class ID structure: (class name)-(day of the week in number)-(start time of class)
+            const [, day, time] = initialClassData.class_id.split('-');
+        
+            // Get the new class name from the input and generate a new class ID
+            const newName = document.getElementById('name').value.trim().toLowerCase();
+        
+            // Generate the new class ID using the new name, and the existing day and time
+            return `${newName}-${day}-${time}`;
+        }        
+
         async function updateClass() {
-            const classID = document.getElementById('classID').value;
             if (!hasChanges()) {
                 return;  // No changes, so do not proceed with update
             }
+            const newClassID = generateClassID();
+            if (!newClassID) {
+                alert('Failed to generate new Class ID.');
+                return;
+            }
+        
             const updates = {
                 class_name: document.getElementById('name').value,
                 instructor: document.getElementById('instructor').value,
                 duration: parseFloat(document.getElementById('duration').value),
+                classID: newClassID
             };
-            await fetch(`/admin/class/${classID}`, {
+        
+            await fetch(`/admin/class/${initialClassData.class_id}`, {
                 method: 'PUT',
                 headers: {
                     'Content-Type': 'application/json'
@@ -48,7 +108,7 @@
             });
             alert('Class updated successfully');
             window.location.href = '/admin/search_class';
-        }
+        }        
 
         function toggleEdit() {
             const inputs = document.querySelectorAll('input');
