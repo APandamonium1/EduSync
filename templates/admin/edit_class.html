@@ -21,33 +21,13 @@
                 }
                 const classData = await response.json();
         
-                // Debugging: Log the received data
-                console.log("Fetched class data:", classData);
-        
-                // Debugging: Log the presence of class_id
-                if (classData.class_id) {
-                    console.log("class_id exists:", classData.class_id);
-                } else {
-                    console.log("class_id is missing or undefined");
-                }
-        
                 // Ensure that class_id and other fields are available
                 if (classData.class_id) {
                     initialClassData = { ...classData };
         
-                    // Debugging: Log initial class data
-                    console.log("Initial class data:", initialClassData);
-        
                     document.getElementById('name').value = classData.class_name || '';
                     document.getElementById('instructor').value = classData.instructor || '';
-                    document.getElementById('duration').value = classData.duration || '';
-        
-                    // Debugging: Log after setting values
-                    console.log("After setting form values:");
-                    console.log("Name:", document.getElementById('name').value);
-                    console.log("Instructor:", document.getElementById('instructor').value);
-                    console.log("Duration:", document.getElementById('duration').value);
-        
+                    document.getElementById('duration').value = classData.duration || '';    
                 } else {
                     console.error("Class data or class_id is missing.");
                     alert("Failed to load class data. Please try again later.");
@@ -66,41 +46,13 @@
             );
         }
 
-        function generateClassID() {
-            if (!initialClassData.class_id) {
-                console.error("initialClassData.class_id is undefined.");
-                return null; // Handle this case appropriately
-            }
-        
-            // Keep the original class ID structure: (class name)-(day of the week in number)-(start time of class)
-            const [, day, time] = initialClassData.class_id.split('-');
-        
-            // Get the new class name from the input and generate a new class ID
-            const newName = document.getElementById('name').value.trim().toLowerCase();
-        
-            // Generate the new class ID using the new name, and the existing day and time
-            return `${newName}-${day}-${time}`;
-            //const newClassID = `${newName}-${day}-${time}`;
-
-            // Debugging: Log the generated new class ID
-            //console.log("Generated new class ID:", newClassID);
-
-            //return newClassID;
-        }
-
         async function updateClass() {
             if (!hasChanges()) {
                 return;  // No changes, so do not proceed with update
             }
-            
-            const newClassID = generateClassID();
-            if (!newClassID) {
-                alert('Failed to generate new Class ID.');
-                return;
-            }
         
             const updates = {
-                class_id: newClassID,
+                class_id: initialClassData.class_id,  // Use the original class ID
                 class_name: document.getElementById('name').value,
                 instructor: document.getElementById('instructor').value,
                 duration: parseFloat(document.getElementById('duration').value),
@@ -109,26 +61,17 @@
             };
         
             try {
-                // First, create a new entry with the new class ID
-                const createResponse = await fetch(`/admin/class/${newClassID}`, {
-                    method: 'POST',
+                // Update the existing class entry
+                const updateResponse = await fetch(`/admin/class/${initialClassData.class_id}`, {
+                    method: 'PUT',
                     headers: {
                         'Content-Type': 'application/json'
                     },
                     body: JSON.stringify(updates)
                 });
         
-                if (!createResponse.ok) {
-                    throw new Error('Failed to create new class entry.');
-                }
-        
-                // Delete the old class entry
-                const deleteResponse = await fetch(`/admin/class/${initialClassData.class_id}`, {
-                    method: 'DELETE'
-                });
-        
-                if (!deleteResponse.ok) {
-                    throw new Error('Failed to delete old class entry.');
+                if (!updateResponse.ok) {
+                    throw new Error('Failed to update class entry.');
                 }
         
                 alert('Class updated successfully');
@@ -137,7 +80,7 @@
                 console.error(error);
                 alert('Failed to update class. Please try again.');
             }
-        }        
+        }
 
         function toggleEdit() {
             const inputs = document.querySelectorAll('input');
