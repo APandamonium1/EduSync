@@ -92,6 +92,7 @@
             if (!hasChanges()) {
                 return;  // No changes, so do not proceed with update
             }
+            
             const newClassID = generateClassID();
             if (!newClassID) {
                 alert('Failed to generate new Class ID.');
@@ -99,24 +100,43 @@
             }
         
             const updates = {
+                class_id: newClassID,
                 class_name: document.getElementById('name').value,
                 instructor: document.getElementById('instructor').value,
                 duration: parseFloat(document.getElementById('duration').value),
-                class_id: newClassID
+                created_at: initialClassData.created_at,
+                updated_at: new Date().toISOString()
             };
-
-            //console.log("Updates to be sent:", updates);
-
-            // Send the updates to the server using the fetch API 
-            await fetch(`/admin/class/${initialClassData.class_id}`, {
-                method: 'PUT',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify(updates)
-            });
-            alert('Class updated successfully');
-            window.location.href = '/admin/search_class';
+        
+            try {
+                // First, create a new entry with the new class ID
+                const createResponse = await fetch(`/admin/class/${newClassID}`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify(updates)
+                });
+        
+                if (!createResponse.ok) {
+                    throw new Error('Failed to create new class entry.');
+                }
+        
+                // Delete the old class entry
+                const deleteResponse = await fetch(`/admin/class/${initialClassData.class_id}`, {
+                    method: 'DELETE'
+                });
+        
+                if (!deleteResponse.ok) {
+                    throw new Error('Failed to delete old class entry.');
+                }
+        
+                alert('Class updated successfully');
+                window.location.href = '/admin/search_class';
+            } catch (error) {
+                console.error(error);
+                alert('Failed to update class. Please try again.');
+            }
         }        
 
         function toggleEdit() {
@@ -190,7 +210,7 @@
             <br>
             <input type="hidden" id="classID" value="{{.ClassID}}">
             <form onsubmit="event.preventDefault(); updateClass();">
-                <div><label>Name: </label><input type="text" id="name" disabled></div>
+                <div><label>Name: </label><input type="text" id="name" readonly></div>
                 <br>
                 <div><label>Instructor: </label><input type="text" id="instructor" disabled></div>
                 <br>
