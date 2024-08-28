@@ -41,11 +41,13 @@
                     const studentDiv = document.createElement('div');
                     studentDiv.className = 'student';
                     studentDiv.innerHTML = `
-                        <a href="/admin/student/${student.google_id}/edit">
-                            <strong>${student.name}</strong>
-                        </a>  
-                        - <strong>${formatClassID(student.class_id)}</strong>
-                        <button onclick="confirmDelete('${student.google_id}')">Delete</button>
+                        <div class="student-entry">
+                            <a href="/admin/student/${student.google_id}/edit">
+                                <strong>${student.name}</strong>
+                            </a>  
+                            - <strong>${formatClassID(student.class_id)}</strong>
+                            <button class="delete-button" onclick="confirmDelete('${student.google_id}')">Delete</button>
+                        </div>
                     `;
                     resultsDiv.appendChild(studentDiv);
                 });
@@ -117,8 +119,41 @@
             border-radius: 3px; /* Rounded corners */
         }
 
-        button:hover {
+        .delete-button {
+            background-color: #ff4d4d; /* Red background for delete button */
+            color: white; /* White text */
+            border: none; /* Remove default border */
+            padding: 5px 10px; /* Add padding */
+            margin-left: 10px; /* Space between button and other elements */
+            cursor: pointer; /* Pointer cursor on hover */
+            border-radius: 3px; /* Rounded corners */
+        }
+
+        .delete-button:hover {
             background-color: #cc0000; /* Darker red on hover */
+        }
+
+        /* Other buttons with #246EB9 background */
+        .action-button {
+            background-color: #246EB9; /* Blue background */
+            color: white; /* White text */
+            border: none; /* Remove default border */
+            padding: 5px 10px; /* Add padding */
+            cursor: pointer; /* Pointer cursor on hover */
+            border-radius: 3px; /* Rounded corners */
+        }
+
+        .action-button:hover {
+            background-color: #1b5791; /* Darker blue on hover */
+        }
+
+        /* Add space between student entries */
+        .student-entry {
+            margin-bottom: 15px; /* Space between rows */
+        }
+
+        .student-entry a {
+            text-decoration: none; /* Remove underline from links */
         }
 	</style>
 </head>
@@ -169,11 +204,11 @@
                 <label for="classFilter">Class:</label>
                 <input type="text" id="classFilter">
 				&nbsp;&nbsp;
-                <button onclick="searchStudents()">Search</button>
+                <button class="action-button" onclick="searchStudents()">Search</button>
 				&nbsp;
-                <button onclick="resetFilters()">Reset</button>
+                <button class="action-button" onclick="resetFilters()">Reset</button>
                 &nbsp;
-				<button onclick="window.location.href='/admin/create_student'">Create</button>
+				<button class="action-button" onclick="window.location.href='/admin/create_student'">Create</button>
             </div>
             <br>
             <div id="results"></div>
