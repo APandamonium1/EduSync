@@ -7,6 +7,7 @@ require (
 	github.com/google/uuid v1.6.0
 	github.com/gorilla/mux v1.8.1
 	github.com/gorilla/sessions v1.3.0
+	github.com/joho/godotenv v1.5.1
 	github.com/markbates/goth v1.80.0
 	golang.org/x/oauth2 v0.21.0
 	google.golang.org/api v0.189.0
