@@ -568,16 +568,16 @@ func AdminHandler(router *mux.Router) {
 	}).Methods("GET", "PUT")
 
 	// Create a new class
-	router.HandleFunc("/admin/class", func(res http.ResponseWriter, req *http.Request) {
+	router.HandleFunc("/admin/class/", func(res http.ResponseWriter, req *http.Request) {
 		if req.Method == http.MethodPost {
 			var class Class
 			if err := json.NewDecoder(req.Body).Decode(&class); err != nil {
 				http.Error(res, fmt.Sprintf(`{"error": "Invalid request payload: %v"}`, err), http.StatusBadRequest)
 				return
 			}
-			class.ClassID = uuid.New().String()
-			class.CreatedAt = time.Now()
-			class.UpdatedAt = time.Now()
+			// class.ClassID = uuid.New().String()
+			// class.CreatedAt = time.Now()
+			// class.UpdatedAt = time.Now()
 			if err := createClass(class, req); err != nil {
 				http.Error(res, fmt.Sprintf(`{"error": "Failed to create class: %v"}`, err), http.StatusInternalServerError)
 				return

@@ -9,24 +9,33 @@
     <link rel="stylesheet" type="text/css" href="/assets/css/style.css">
     <link href="https://fonts.googleapis.com/css?family=Raleway:400,500,600,700" rel="stylesheet">
     <script>
-        // Class object to store the form data
-        let newClass = {
-            class_id: '',
-            folder_id: '',
-            class_name: '',
-            instructor: '',
-            duration: 0,
-            created_at: new Date().toISOString(),
-            updated_at: new Date().toISOString()
-        };
+        function generateClassID(name, day, time) {
+            //const trimmedName = name.trim().toLowerCase();
+            const initials = name.split(' ')
+                                  .map(word => word[0].toLowerCase())
+                                  .join('');
+            const trimmedDay = day.trim();
+            const trimmedTime = time.trim().toLowerCase();
+            //return `${trimmedName}-${trimmedDay}-${trimmedTime}`;
+            return `${initials}-${trimmedDay}-${trimmedTime}`;
+        }
 
-        // Function to create a class
         async function createClass(event) {
             event.preventDefault();
+            const className = document.getElementById('className').value;
+            const dayOfWeek = document.getElementById('dayOfWeek').value;
+            const startTime = document.getElementById('startTime').value;
 
-            newClass.class_name = document.getElementById('className').value.trim();
-            newClass.instructor = document.getElementById('instructor').value.trim();
-            newClass.duration = parseFloat(document.getElementById('duration').value);
+            const classID = generateClassID(className, dayOfWeek, startTime);
+
+            const newClass = {
+                class_id: classID,
+                class_name: className,
+                instructor: document.getElementById('instructor').value,
+                duration: parseFloat(document.getElementById('duration').value),
+                created_at: new Date().toISOString(),
+                updated_at: new Date().toISOString()
+            };
 
             try {
                 const response = await fetch('/admin/class/', {
@@ -38,7 +47,7 @@
                 });
 
                 if (!response.ok) {
-                    throw new Error('Failed to create class.');
+                    throw new Error(`HTTP error! status: ${response.status}, message: ${errorText}`);
                 }
 
                 alert('Class created successfully!');
@@ -49,7 +58,6 @@
             }
         }
 
-        // Function to cancel the class creation and navigate back
         function cancelClassCreation() {
             if (confirm('Confirm cancel?')) {
                 window.location.href = '/admin/search_class';
@@ -112,6 +120,10 @@
             <h1>Create New Class</h1><br>
             <form onsubmit="createClass(event)">
                 <div><label>Class Name: </label><input type="text" id="className" required></div>
+                <br>
+                <div><label>Day of Week (in number): </label><input type="text" id="dayOfWeek" required></div>
+                <br>
+                <div><label>Start Time: </label><input type="text" id="startTime" required></div>
                 <br>
                 <div><label>Instructor: </label><input type="text" id="instructor" required></div>
                 <br>
