@@ -166,6 +166,30 @@ func AdminHandler(router *mux.Router) {
 		}
 	}).Methods("POST")
 
+	// Handle student deletion
+	router.HandleFunc("/admin/student/delete/{googleID}", func(res http.ResponseWriter, req *http.Request) {
+		vars := mux.Vars(req)
+		googleID := vars["googleID"]
+
+		if req.Method == http.MethodDelete {
+			student, err := readStudent(googleID, req)
+			if err != nil {
+				http.Error(res, err.Error(), http.StatusInternalServerError)
+				return
+			}
+
+			if err := deleteStudent(student, req); err != nil {
+				http.Error(res, err.Error(), http.StatusInternalServerError)
+				return
+			}
+
+			res.WriteHeader(http.StatusNoContent) // Respond with No Content status
+			return
+		}
+
+		http.Error(res, "Method Not Allowed", http.StatusMethodNotAllowed)
+	}).Methods("DELETE")
+
 	// Serve the search parent page
 	router.HandleFunc("/admin/search_parent", func(res http.ResponseWriter, req *http.Request) {
 		t, err := template.ParseFiles("templates/admin/search_parent.html")
