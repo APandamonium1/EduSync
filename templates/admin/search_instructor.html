@@ -25,7 +25,12 @@
                 instructors.forEach(instructor => {
                     const instructorDiv = document.createElement('div');
                     instructorDiv.className = 'parent';
-                    instructorDiv.innerHTML = `<a href="/admin/instructor/${instructor.google_id}/edit"><strong>${instructor.name}</strong></a>  -  ${instructor.email}`;
+                    instructorDiv.innerHTML = `
+                    <div class="instructor-entry">
+                        <a href="/admin/instructor/${instructor.google_id}/edit"><strong>${instructor.name}</strong></a> - ${instructor.email}
+                        <button class="delete-button" onclick="confirmDelete('${instructor.google_id}')">Delete</button>
+                    </div>
+                    `;
                     resultsDiv.appendChild(instructorDiv);
                 });
             } else {
@@ -33,30 +38,35 @@
             }
         }
 
-        async function searchInstructors() {
-            const nameFilter = document.getElementById('nameFilter').value;
-            const response = await fetch(`/admin/api/search_instructor?name=${nameFilter}`);
-            
-            if (!response.ok) {
-                const errorMessage = `Error: ${response.status} - ${response.statusText}`;
-                throw new Error(errorMessage);
-            }
-            
-            const instructors = await response.json();
-            const resultsDiv = document.getElementById('results');
-            resultsDiv.innerHTML = '';
-
-            if (instructors && instructors.length > 0) {
-                instructors.forEach(instructor => {
-                    const instructorDiv = document.createElement('div');
-                    instructorDiv.className = 'parent';
-                    instructorDiv.innerHTML = `<a href="/admin/instructor/${instructor.google_id}/edit"><strong>${instructor.name}</strong></a>  -  ${instructor.email}`;
-                    resultsDiv.appendChild(instructorDiv);
-                });
-            } else {
-                resultsDiv.innerHTML = '<strong>No instructors found.</strong>';
+        function confirmDelete(instructorGoogleID) {
+            if (confirm("Are you sure you want to delete this instructor?")) {
+                deleteInstructor(instructorGoogleID);
             }
         }
+
+        async function deleteInstructor(instructorGoogleID) {
+            try {
+                const response = await fetch(`/admin/instructor/delete/${instructorGoogleID}`, {
+                    method: 'DELETE',
+                });
+
+                if (response.ok) {
+                    alert("Instructor deleted successfully.");
+                    await searchInstructors(); // Refresh the list
+                } else {
+                    const errorMessage = `Error: ${response.status} - ${response.statusText}`;
+                    throw new Error(errorMessage);
+                }
+            } catch (error) {
+                alert(`Failed to delete instructor: ${error.message}`);
+            }
+        }
+
+        async function searchInstructors() {
+            const nameFilter = document.getElementById('nameFilter').value;
+            await fetchInstructors(`/admin/api/search_instructor?name=${nameFilter}`);
+        }
+
         
         async function resetFilters() {
             document.getElementById('nameFilter').value = '';
@@ -78,6 +88,42 @@
 
         a:hover {
             text-decoration: underline; /* Add underline on hover (optional) */
+        }
+
+        .delete-button {
+            background-color: #ff4d4d; /* Red background for delete button */
+            color: white; /* White text */
+            border: none; /* Remove default border */
+            padding: 5px 10px; /* Add padding */
+            margin-left: 10px; /* Space between button and other elements */
+            cursor: pointer; /* Pointer cursor on hover */
+            border-radius: 3px; /* Rounded corners */
+        }
+
+        .delete-button:hover {
+            background-color: #cc0000; /* Darker red on hover */
+        }
+
+        /* Other buttons with #246EB9 background */
+        .action-button {
+            background-color: #246EB9; /* Blue background */
+            color: white; /* White text */
+            border: none; /* Remove default border */
+            cursor: pointer; /* Pointer cursor on hover */
+            border-radius: 3px; /* Rounded corners */
+        }
+
+        .action-button:hover {
+            background-color: #1b5791; /* Darker blue on hover */
+        }
+
+        /* Add space between instructor entries */
+        .instructor-entry {
+            margin-bottom: 15px; /* Space between rows */
+        }
+
+        .instructor-entry a {
+            text-decoration: none; /* Remove underline from links */
         }
     </style>
 </head>
@@ -126,11 +172,11 @@
                 <label for="nameFilter">Name:</label>
                 <input type="text" id="nameFilter">
                 &nbsp;&nbsp;&nbsp;
-                <button onclick="searchInstructors()">Search</button>
+                <button class="action-button" onclick="searchInstructors()">Search</button>
                 &nbsp;
-                <button onclick="resetFilters()">Reset</button>
+                <button class="action-button" onclick="resetFilters()">Reset</button>
                 &nbsp;
-                <button onclick="window.location.href='/admin/create_instructor'">Create</button>
+                <button class="action-button" onclick="window.location.href='/admin/create_instructor'">Create</button>
             </div>
             <br>
             <div id="results"></div>
