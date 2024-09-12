@@ -545,6 +545,23 @@ func AdminHandler(router *mux.Router) {
 	//   Request Body: JSON object with announcement details
 	//   Response: HTTP Status Created (201)
 
+	// Handle announcement deletion
+	router.HandleFunc("/admin/announcement/delete/{announcementID}", func(res http.ResponseWriter, req *http.Request) {
+		vars := mux.Vars(req)
+		announcementID := vars["announcementID"]
+
+		switch req.Method {
+		case http.MethodDelete:
+			if err := deleteAnnouncement(announcementID, req); err != nil {
+				http.Error(res, err.Error(), http.StatusInternalServerError)
+				return
+			}
+			res.WriteHeader(http.StatusNoContent)
+		default:
+			http.Error(res, "Method Not Allowed", http.StatusMethodNotAllowed)
+		}
+	}).Methods("DELETE")
+
 	// Serve the search class page
 	router.HandleFunc("/admin/search_class", func(res http.ResponseWriter, req *http.Request) {
 		t, err := template.ParseFiles("templates/admin/search_class.html")
