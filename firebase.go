@@ -6,7 +6,7 @@ import (
 	"log"
 	"os"
 
-	"github.com/joho/godotenv"
+	//"github.com/joho/godotenv"
 
 	firebase "firebase.google.com/go"
 	"google.golang.org/api/option"
@@ -14,17 +14,17 @@ import (
 
 // Use godot package to load/read the .env file and
 // return the value of the key (for local env)
-func goDotEnvVariable(key string) string {
+// func goDotEnvVariable(key string) string {
 
-	// load .env file
-	err := godotenv.Load(".env")
+// 	// load .env file
+// 	err := godotenv.Load(".env")
 
-	if err != nil {
-		log.Fatalf("Error loading .env file")
-	}
+// 	if err != nil {
+// 		log.Fatalf("Error loading .env file")
+// 	}
 
-	return os.Getenv(key)
-}
+// 	return os.Getenv(key)
+// }
 
 // InitializeFirebase initializes the Firebase app and sets the global firebaseClient variable
 func initializeFirebase() error {
