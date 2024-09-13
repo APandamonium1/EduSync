@@ -48,4 +48,4 @@ EduSync is a centralised web platform designed to streamline educational managem
 
 
 ## Contributions
-Jiawei and Jeyvian from Ngee Ann Polytechnic, Diploma in Cybersecurity and Digital Forensics, for our capstone project in Year 3.1, with guidance from our capstone teacher, Mr Benjamin Low.
+Jiawei and Jeyvian from Ngee Ann Polytechnic, Diploma in Cybersecurity and Digital Forensics, for our capstone project in Year 3.1, with guidance from our capstone teacher, Mr Ben Low.
