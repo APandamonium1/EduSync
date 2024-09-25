@@ -9,12 +9,6 @@
     <link rel="stylesheet" type="text/css" href="/assets/css/style.css">
     <link href="https://fonts.googleapis.com/css?family=Raleway:400,500,600,700" rel="stylesheet">
     <script>
-        /**
-         * Fetches announcements from the provided URL and displays them in the results div.
-         * 
-         * @param {string} url - The URL from which to fetch announcements.
-         * @throws Will throw an error if the fetch request fails.
-         */
         async function fetchAnnouncements(url) {
             const response = await fetch(url);
 
@@ -22,7 +16,7 @@
                 const errorMessage = `Error: ${response.status} - ${response.statusText}`;
                 throw new Error(errorMessage);
             }
-                
+
             const announcements = await response.json();
             const resultsDiv = document.getElementById('results');
             resultsDiv.innerHTML = '';
@@ -31,11 +25,40 @@
                 announcements.forEach(announcement => {
                     const announcementDiv = document.createElement('div');
                     announcementDiv.className = 'announcement';
-                    announcementDiv.innerHTML = `<a href="/admin/announcement/${announcement.announcement_id}/edit"><strong>${announcement.subject}</strong></a>  -  ${announcement.content}`;
+                    announcementDiv.innerHTML = `
+                    <div class="announcement-entry">
+                        <a href="/admin/announcement/${announcement.announcement_id}/edit"><strong>${announcement.subject}</strong></a> - ${announcement.content}
+                        <button class="delete-button" onclick="confirmDelete('${announcement.announcement_id}')">Delete</button>
+                    </div>
+                    `;
                     resultsDiv.appendChild(announcementDiv);
                 });
             } else {
                 resultsDiv.innerHTML = 'No announcements found.';
+            }
+        }
+
+        function confirmDelete(announcementID) {
+            if (confirm("Are you sure you want to delete this announcement?")) {
+                deleteAnnouncement(announcementID);
+            }
+        }
+
+        async function deleteAnnouncement(announcementID) {
+            try {
+                const response = await fetch(`/admin/announcement/delete/${announcementID}`, {
+                    method: 'DELETE',
+                });
+
+                if (response.ok) {
+                    alert("Announcement deleted successfully.");
+                    await searchAnnouncements(); // Refresh the list
+                } else {
+                    const errorMessage = `Error: ${response.status} - ${response.statusText}`;
+                    throw new Error(errorMessage);
+                }
+            } catch (error) {
+                alert(`Failed to delete announcement: ${error.message}`);
             }
         }
 
@@ -43,33 +66,15 @@
          * Searches for announcements based on the subject filter and displays the results.
          */
         async function searchAnnouncements() {
-            const subjectFilter = document.getElementById('subjectFilter').value;
-            const response = await fetch(`/admin/api/search_announcement?subject=${subjectFilter}`);
-            
-            if (!response.ok) {
-                const errorMessage = `Error: ${response.status} - ${response.statusText}`;
-                throw new Error(errorMessage);
-            }
-            
-            const announcements = await response.json();
-            const resultsDiv = document.getElementById('results');
-            resultsDiv.innerHTML = '';
-
-            if (announcements && announcements.length > 0) {
-                announcements.forEach(announcement => {
-                    const announcementDiv = document.createElement('div');
-                    announcementDiv.className = 'announcement';
-                    announcementDiv.innerHTML = `<a href="/admin/announcement/${announcement.announcementID}"><strong>${announcement.subject}</strong></a>  -  ${announcement.content}`;
-                    resultsDiv.appendChild(announcementDiv);
-                });
-            } else {
-                resultsDiv.innerHTML = 'No announcements found.';
-            }
+            const titleFilter = document.getElementById('titleFilter').value;
+            await fetchAnnouncements(`/admin/api/search_announcement?title=${titleFilter}`);
         }
 
-        /**
-         * Fetches announcements when the page loads.
-         */
+        async function resetFilters() {
+            document.getElementById('titleFilter').value = '';
+            await fetchAnnouncements(`/admin/api/search_announcement`);
+        }
+
         window.onload = async function() {
             await fetchAnnouncements(`/admin/api/search_announcement`);
         }
@@ -87,8 +92,40 @@
             text-decoration: underline; /* Add underline on hover (optional) */
         }
 
-        .error-message {
-            color: red;
+        .delete-button {
+            background-color: #ff4d4d; /* Red background for delete button */
+            color: white; /* White text */
+            border: none; /* Remove default border */
+            padding: 5px 10px; /* Add padding */
+            margin-left: 10px; /* Space between button and other elements */
+            cursor: pointer; /* Pointer cursor on hover */
+            border-radius: 3px; /* Rounded corners */
+        }
+
+        .delete-button:hover {
+            background-color: #cc0000; /* Darker red on hover */
+        }
+
+        /* Other buttons with #246EB9 background */
+        .action-button {
+            background-color: #246EB9; /* Blue background */
+            color: white; /* White text */
+            border: none; /* Remove default border */
+            cursor: pointer; /* Pointer cursor on hover */
+            border-radius: 3px; /* Rounded corners */
+        }
+
+        .action-button:hover {
+            background-color: #1b5791; /* Darker blue on hover */
+        }
+
+        /* Add space between announcement entries */
+        .announcement-entry {
+            margin-bottom: 15px; /* Space between rows */
+        }
+
+        .announcement-entry a {
+            text-decoration: none; /* Remove underline from links */
         }
     </style>
 </head>
@@ -98,8 +135,9 @@
             <div class="main-header">
                 <div class="container">
                     <div class="logo-wrap" itemprop="logo">
-                        <img src="/assets/images/site-logo.jpg" alt="Logo Image" style="width: 120px; height: auto;">
-                        <!-- <h1>Education</h1> -->
+                        <a href="/admin">
+                            <img src="/assets/images/site-logo.jpg" alt="Logo Image" style="width: 120px; height: auto;">
+                        </a>
                     </div>
                     <div class="nav-wrap">
                         <nav class="nav-desktop">
@@ -111,6 +149,7 @@
                                 <li><a href="/admin/search_announcement">Announcements</a></li>
                                 <li><a href="/admin/search_class">Classes</a></li>
                                 <li><a href="/admin/profile">Profile</a></li>
+                                <li><a href="/logout">Logout</a></li>
                             </ul>
                         </nav>
                         <div id="bar">
@@ -131,10 +170,14 @@
             <h1>Search Announcements</h1>
             <br>
             <div>
-                <label for="subjectFilter">subject:</label>
-                <input type="text" id="subjectFilter">
-                <button onclick="searchAnnouncements()">Search</button>
-                <button onclick="window.location.href='/admin/create_announcement'">Create</button>
+                <label for="titleFilter">Title:</label>
+                <input type="text" id="titleFilter">
+                &nbsp;&nbsp;&nbsp;
+                <button class="action-button" onclick="searchAnnouncements()">Search</button>
+                &nbsp;
+                <button class="action-button" onclick="resetFilters()">Reset</button>
+                &nbsp;
+                <button class="action-button" onclick="window.location.href='/admin/create_announcement'">Create</button>
             </div>
             <br>
             <div id="results"></div>

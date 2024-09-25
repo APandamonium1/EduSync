@@ -166,6 +166,30 @@ func AdminHandler(router *mux.Router) {
 		}
 	}).Methods("POST")
 
+	// Handle student deletion
+	router.HandleFunc("/admin/student/delete/{googleID}", func(res http.ResponseWriter, req *http.Request) {
+		vars := mux.Vars(req)
+		googleID := vars["googleID"]
+
+		if req.Method == http.MethodDelete {
+			student, err := readStudent(googleID, req)
+			if err != nil {
+				http.Error(res, err.Error(), http.StatusInternalServerError)
+				return
+			}
+
+			if err := deleteStudent(student, req); err != nil {
+				http.Error(res, err.Error(), http.StatusInternalServerError)
+				return
+			}
+
+			res.WriteHeader(http.StatusNoContent) // Respond with No Content status
+			return
+		}
+
+		http.Error(res, "Method Not Allowed", http.StatusMethodNotAllowed)
+	}).Methods("DELETE")
+
 	// Serve the search parent page
 	router.HandleFunc("/admin/search_parent", func(res http.ResponseWriter, req *http.Request) {
 		t, err := template.ParseFiles("templates/admin/search_parent.html")
@@ -265,6 +289,30 @@ func AdminHandler(router *mux.Router) {
 			http.Error(res, `{"error": "Invalid request method"}`, http.StatusMethodNotAllowed)
 		}
 	}).Methods("POST")
+
+	// Handle parent deletion
+	router.HandleFunc("/admin/parent/delete/{googleID}", func(res http.ResponseWriter, req *http.Request) {
+		vars := mux.Vars(req)
+		googleID := vars["googleID"]
+
+		if req.Method == http.MethodDelete {
+			parent, err := readParent(googleID, req)
+			if err != nil {
+				http.Error(res, err.Error(), http.StatusInternalServerError)
+				return
+			}
+
+			if err := deleteParent(parent, req); err != nil {
+				http.Error(res, err.Error(), http.StatusInternalServerError)
+				return
+			}
+
+			res.WriteHeader(http.StatusNoContent) // Respond with No Content status
+			return
+		}
+
+		http.Error(res, "Method Not Allowed", http.StatusMethodNotAllowed)
+	}).Methods("DELETE")
 
 	// Serve the search instructor page
 	router.HandleFunc("/admin/search_instructor", func(res http.ResponseWriter, req *http.Request) {
@@ -377,6 +425,30 @@ func AdminHandler(router *mux.Router) {
 		t.Execute(res, nil)
 	}).Methods("GET")
 
+	// Handle instructor deletion
+	router.HandleFunc("/admin/instructor/delete/{googleID}", func(res http.ResponseWriter, req *http.Request) {
+		vars := mux.Vars(req)
+		googleID := vars["googleID"]
+
+		if req.Method == http.MethodDelete {
+			instructor, err := readInstructor(googleID, req)
+			if err != nil {
+				http.Error(res, err.Error(), http.StatusInternalServerError)
+				return
+			}
+
+			if err := deleteInstructor(instructor, req); err != nil {
+				http.Error(res, err.Error(), http.StatusInternalServerError)
+				return
+			}
+
+			res.WriteHeader(http.StatusNoContent) // Respond with No Content status
+			return
+		}
+
+		http.Error(res, "Method Not Allowed", http.StatusMethodNotAllowed)
+	}).Methods("DELETE")
+
 	// Serve the create announcement page
 	router.HandleFunc("/admin/create_announcement", func(res http.ResponseWriter, req *http.Request) {
 		t, err := template.ParseFiles("templates/admin/create_announcement.html")
@@ -472,6 +544,23 @@ func AdminHandler(router *mux.Router) {
 	//   POST /admin/announcement
 	//   Request Body: JSON object with announcement details
 	//   Response: HTTP Status Created (201)
+
+	// Handle announcement deletion
+	router.HandleFunc("/admin/announcement/delete/{announcementID}", func(res http.ResponseWriter, req *http.Request) {
+		vars := mux.Vars(req)
+		announcementID := vars["announcementID"]
+
+		switch req.Method {
+		case http.MethodDelete:
+			if err := deleteAnnouncement(announcementID, req); err != nil {
+				http.Error(res, err.Error(), http.StatusInternalServerError)
+				return
+			}
+			res.WriteHeader(http.StatusNoContent)
+		default:
+			http.Error(res, "Method Not Allowed", http.StatusMethodNotAllowed)
+		}
+	}).Methods("DELETE")
 
 	// Serve the search class page
 	router.HandleFunc("/admin/search_class", func(res http.ResponseWriter, req *http.Request) {
@@ -588,6 +677,27 @@ func AdminHandler(router *mux.Router) {
 			http.Error(res, `{"error": "Invalid request method"}`, http.StatusMethodNotAllowed)
 		}
 	}).Methods("POST")
+
+	// Handle class deletion
+	router.HandleFunc("/admin/class/delete/{classID}", func(res http.ResponseWriter, req *http.Request) {
+		vars := mux.Vars(req)
+		classID := vars["classID"]
+
+		switch req.Method {
+		case http.MethodDelete:
+			// Create a Class struct with the classID
+			class := Class{ClassID: classID}
+
+			// Call deleteClass function to delete the class
+			if err := deleteClass(class, req); err != nil {
+				http.Error(res, err.Error(), http.StatusInternalServerError)
+				return
+			}
+			res.WriteHeader(http.StatusNoContent)
+		default:
+			http.Error(res, "Method Not Allowed", http.StatusMethodNotAllowed)
+		}
+	}).Methods("DELETE")
 
 	router.HandleFunc("/admin/api/profile", func(res http.ResponseWriter, req *http.Request) {
 		currentUser, err := GetCurrentUser(req)

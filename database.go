@@ -6,7 +6,6 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-
 	"os"
 	"strings"
 
@@ -18,10 +17,10 @@ import (
 var firebaseClient *db.Client
 
 func SessionCookie() (string, error) {
-	// sessionCookieStore := goDotEnvVariable("SESSION_COOKIE_STORE")
-	// if sessionCookieStore == "" {
-	// 	return sessionCookieStore, fmt.Errorf("SESSION_COOKIE_STORE is not set in the environment variables")
-	// }
+	// 	sessionCookieStore := goDotEnvVariable("SESSION_COOKIE_STORE")
+	// 	if sessionCookieStore == "" {
+	// 		return sessionCookieStore, fmt.Errorf("SESSION_COOKIE_STORE is not set in the environment variables")
+	// 	}
 
 	sessionCookieStore, found := os.LookupEnv("COOKIESTORE")
 	if !found {

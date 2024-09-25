@@ -25,7 +25,12 @@
                 parents.forEach(parent => {
                     const parentDiv = document.createElement('div');
                     parentDiv.className = 'parent';
-                    parentDiv.innerHTML = `<a href="/admin/parent/${parent.google_id}/edit"><strong>${parent.name}</strong></a>  -  ${parent.email}`;
+                    parentDiv.innerHTML = `
+                    <div class="parent-entry">
+                        <a href="/admin/parent/${parent.google_id}/edit"><strong>${parent.name}</strong></a> - ${parent.email}
+                        <button class="delete-button" onclick="confirmDelete('${parent.google_id}')">Delete</button>
+                    </div>
+                    `;
                     resultsDiv.appendChild(parentDiv);
                 });
             } else {
@@ -33,29 +38,33 @@
             }
         }
 
+        function confirmDelete(parentGoogleID) {
+            if (confirm("Are you sure you want to delete this parent?")) {
+                deleteParent(parentGoogleID);
+            }
+        }
+
+        async function deleteParent(parentGoogleID) {
+            try {
+                const response = await fetch(`/admin/parent/delete/${parentGoogleID}`, {
+                    method: 'DELETE',
+                });
+
+                if (response.ok) {
+                    alert("Parent deleted successfully.");
+                    await searchParents(); // Refresh the list
+                } else {
+                    const errorMessage = `Error: ${response.status} - ${response.statusText}`;
+                    throw new Error(errorMessage);
+                }
+            } catch (error) {
+                alert(`Failed to delete parent: ${error.message}`);
+            }
+        }
+
         async function searchParents() {
             const nameFilter = document.getElementById('nameFilter').value;
-            const response = await fetch(`/admin/api/search_parent?name=${nameFilter}`);
-            
-            if (!response.ok) {
-                const errorMessage = `Error: ${response.status} - ${response.statusText}`;
-                throw new Error(errorMessage);
-            }
-            
-            const parents = await response.json();
-            const resultsDiv = document.getElementById('results');
-            resultsDiv.innerHTML = '';
-
-            if (parents && parents.length > 0) {
-                parents.forEach(parent => {
-                    const parentDiv = document.createElement('div');
-                    parentDiv.className = 'parent';
-                    parentDiv.innerHTML = `<a href="/admin/parent/${parent.google_id}/edit"><strong>${parent.name}</strong></a>  -  ${parent.email}`;
-                    resultsDiv.appendChild(parentDiv);
-                });
-            } else {
-                resultsDiv.innerHTML = '<strong>No parents found.</strong>';
-            }
+            await fetchParents(`/admin/api/search_parent?name=${nameFilter}`);
         }
 
         async function resetFilters() {
@@ -78,6 +87,42 @@
 
         a:hover {
             text-decoration: underline; /* Add underline on hover (optional) */
+        }
+
+        .delete-button {
+            background-color: #ff4d4d; /* Red background for delete button */
+            color: white; /* White text */
+            border: none; /* Remove default border */
+            padding: 5px 10px; /* Add padding */
+            margin-left: 10px; /* Space between button and other elements */
+            cursor: pointer; /* Pointer cursor on hover */
+            border-radius: 3px; /* Rounded corners */
+        }
+
+        .delete-button:hover {
+            background-color: #cc0000; /* Darker red on hover */
+        }
+
+        /* Other buttons with #246EB9 background */
+        .action-button {
+            background-color: #246EB9; /* Blue background */
+            color: white; /* White text */
+            border: none; /* Remove default border */
+            cursor: pointer; /* Pointer cursor on hover */
+            border-radius: 3px; /* Rounded corners */
+        }
+
+        .action-button:hover {
+            background-color: #1b5791; /* Darker blue on hover */
+        }
+
+        /* Add space between parent entries */
+        .parent-entry {
+            margin-bottom: 15px; /* Space between rows */
+        }
+
+        .parent-entry a {
+            text-decoration: none; /* Remove underline from links */
         }
     </style>
 </head>
@@ -126,11 +171,11 @@
                 <label for="nameFilter">Name:</label>
                 <input type="text" id="nameFilter">
                 &nbsp;&nbsp;&nbsp;
-                <button onclick="searchParents()">Search</button>
+                <button class="action-button" onclick="searchParents()">Search</button>
                 &nbsp;
-                <button onclick="resetFilters()">Reset</button>
+                <button class="action-button" onclick="resetFilters()">Reset</button>
                 &nbsp;
-                <button onclick="window.location.href='/admin/create_parent'">Create</button>
+                <button class="action-button" onclick="window.location.href='/admin/create_parent'">Create</button>
             </div>
             <br>
             <div id="results"></div>
