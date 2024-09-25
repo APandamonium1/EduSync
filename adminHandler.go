@@ -678,6 +678,27 @@ func AdminHandler(router *mux.Router) {
 		}
 	}).Methods("POST")
 
+	// Handle class deletion
+	router.HandleFunc("/admin/class/delete/{classID}", func(res http.ResponseWriter, req *http.Request) {
+		vars := mux.Vars(req)
+		classID := vars["classID"]
+
+		switch req.Method {
+		case http.MethodDelete:
+			// Create a Class struct with the classID
+			class := Class{ClassID: classID}
+
+			// Call deleteClass function to delete the class
+			if err := deleteClass(class, req); err != nil {
+				http.Error(res, err.Error(), http.StatusInternalServerError)
+				return
+			}
+			res.WriteHeader(http.StatusNoContent)
+		default:
+			http.Error(res, "Method Not Allowed", http.StatusMethodNotAllowed)
+		}
+	}).Methods("DELETE")
+
 	router.HandleFunc("/admin/api/profile", func(res http.ResponseWriter, req *http.Request) {
 		currentUser, err := GetCurrentUser(req)
 		if err != nil {

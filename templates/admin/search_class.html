@@ -39,7 +39,10 @@
 
                     const classDiv = document.createElement('div');
                     classDiv.className = 'parent';
-                    classDiv.innerHTML = `<a href="/admin/class/${classObj.class_id}/edit"><strong>${name.toUpperCase()}</strong></a> - ${dayMap[dayNum]} - ${time} - ${instructorName} - ${duration} hours`;
+                    classDiv.innerHTML = `
+                        <a href="/admin/class/${classObj.class_id}/edit"><strong>${name.toUpperCase()}</strong></a> - ${dayMap[dayNum]} - ${time} - ${instructorName} - ${duration} hours
+                        <button class="delete-button" onclick="confirmDelete('${classObj.class_id}')">Delete</button>
+                    `;
                     resultsDiv.appendChild(classDiv);
                 });
             } else {
@@ -49,46 +52,36 @@
 
         async function searchClasses() {
             const nameFilter = document.getElementById('nameFilter').value;
-            const response = await fetch(`/admin/api/search_class?name=${nameFilter}`);
-            
-            if (!response.ok) {
-                const errorMessage = `Error: ${response.status} - ${response.statusText}`;
-                throw new Error(errorMessage);
-            }
-            
-            const classes = await response.json();
-            const resultsDiv = document.getElementById('results');
-            resultsDiv.innerHTML = '';
-
-            const dayMap = {
-                '1': 'Monday',
-                '2': 'Tuesday',
-                '3': 'Wednesday',
-                '4': 'Thursday',
-                '5': 'Friday',
-                '6': 'Saturday',
-                '7': 'Sunday'
-            };
-
-            if (classes && classes.length > 0) {
-                classes.forEach(classObj => {
-                    const [name, dayNum, time] = classObj.class_id.split('-');
-                    const instructorName = classObj.instructor; // Assuming this is the instructor name
-                    const duration = classObj.duration;
-
-                    const classDiv = document.createElement('div');
-                    classDiv.className = 'parent';
-                    classDiv.innerHTML = `<a href="/admin/class/${classObj.class_id}/edit"><strong>${name.toUpperCase()}</strong></a> - ${dayMap[dayNum]} - ${time} - ${instructorName} - ${duration} hours`;
-                    resultsDiv.appendChild(classDiv);
-                });
-            } else {
-                resultsDiv.innerHTML = '<strong>No classes found.</strong>';
-            }
+            await fetchClasses(`/admin/api/search_class?name=${nameFilter}`);
         }
         
         async function resetFilters() {
             document.getElementById('nameFilter').value = '';
             await fetchClasses('/admin/api/search_class');
+        }
+
+        function confirmDelete(classID) {
+            if (confirm("Are you sure you want to delete this class?")) {
+                deleteClass(classID);
+            }
+        }
+
+        async function deleteClass(classID) {
+            try {
+                const response = await fetch(`/admin/class/delete/${classID}`, {
+                    method: 'DELETE',
+                });
+
+                if (response.ok) {
+                    alert("Class deleted successfully.");
+                    await searchClasses(); // Refresh the list
+                } else {
+                    const errorMessage = `Error: ${response.status} - ${response.statusText}`;
+                    throw new Error(errorMessage);
+                }
+            } catch (error) {
+                alert(`Failed to delete class: ${error.message}`);
+            }
         }
 
         window.onload = async function() {
@@ -105,6 +98,43 @@
 
         a:hover {
             text-decoration: underline;
+        }
+
+        /* Style the delete button */
+        .delete-button {
+            background-color: #ff4d4d; /* Red background */
+            color: white; /* White text */
+            border: none; /* Remove default border */
+            padding: 5px 10px; /* Add padding */
+            margin-left: 10px; /* Space between button and other elements */
+            cursor: pointer; /* Pointer cursor on hover */
+            border-radius: 3px; /* Rounded corners */
+        }
+
+        .delete-button:hover {
+            background-color: #cc0000; /* Darker red on hover */
+        }
+
+        /* Style other action buttons with blue background */
+        .action-button {
+            background-color: #246EB9; /* Blue background */
+            color: white; /* White text */
+            border: none; /* Remove default border */
+            cursor: pointer; /* Pointer cursor on hover */
+            border-radius: 3px; /* Rounded corners */
+        }
+
+        .action-button:hover {
+            background-color: #1b5791; /* Darker blue on hover */
+        }
+
+        /* Add space between class entries */
+        .class-entry {
+            margin-bottom: 15px; /* Space between rows */
+        }
+
+        .class-entry a {
+            text-decoration: none; /* Remove underline from links */
         }
     </style>
 </head>
