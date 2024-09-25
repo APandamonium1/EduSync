@@ -38,10 +38,12 @@
                     const duration = classObj.duration;
 
                     const classDiv = document.createElement('div');
-                    classDiv.className = 'parent';
+                    classDiv.className = 'class';
                     classDiv.innerHTML = `
-                        <a href="/admin/class/${classObj.class_id}/edit"><strong>${name.toUpperCase()}</strong></a> - ${dayMap[dayNum]} - ${time} - ${instructorName} - ${duration} hours
-                        <button class="delete-button" onclick="confirmDelete('${classObj.class_id}')">Delete</button>
+                        <div class="class-entry">
+                            <a href="/admin/class/${classObj.class_id}/edit"><strong>${name.toUpperCase()}</strong></a> - ${dayMap[dayNum]} - ${time} - ${instructorName} - ${duration} hours
+                            <button class="delete-button" onclick="confirmDelete('${classObj.class_id}')">Delete</button>
+                        </div>
                     `;
                     resultsDiv.appendChild(classDiv);
                 });
