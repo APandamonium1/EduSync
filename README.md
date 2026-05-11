@@ -1,6 +1,6 @@
 # EduSync
 
-EduSync is a centralised web platform designed to streamline educational management processes at NK Robotics. It consolidates functionalities for lesson material storage and student media management into a single, secure, and user-friendly interface. The application provides tailored interfaces for students, parents, instructors, and admins, ensuring each user role has access to the specific tools and resources they need to enhance efficiency and improve the overall learning experience.
+EduSync is a centralised web platform designed to streamline educational management processes. It consolidates functionalities for lesson material storage and student media management into a single, secure, and user-friendly interface. The application provides tailored interfaces for students, parents, instructors, and admins, ensuring each user role has access to the specific tools and resources they need to enhance efficiency and improve the overall learning experience.
 
 
 ## Table of Contents 
